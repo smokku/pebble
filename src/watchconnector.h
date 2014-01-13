@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 Jouni Roivas
+  Copyright (C) 2014 Jouni Roivas
   All rights reserved.
 
   You may use this file under the terms of BSD license as follows:
@@ -11,7 +11,7 @@
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
+    * Neither the name of the authors nor the
       names of its contributors may be used to endorse or promote products
       derived from this software without specific prior written permission.
 
@@ -80,7 +80,7 @@ public:
     explicit WatchConnector(QObject *parent = 0);
     virtual ~WatchConnector();
     bool isConnected() const { return is_connected; }
-    QString name() const { if (socket != nullptr) return socket->peerName(); return "";}
+    QString name() const { if (socket != nullptr) return socket->peerName(); return ""; }
 
     QString timeStamp();
     QString decodeEndpoint(unsigned int val);

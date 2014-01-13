@@ -38,3 +38,11 @@ Pressing hangup button in Pebble should end the call.
 
 
 !!! NO WARRANTY OF ANY KIND !!!
+
+
+
+References
+----------
+
+http://pebbledev.org/wiki/Protocol
+https://github.com/Hexxeh/libpebble/

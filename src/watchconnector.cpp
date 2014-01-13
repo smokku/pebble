@@ -152,6 +152,7 @@ void WatchConnector::disconnected()
     socket->deleteLater();
     socket = nullptr;
     emit connectedChanged();
+    emit nameChanged();
 }
 
 void WatchConnector::sendData(const QByteArray &data)
