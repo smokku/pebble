@@ -37,6 +37,8 @@ import Sailfish.Bluetooth 1.0
 import Bluetooth 0.0
 import org.nemomobile.voicecall 1.0
 import org.nemomobile.notifications 1.0
+import org.nemomobile.messages.internal 1.0
+import org.nemomobile.commhistory 1.0
 import watch 0.1
 
 Page {
@@ -52,6 +54,7 @@ Page {
     }
     property var callerDetails: new Object
 
+    // This actually handles the voice call in SailfisOS
     VoiceCallManager {
         id:manager
 
@@ -120,6 +123,7 @@ Page {
         onTriggered: manager.updateState()
     }
 
+    // Receive the calls
     Instantiator {
          id: callMonitor
          model: manager.voiceCalls
@@ -152,6 +156,29 @@ Page {
          }
     }
 
+    // Handle SMS
+    ClassZeroSMSModel {
+        id: classZeroSMS
+        property Component dialogComponent
+
+        onNewMessage: {
+            console.log("New message: " + text)
+            /*
+            if (dialogComponent === null) {
+                dialogComponent = Qt.createComponent("pages/ClassZeroSMS.qml")
+                if (dialogComponent.status === Component.Error)
+                    console.log("ClassZeroSMS: ", dialogComponent.errorString())
+            }
+
+            var dialog = dialogComponent.createObject(mainWindow, { "messageToken": messageToken, "text": text })
+            dialog.visibleChanged.connect(function() { if (!dialog.visible) { dialog.destroy() } })
+            dialog.activate()
+            */
+
+            classZeroSMS.clear()
+        }
+    }
+
 
     SilicaFlickable {
         anchors.fill: parent
@@ -171,6 +198,7 @@ Page {
                 text: "Waiting for watch...\nIf it can't be found plase\ncheck it's available and\npaired in Bluetooth settings."
                 width: column.width
             }
+            // Select the device
             Repeater {
                 model: KnownDevicesModel { id: knownDevicesModel }
                 delegate: ListItem {
@@ -181,6 +209,7 @@ Page {
                     }
                     onVisibleChanged: {
                         if (pairedItem.visible) {
+                            // Connect with the device
                             watchConnector.deviceConnect(model.alias, model.address);
                         }
                     }
