@@ -33,8 +33,10 @@ Development
 For now this application is still under developement. By default you will be shown
 development UI options, which you can utilize to test the connection.
 
-Feature wise only incoming voice calls are shown in Pebble. You can test this by calling to your device.
+Incoming voice calls are shown in Pebble. You can test this by calling to your device.
 Pressing hangup button in Pebble should end the call.
+
+Incoming messages are also sent to Pebble. Send SMS or instant message to your device to test it.
 
 
 !!! NO WARRANTY OF ANY KIND !!!
@@ -44,5 +46,5 @@ Pressing hangup button in Pebble should end the call.
 References
 ----------
 
-http://pebbledev.org/wiki/Protocol
-https://github.com/Hexxeh/libpebble/
+* http://pebbledev.org/wiki/Protocol
+* https://github.com/Hexxeh/libpebble/
