@@ -294,7 +294,7 @@ void WatchConnector::endPhoneCall(unsigned int cookie)
     phoneControl(callEND, cookie, QStringList());
 }
 
-void registerWatchConnector()
+void watch::registerWatchConnector()
 {
     qmlRegisterType<WatchConnector>("watch", 0, 1, "WatchConnector");
 }

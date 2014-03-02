@@ -156,27 +156,57 @@ Page {
          }
     }
 
-    // Handle SMS
-    ClassZeroSMSModel {
-        id: classZeroSMS
-        property Component dialogComponent
+    // Handle SMS (and other messages) via groups
+    CommGroupManager {
+        id: groupManager
+        useBackgroundThread: true
+    }
+    CommContactGroupModel {
+        id: groupModel
+        manager: groupManager
 
-        onNewMessage: {
-            console.log("New message: " + text)
-            /*
-            if (dialogComponent === null) {
-                dialogComponent = Qt.createComponent("pages/ClassZeroSMS.qml")
-                if (dialogComponent.status === Component.Error)
-                    console.log("ClassZeroSMS: ", dialogComponent.errorString())
+        property var unreadGroups: [ ]
+
+        onContactGroupCreated: {
+            if (group.unreadMessages > 0) {
+                unreadGroups.push(group)
+                unreadSignalTimer.start()
             }
-
-            var dialog = dialogComponent.createObject(mainWindow, { "messageToken": messageToken, "text": text })
-            dialog.visibleChanged.connect(function() { if (!dialog.visible) { dialog.destroy() } })
-            dialog.activate()
-            */
-
-            classZeroSMS.clear()
         }
+
+        onContactGroupChanged: {
+            var index = unreadGroups.indexOf(group)
+            if (group.unreadMessages > 0 && index < 0) {
+                unreadGroups.push(group)
+                unreadSignalTimer.start()
+            } else if (group.unreadMessages === 0 && index >= 0) {
+                unreadGroups.splice(index, 1)
+                unreadSignalTimer.start()
+            }
+        }
+
+        onContactGroupRemoved: {
+            var index = unreadGroups.indexOf(group)
+            if (index >= 0) {
+                unreadGroups.splice(index, 1)
+                unreadSignalTimer.start()
+            }
+        }
+
+        onUnreadGroupsChanged: {
+            var group = groupModel.unreadGroups[0];
+            if (group != undefined) {
+                var name = group.contactNames.length ? group.contactNames[0] : group.groups[0].remoteUids[0];
+                console.log("Msg: " + group.lastMessageText);
+                console.log("From: " + name);
+                watchConnector.sendSMSNotification(name?name:"Unknown", group.lastMessageText)
+            }
+        }
+    }
+    Timer {
+        id: unreadSignalTimer
+        interval: 1
+        onTriggered: groupModel.unreadGroupsChanged()
     }
 
 
