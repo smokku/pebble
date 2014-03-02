@@ -37,7 +37,7 @@
 int main(int argc, char *argv[])
 {
     // Registert WatchController object on QML side
-    registerWatchConnector();
+    watch::registerWatchConnector();
 
     return SailfishApp::main(argc, argv);
 }

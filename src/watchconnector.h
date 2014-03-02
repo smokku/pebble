@@ -39,6 +39,9 @@
 
 using namespace QtBluetooth;
 
+namespace watch
+{
+
 class WatchConnector : public QObject
 {
     Q_OBJECT
@@ -113,13 +116,18 @@ public slots:
     void readSocket();
     void connected();
     void disconnected();
+    void reconnect();
 
 private:
     void decodeMsg(QByteArray data);
     QBluetoothSocket *socket;
     bool is_connected;
+    QString _last_name;
+    QString _last_address;
 };
 
 void registerWatchConnector();
+
+}
 
 #endif // WATCHCONNECTOR_H

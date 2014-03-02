@@ -1,6 +1,10 @@
 #include "watchconnector.h"
 #include <QDateTime>
 
+using namespace watch;
+
+static int __reconnect_timeout = 1000;
+
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent)
 {
@@ -13,7 +17,7 @@ WatchConnector::~WatchConnector()
 
 void WatchConnector::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    //FIXME: Configurable
+    //FIXME TODO: Configurable
     if (device.name().startsWith("Pebble")) {
         qDebug() << "Found Pebble:" << device.name() << '(' << device.address().toString() << ')';
         handleWatch(device);
@@ -25,8 +29,17 @@ void WatchConnector::deviceDiscovered(const QBluetoothDeviceInfo &device)
 void WatchConnector::deviceConnect(const QString name, const QString address)
 {
     if (name.startsWith("Pebble")) {
+        _last_name = name;
+        _last_address = address;
         QBluetoothDeviceInfo device(QBluetoothAddress(address), name, 0);
         deviceDiscovered(device);
+    }
+}
+
+void WatchConnector::reconnect()
+{
+    if (_last_name != "" && _last_address != "") {
+        deviceConnect(_last_name, _last_address);
     }
 }
 
@@ -153,6 +166,9 @@ void WatchConnector::disconnected()
     socket = nullptr;
     emit connectedChanged();
     emit nameChanged();
+
+    // Try to connect again after a timeout
+    QTimer::singleShot(__reconnect_timeout, this, SLOT(reconnect()));
 }
 
 void WatchConnector::sendData(const QByteArray &data)
