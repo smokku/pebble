@@ -6,7 +6,7 @@ Group: Qt/Qt
 URL: http://example.org/
 License: BSD
 Sources:
-- '%{name}-%{version}.tar.bz2'
+- '%{name}-%{version}.tar.xz'
 Description: |
   Include support for Pebble watch to receive event from SailfishOS device. Communicates via Bluetooth, supporting the Pebble protocol.
 Configure: none
@@ -24,8 +24,4 @@ Files:
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
-- /usr/bin
-- /usr/share/waterwatch
-- /usr/share/applications
-- /usr/share/icons/hicolor/86x86/apps
 PkgBR: []

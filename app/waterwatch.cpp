@@ -34,10 +34,12 @@
 #include <sailfishapp.h>
 #include "watchconnector.h"
 
+using namespace watch;
+
 int main(int argc, char *argv[])
 {
     // Registert WatchController object on QML side
-    watch::registerWatchConnector();
+    qmlRegisterType<WatchConnector>("watch", 0, 1, "WatchConnector");
 
     return SailfishApp::main(argc, argv);
 }

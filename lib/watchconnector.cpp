@@ -1,4 +1,5 @@
 #include "watchconnector.h"
+#include <QTimer>
 #include <QDateTime>
 
 using namespace watch;
@@ -292,9 +293,4 @@ void WatchConnector::startPhoneCall(unsigned int cookie)
 void WatchConnector::endPhoneCall(unsigned int cookie)
 {
     phoneControl(callEND, cookie, QStringList());
-}
-
-void watch::registerWatchConnector()
-{
-    qmlRegisterType<WatchConnector>("watch", 0, 1, "WatchConnector");
 }

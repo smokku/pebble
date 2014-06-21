@@ -31,7 +31,6 @@
 #define WATCHCONNECTOR_H
 
 #include <QObject>
-#include <QtQml>
 #include <QStringList>
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
@@ -125,9 +124,6 @@ private:
     QString _last_name;
     QString _last_address;
 };
-
-void registerWatchConnector();
-
 }
 
 #endif // WATCHCONNECTOR_H
