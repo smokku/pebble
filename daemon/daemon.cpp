@@ -26,8 +26,18 @@
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "watchconnector.h"
+#include "manager.h"
+
+#include <QCoreApplication>
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication app(argc, argv);
+
+    watch::WatchConnector watch;
+    VoiceCallManager voice;
+
+    Manager manager(&watch, &voice);
+
+    return app.exec();
 }
