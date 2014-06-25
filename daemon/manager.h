@@ -7,6 +7,10 @@
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
+#include <QtContacts/QContactManager>
+#include <QtContacts/QContactDetailFilter>
+
+using namespace QtContacts;
 
 class Manager : public QObject
 {
@@ -18,8 +22,13 @@ class Manager : public QObject
     DBusConnector *dbus;
     VoiceCallManager *voice;
 
+    QContactManager *contacts;
+    QContactDetailFilter numberFilter;
+
 public:
     explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice);
+
+    Q_INVOKABLE QString findPersonByNumber(QString number);
 
 signals:
 

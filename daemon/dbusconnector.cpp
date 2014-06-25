@@ -40,38 +40,38 @@ bool DBusConnector::findPebble()
         return false;
     }
 
-    QDBusReply<QHash<QString,QVariant>> AdapterPropertiesReply = system.call(QDBusMessage::createMethodCall("org.bluez",
-                                                                                                            adapters.at(0).path(),
-                                                                                                            "org.bluez.Adapter",
-                                                                                                            "GetProperties"));
+    QDBusReply<QVariantMap> AdapterPropertiesReply = system.call(QDBusMessage::createMethodCall("org.bluez",
+                                                                                                adapters[0].path(),
+                                                                                                "org.bluez.Adapter",
+                                                                                                "GetProperties"));
     if (not AdapterPropertiesReply.isValid()) {
         qWarning() << AdapterPropertiesReply.error().message();
         return false;
     }
 
     QList<QDBusObjectPath> devices;
-    AdapterPropertiesReply.value().value("Devices").value<QDBusArgument>() >> devices;
+    AdapterPropertiesReply.value()["Devices"].value<QDBusArgument>() >> devices;
 
     QString name;
     QString address;
 
     foreach (QDBusObjectPath path, devices) {
-        QDBusReply<QHash<QString,QVariant>> DevicePropertiesReply = system.call(QDBusMessage::createMethodCall("org.bluez",
-                                                                                                               path.path(),
-                                                                                                               "org.bluez.Device",
-                                                                                                               "GetProperties"));
+        QDBusReply<QVariantMap> DevicePropertiesReply = system.call(QDBusMessage::createMethodCall("org.bluez",
+                                                                                                   path.path(),
+                                                                                                   "org.bluez.Device",
+                                                                                                   "GetProperties"));
         if (not DevicePropertiesReply.isValid()) {
             qWarning() << DevicePropertiesReply.error().message();
             continue;
         }
 
-        const QHash<QString,QVariant> &dict = DevicePropertiesReply.value();
+        const QVariantMap &dict = DevicePropertiesReply.value();
 
-        QString tmp = dict.value("Name").toString();
+        QString tmp = dict["Name"].toString();
         qDebug() << "Found BT device:" << tmp;
         if (tmp.startsWith("Pebble")) {
             name = tmp;
-            address = dict.value("Address").toString();
+            address = dict["Address"].toString();
             qDebug() << "Found Pebble:" << name << address;
         }
     }

@@ -7,7 +7,7 @@ QT -= gui
 INCLUDEPATH += ../lib
 LIBS += -L$$OUT_PWD/../lib -lpebble
 
-QT += bluetooth dbus
+QT += bluetooth dbus contacts
 QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += \
