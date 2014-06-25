@@ -14,12 +14,14 @@ SOURCES += \
     daemon.cpp \
     voicecallmanager.cpp \
     voicecallhandler.cpp \
-    manager.cpp
+    manager.cpp \
+    dbusconnector.cpp
 
 HEADERS += \
     voicecallmanager.h \
     voicecallhandler.h \
-    manager.h
+    manager.h \
+    dbusconnector.h
 
 INSTALLS += target
 target.path = /usr/sbin

@@ -2,6 +2,7 @@
 #define MANAGER_H
 
 #include "watchconnector.h"
+#include "dbusconnector.h"
 #include "voicecallmanager.h"
 
 #include <QObject>
@@ -14,10 +15,11 @@ class Manager : public QObject
     QBluetoothLocalDevice btDevice;
 
     watch::WatchConnector *watch;
+    DBusConnector *dbus;
     VoiceCallManager *voice;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, VoiceCallManager *voice);
+    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice);
 
 signals:
 
@@ -25,8 +27,6 @@ public slots:
     void hangupAll();
 
 protected slots:
-    void onBTDeviceDiscovered(const QBluetoothDeviceInfo & device);
-
     void onActiveVoiceCallChanged();
     void onVoiceError(const QString &message);
     void onActiveVoiceCallStatusChanged();

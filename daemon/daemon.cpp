@@ -35,9 +35,10 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     watch::WatchConnector watch;
+    DBusConnector dbus;
     VoiceCallManager voice;
 
-    Manager manager(&watch, &voice);
+    Manager manager(&watch, &dbus, &voice);
 
     return app.exec();
 }

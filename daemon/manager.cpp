@@ -2,8 +2,8 @@
 
 #include <QDebug>
 
-Manager::Manager(watch::WatchConnector *watch, VoiceCallManager *voice) :
-    QObject(0), watch(watch), voice(voice)
+Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice) :
+    QObject(0), watch(watch), dbus(dbus), voice(voice)
 {
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
@@ -13,6 +13,7 @@ Manager::Manager(watch::WatchConnector *watch, VoiceCallManager *voice) :
 
     if (btDevice.isValid()) {
         qDebug() << "BT local name:" << btDevice.name();
+        watch->deviceConnect(dbus->pebbleName, dbus->pebbleAddress);
     }
 }
 
