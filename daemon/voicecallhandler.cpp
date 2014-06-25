@@ -172,10 +172,13 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
         QTimer::singleShot(2000, this, SLOT(initialize()));
         if(notifyError) emit this->error("Failed to connect to VCM D-Bus service.");
     } else {
-        QDBusReply<QVariantMap> reply = d->interface->call("getProperties");
+        QDBusInterface props(d->interface->service(), d->interface->path(),
+                             "org.freedesktop.DBus.Properties", d->interface->connection());
+
+        QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
         if (reply.isValid()) {
             QVariantMap props = reply.value();
-            qDebug() << "VoiceCallHandler::initialize:" << props;
+            qDebug() << props;
             d->providerId = props["providerId"].toString();
             d->duration = props["duration"].toInt();
             d->status = props["status"].toInt();
@@ -193,7 +196,8 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
             emit emergencyChanged();
             emit forwardedChanged();
         } else if (notifyError) {
-            emit this->error("Failed to getProperties() from VCM D-Bus service.");
+            qWarning() << "Failed to get VoiceCall properties from VCM D-Bus service.";
+            emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
         }
     }
 }
