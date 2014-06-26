@@ -12,16 +12,24 @@ Description: |
 Configure: none
 Builder: qtc5
 PkgConfigBR:
+- Qt5DBus
 - Qt5Bluetooth
+- Qt5Contacts
 - Qt5Quick
 - Qt5Qml
 - Qt5Core
 - sailfishapp >= 0.0.10
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
+- systemd-user-session-targets
+AutoSubPackages:
+- devel
 Files:
 - '%{_bindir}'
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
+- '%{_libdir}/systemd/user/pebbled.service'
+- '%{_libdir}/systemd/user/user-session.target.wants/pebbled.service'
+- '%{_libdir}/libpebble.so.*'
 PkgBR: []

@@ -23,5 +23,9 @@ HEADERS += \
     manager.h \
     dbusconnector.h
 
-INSTALLS += target
-target.path = /usr/sbin
+INSTALLS += target pebbled
+
+target.path = /usr/bin
+
+pebbled.files = $${TARGET}.service
+pebbled.path = /usr/lib/systemd/user

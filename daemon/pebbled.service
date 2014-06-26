@@ -1,0 +1,10 @@
+[Unit]
+Description=Pebble Connector Service
+After=pre-user-session.target
+
+[Service]
+ExecStart=/usr/bin/pebbled
+Restart=always
+
+[Install]
+WantedBy=user-session.target
