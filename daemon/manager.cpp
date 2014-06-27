@@ -15,6 +15,12 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     numberFilter.setDetailType(QContactDetail::TypePhoneNumber, QContactPhoneNumber::FieldNumber);
     numberFilter.setMatchFlags(QContactFilter::MatchPhoneNumber);
 
+    conversations = new GroupManager(this);
+    connect(conversations, SIGNAL(groupAdded(GroupObject*)), SLOT(onConversationGroupAdded(GroupObject*)));
+    connect(conversations, SIGNAL(groupUpdated(GroupObject*)), SLOT(onConversationGroupUpdated(GroupObject*)));
+    connect(conversations, SIGNAL(groupDeleted(GroupObject*)), SLOT(onConversationGroupDeleted(GroupObject*)));
+    conversations->getGroups();
+
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
 
@@ -104,5 +110,40 @@ void Manager::hangupAll()
 {
     foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
         handler->hangup();
+    }
+}
+
+void Manager::onConversationGroupAdded(GroupObject *group)
+{
+    if (!group) {
+        qWarning() << "Got null conversation group";
+        return;
+    }
+
+    connect(group, SIGNAL(unreadMessagesChanged()), SLOT(onUnreadMessagesChanged()));
+    if (group->unreadMessages()) processUnreadMessages(group);
+}
+
+
+void Manager::onUnreadMessagesChanged()
+{
+    GroupObject *group = qobject_cast<GroupObject*>(sender());
+    if (!group) {
+        qWarning() << "Got unreadMessagesChanged for null group";
+        return;
+    }
+    processUnreadMessages(group);
+}
+
+void Manager::processUnreadMessages(GroupObject *group)
+{
+    if (group->unreadMessages()) {
+        QString name = group->contactName();
+        QString message = group->lastMessageText();
+        qDebug() << "Msg:" << message;
+        qDebug() << "From:" << name;
+        watch->sendSMSNotification(name.isEmpty()?"Unknown":name, message);
+    } else {
+        qWarning() << "Got processUnreadMessages for group with no new messages";
     }
 }
