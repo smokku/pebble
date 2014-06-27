@@ -1,9 +1,9 @@
-Name: waterwatch
+Name: pebble
 Summary: Support for Pebble watch in SailfishOS
 Version: 0.1
 Release: 1
 Group: Qt/Qt
-URL: http://example.org/
+URL: http://getpebble.com/
 License: BSD
 Sources:
 - '%{name}-%{version}.tar.xz'
@@ -29,7 +29,7 @@ Files:
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
-- '%{_libdir}/systemd/user/pebbled.service'
-- '%{_libdir}/systemd/user/user-session.target.wants/pebbled.service'
-- '%{_libdir}/libpebble.so.*'
+- '%{_libdir}/systemd/user/%{name}d.service'
+- '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
+- '%{_libdir}/lib%{name}.so.*'
 PkgBR: []

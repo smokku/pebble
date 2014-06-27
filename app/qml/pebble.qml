@@ -38,5 +38,3 @@ ApplicationWindow
     initialPage: WatchPage { id: watchPage }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 }
-
-

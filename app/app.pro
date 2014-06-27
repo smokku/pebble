@@ -1,8 +1,9 @@
-TARGET = waterwatch
+TARGET = pebble
 
 CONFIG += sailfishapp
 
-SOURCES += waterwatch.cpp
+SOURCES += \
+    pebble.cpp
 
 INCLUDEPATH += ../lib
 LIBS += -L$$OUT_PWD/../lib -lpebble
@@ -10,7 +11,9 @@ LIBS += -L$$OUT_PWD/../lib -lpebble
 QT += bluetooth
 QMAKE_CXXFLAGS += -std=c++0x
 
-OTHER_FILES += qml/waterwatch.qml \
+OTHER_FILES += \
     qml/cover/CoverPage.qml \
-    waterwatch.desktop \
-    qml/pages/WatchPage.qml
+    qml/pages/WatchPage.qml \
+    qml/pebble.qml \
+    pebble.desktop \
+    pebble.png

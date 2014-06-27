@@ -36,7 +36,7 @@ CoverBackground {
     Label {
         id: label
         anchors.centerIn: parent
-        text: "WaterWatch"
+        text: "Pebble"
     }
     Label {
         anchors.top: label.bottom

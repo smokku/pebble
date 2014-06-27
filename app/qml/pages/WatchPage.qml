@@ -221,7 +221,7 @@ Page {
             width: page.width
             spacing: Theme.paddingLarge
             PageHeader {
-                title: "WaterWatch"
+                title: "Pebble Manager"
             }
             Label {
                 visible: !watchConnector.isConnected
