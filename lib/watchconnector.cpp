@@ -4,13 +4,11 @@
 
 using namespace watch;
 
-static int __reconnect_timeout = 1000;
+static int __reconnect_timeout = 5000; //ms
 
 WatchConnector::WatchConnector(QObject *parent) :
-    QObject(parent)
-{
-    socket = nullptr;
-}
+    QObject(parent), socket(nullptr), is_connected(false)
+{}
 
 WatchConnector::~WatchConnector()
 {
@@ -21,47 +19,47 @@ void WatchConnector::deviceDiscovered(const QBluetoothDeviceInfo &device)
     //FIXME TODO: Configurable
     if (device.name().startsWith("Pebble")) {
         qDebug() << "Found Pebble:" << device.name() << '(' << device.address().toString() << ')';
-        handleWatch(device);
+        handleWatch(device.name(), device.address().toString());
     } else {
         qDebug() << "Found other device:" << device.name() << '(' << device.address().toString() << ')';
     }
 }
 
-void WatchConnector::deviceConnect(const QString name, const QString address)
+void WatchConnector::deviceConnect(const QString &name, const QString &address)
 {
-    if (name.startsWith("Pebble")) {
-        _last_name = name;
-        _last_address = address;
-        QBluetoothDeviceInfo device(QBluetoothAddress(address), name, 0);
-        deviceDiscovered(device);
-    }
+    if (name.startsWith("Pebble")) handleWatch(name, address);
 }
 
 void WatchConnector::reconnect()
 {
-    if (_last_name != "" && _last_address != "") {
+    qDebug() << "reconnect" << _last_name;
+    if (!_last_name.isEmpty() && !_last_address.isEmpty()) {
         deviceConnect(_last_name, _last_address);
     }
 }
 
-void WatchConnector::handleWatch(const QBluetoothDeviceInfo &device)
+void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
-    qDebug() << "handleWatch" << device.name();
-    if (socket != nullptr) {
+    qDebug() << "handleWatch" << name << (socket != nullptr);
+    if (socket != nullptr && socket->isOpen()) {
         socket->close();
         socket->deleteLater();
-        socket = nullptr;
     }
 
-    socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
+    bool emit_name = (_last_name != name);
+    _last_name = name;
+    _last_address = address;
+    if (emit_name) emit nameChanged();
+
     qDebug() << "Creating socket";
+    socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
 
     // FIXME: Assuming port 1 (with Pebble)
-    socket->connectToService(device.address(), 1);
+    socket->connectToService(QBluetoothAddress(address), 1);
 
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readSocket()));
-    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
+    connect(socket, SIGNAL(connected()), SLOT(onConnected()));
+    connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
 }
 
 QString WatchConnector::decodeEndpoint(unsigned int val)
@@ -133,7 +131,7 @@ void WatchConnector::decodeMsg(QByteArray data)
     }
 }
 
-void WatchConnector::readSocket()
+void WatchConnector::onReadSocket()
 {
     qDebug() << "read";
 
@@ -147,26 +145,27 @@ void WatchConnector::readSocket()
     }
 }
 
-void WatchConnector::connected()
+void WatchConnector::onConnected()
 {
     qDebug() << "Connected!";
+    bool was_connected = is_connected;
     is_connected = true;
-    emit nameChanged();
-    emit connectedChanged();
+    if (not was_connected) emit connectedChanged();
 }
 
-void WatchConnector::disconnected()
+void WatchConnector::onDisconnected()
 {
     qDebug() << "Disconnected!";
+
+    bool was_connected = is_connected;
     is_connected = false;
 
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
     if (!socket) return;
 
+    if (was_connected) emit connectedChanged();
+
     socket->deleteLater();
-    socket = nullptr;
-    emit connectedChanged();
-    emit nameChanged();
 
     // Try to connect again after a timeout
     QTimer::singleShot(__reconnect_timeout, this, SLOT(reconnect()));

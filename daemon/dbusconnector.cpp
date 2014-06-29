@@ -7,18 +7,14 @@
 #include <QDBusArgument>
 #include <QDBusObjectPath>
 
-DBusConnector::DBusConnector(QObject *parent) :
-    QObject(parent)
-{
 //dbus-send --system --dest=org.bluez --print-reply / org.bluez.Manager.ListAdapters
 //dbus-send --system --dest=org.bluez --print-reply $path org.bluez.Adapter.GetProperties
 //dbus-send --system --dest=org.bluez --print-reply $devpath org.bluez.Device.GetProperties
 //dbus-send --system --dest=org.bluez --print-reply $devpath org.bluez.Input.Connect
-    QDBusConnection session = QDBusConnection::sessionBus();
 
-    findPebble();
-
-}
+DBusConnector::DBusConnector(QObject *parent) :
+    QObject(parent)
+{}
 
 bool DBusConnector::findPebble()
 {
@@ -70,15 +66,12 @@ bool DBusConnector::findPebble()
         QString tmp = dict["Name"].toString();
         qDebug() << "Found BT device:" << tmp;
         if (tmp.startsWith("Pebble")) {
-            name = tmp;
-            address = dict["Address"].toString();
-            qDebug() << "Found Pebble:" << name << address;
+            qDebug() << "Found Pebble:" << tmp;
+            pebbleProps = dict;
+            emit pebbleChanged();
+            return true;
         }
     }
 
-    if (name.isEmpty() or address.isEmpty()) return false;
-
-    pebbleName = name;
-    pebbleAddress = address;
-    return true;
+    return false;
 }

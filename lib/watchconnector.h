@@ -31,6 +31,7 @@
 #define WATCHCONNECTOR_H
 
 #include <QObject>
+#include <QPointer>
 #include <QStringList>
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
@@ -45,7 +46,7 @@ class WatchConnector : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
-    Q_PROPERTY(QString isConnected READ isConnected NOTIFY connectedChanged)
+    Q_PROPERTY(QString connected READ isConnected NOTIFY connectedChanged)
 public:
     enum {
         watchTIME = 11,
@@ -109,17 +110,18 @@ public slots:
     void startPhoneCall(unsigned int cookie=0);
     void endPhoneCall(unsigned int cookie=0);
 
-    void deviceConnect(const QString name, const QString address);
+    void deviceConnect(const QString &name, const QString &address);
     void deviceDiscovered(const QBluetoothDeviceInfo&);
-    void handleWatch(const QBluetoothDeviceInfo&);
-    void readSocket();
-    void connected();
-    void disconnected();
+    void handleWatch(const QString &name, const QString &address);
+    void onReadSocket();
+    void onConnected();
+    void onDisconnected();
     void reconnect();
 
 private:
     void decodeMsg(QByteArray data);
-    QBluetoothSocket *socket;
+
+    QPointer<QBluetoothSocket> socket;
     bool is_connected;
     QString _last_name;
     QString _last_address;

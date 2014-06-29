@@ -40,6 +40,8 @@ public slots:
     void hangupAll();
 
 protected slots:
+    void onPebbleChanged();
+    void onConnectedChanged();
     void onActiveVoiceCallChanged();
     void onVoiceError(const QString &message);
     void onActiveVoiceCallStatusChanged();

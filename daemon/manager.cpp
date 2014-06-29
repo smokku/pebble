@@ -5,7 +5,8 @@
 #include <QtContacts/QContactPhoneNumber>
 
 Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice)
+    QObject(0), watch(watch), dbus(dbus), voice(voice),
+    notification(MNotification::DeviceEvent)
 {
     // We don't need to handle presence changes, so report them separately and ignore them
     QMap<QString, QString> parameters;
@@ -26,10 +27,23 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     // Watch instantiated hangup, follow the orders
     connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
+    connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 
     if (btDevice.isValid()) {
         qDebug() << "BT local name:" << btDevice.name();
-        watch->deviceConnect(dbus->pebbleName, dbus->pebbleAddress);
+        connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
+        dbus->findPebble();
+    }
+}
+
+void Manager::onPebbleChanged()
+{
+    const QVariantMap & pebble = dbus->pebble();
+    QString name = pebble["Name"].toString();
+    if (name.isEmpty()) {
+        qDebug() << "Pebble gone";
+    } else {
+        watch->deviceConnect(name, pebble["Address"].toString());
     }
 }
 
