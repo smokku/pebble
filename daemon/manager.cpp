@@ -29,6 +29,9 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 
+    // Set BT icon for notification
+    notification.setImage("icon-system-bluetooth-device");
+
     if (btDevice.isValid()) {
         qDebug() << "BT local name:" << btDevice.name();
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
