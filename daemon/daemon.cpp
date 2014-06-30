@@ -28,7 +28,20 @@
 
 #include "manager.h"
 
+#include <signal.h>
 #include <QCoreApplication>
+
+void signalhandler(int sig)
+{
+    if (sig == SIGINT) {
+        qDebug() << "quit by SIGINT";
+        qApp->quit();
+    }
+    else if (sig == SIGTERM) {
+        qDebug() << "quit by SIGTERM";
+        qApp->quit();
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +52,10 @@ int main(int argc, char *argv[])
     VoiceCallManager voice;
 
     Manager manager(&watch, &dbus, &voice);
+
+    signal(SIGINT, signalhandler);
+    signal(SIGTERM, signalhandler);
+    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(endPhoneCall()));
 
     return app.exec();
 }
