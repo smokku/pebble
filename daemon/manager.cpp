@@ -47,6 +47,21 @@ void Manager::onPebbleChanged()
     }
 }
 
+void Manager::onConnectedChanged()
+{
+    QString message = QString("%1 %2")
+            .arg(watch->name().isEmpty() ? "Pebble" : watch->name())
+            .arg(watch->isConnected() ? "connected" : "disconnected");
+    qDebug() << message;
+
+    if (notification.isPublished()) notification.remove();
+
+    notification.setBody(message);
+    if (!notification.publish()) {
+        qDebug() << "Failed publishing notification";
+    }
+}
+
 void Manager::onActiveVoiceCallChanged()
 {
     qDebug() << "Manager::onActiveVoiceCallChanged()";

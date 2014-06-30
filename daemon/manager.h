@@ -10,6 +10,7 @@
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
 #include <CommHistory/GroupModel>
+#include <MNotification>
 
 using namespace QtContacts;
 using namespace CommHistory;
@@ -23,6 +24,8 @@ class Manager : public QObject
     watch::WatchConnector *watch;
     DBusConnector *dbus;
     VoiceCallManager *voice;
+
+    MNotification notification;
 
     QContactManager *contacts;
     QContactDetailFilter numberFilter;

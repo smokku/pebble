@@ -9,7 +9,7 @@ INCLUDEPATH += ../lib
 LIBS += -L$$OUT_PWD/../lib -lpebble
 
 QT += bluetooth dbus contacts
-PKGCONFIG += commhistory-qt5
+PKGCONFIG += commhistory-qt5 mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += \
