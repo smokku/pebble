@@ -1,5 +1,5 @@
-waterwatch
-==========
+pebbled
+=======
 
 Unofficial Pebble watch support for SailfishOS/Jolla
 
