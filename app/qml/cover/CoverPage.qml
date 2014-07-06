@@ -36,12 +36,12 @@ CoverBackground {
     Label {
         id: label
         anchors.centerIn: parent
-        text: "Pebble"
+        text: watchPage.name ? watchPage.name : "Pebble"
     }
     Label {
         anchors.top: label.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        text: watchPage.watchConnector.name
         font.pointSize: Theme.fontSizeSmall
+        text: watchPage.connected ? "connected" : "disconnected"
     }
 }
