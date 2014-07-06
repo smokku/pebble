@@ -32,21 +32,43 @@
 import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
-import QtBluetooth 5.0
-import Sailfish.Bluetooth 1.0
-import Bluetooth 0.0
-import org.nemomobile.voicecall 1.0
-import org.nemomobile.notifications 1.0
-import org.nemomobile.messages.internal 1.0
-import org.nemomobile.commhistory 1.0
 import watch 0.1
+import org.nemomobile.dbus 1.0
 
 Page {
     id: page
 
-    property alias watchConnector: watchConnector
+    property string name
+    property string address
+    property bool connected: false
+
+    onNameChanged: console.log(name)
+    onAddressChanged: console.log(address)
+    onConnectedChanged: console.log(connected?"connected":"disconnected")
+
     WatchConnector {
         id: watchConnector
+    }
+
+    DBusInterface {
+        id: pebbled
+        destination: "org.pebbled"
+        path: "/"
+        iface: "org.pebbled"
+        signalsEnabled: true
+
+        function pebbleChanged() {
+            page.name = getProperty("name");
+            page.address = getProperty("address");
+        }
+        function connectedChanged() {
+            page.connected = getProperty("connected");
+        }
+
+        Component.onCompleted: {
+            pebbled.pebbleChanged();
+            pebbled.connectedChanged();
+        }
     }
 
     SilicaFlickable {
@@ -63,24 +85,19 @@ Page {
                 title: "Pebble Manager"
             }
             Label {
-                visible: !watchConnector.isConnected
+                visible: !page.connected
                 text: "Waiting for watch...\nIf it can't be found plase\ncheck it's available and\npaired in Bluetooth settings."
                 width: column.width
             }
-            // Select the device
-            Repeater {
-                model: KnownDevicesModel { id: knownDevicesModel }
-                delegate: ListItem {
-                    id: pairedItem
-                    visible: (model.paired && watchConnector.isConnected)
-                    Label {
-                        text: model.alias.length ? model.alias : model.address
-                    }
-                    onVisibleChanged: {
-                        if (pairedItem.visible) {
-                            // Connect with the device
-                            watchConnector.deviceConnect(model.alias, model.address);
-                        }
+            ListItem {
+                visible: !!page.name
+                Label {
+                    text: page.name
+                }
+                onVisibleChanged: {
+                    if (parent.visible) {
+                        // Connect with the device
+                        watchConnector.deviceConnect(page.name, page.address);
                     }
                 }
             }
