@@ -32,12 +32,12 @@
 #include <QtQuick>
 
 #include <sailfishapp.h>
-#include "daemonproxy.h"
+#include "pebbledinterface.h"
 
 int main(int argc, char *argv[])
 {
     // Register Pebble daemon interface object on QML side
-    qmlRegisterType<org::pebbled>("org.pebbled", 0, 1, "PebbledInterface");
+    qmlRegisterType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface");
 
     return SailfishApp::main(argc, argv);
 }
