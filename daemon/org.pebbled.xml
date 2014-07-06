@@ -1,0 +1,14 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.pebbled">
+    <property name="pebble" type="a{sv}" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="QVariantMap"/>
+    </property>
+    <property name="name" type="s" access="read"/>
+    <property name="address" type="s" access="read"/>
+    <property name="connected" type="b" access="read"/>
+    <signal name="pebbleChanged"/>
+    <signal name="connectedChanged"/>
+  </interface>
+</node>

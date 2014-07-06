@@ -1,4 +1,5 @@
 #include "manager.h"
+#include "dbusadaptor.h"
 
 #include <QDebug>
 #include <QtContacts/QContact>
@@ -18,8 +19,6 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     conversations = new GroupManager(this);
     connect(conversations, SIGNAL(groupAdded(GroupObject*)), SLOT(onConversationGroupAdded(GroupObject*)));
-    connect(conversations, SIGNAL(groupUpdated(GroupObject*)), SLOT(onConversationGroupUpdated(GroupObject*)));
-    connect(conversations, SIGNAL(groupDeleted(GroupObject*)), SLOT(onConversationGroupDeleted(GroupObject*)));
     conversations->getGroups();
 
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
@@ -37,6 +36,13 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
+
+    DBusAdaptor *adaptor = new DBusAdaptor(this);
+    QDBusConnection connection = QDBusConnection::sessionBus();
+    connection.registerObject("/", this);
+    connection.registerService("org.pebbled");
+    connect(this, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
+    connect(this, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
 }
 
 void Manager::onPebbleChanged()
@@ -48,6 +54,7 @@ void Manager::onPebbleChanged()
     } else {
         watch->deviceConnect(name, pebble["Address"].toString());
     }
+    emit pebbleChanged();
 }
 
 void Manager::onConnectedChanged()
@@ -63,6 +70,7 @@ void Manager::onConnectedChanged()
     if (!notification.publish()) {
         qDebug() << "Failed publishing notification";
     }
+    emit connectedChanged();
 }
 
 void Manager::onActiveVoiceCallChanged()

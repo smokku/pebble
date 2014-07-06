@@ -18,6 +18,10 @@ using namespace CommHistory;
 class Manager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantMap pebble READ pebble NOTIFY pebbleChanged)
+    Q_PROPERTY(QString name READ pebbleName NOTIFY pebbleChanged)
+    Q_PROPERTY(QString address READ pebbleAddress NOTIFY pebbleChanged)
+    Q_PROPERTY(bool connected READ pebbleConnected NOTIFY connectedChanged)
 
     QBluetoothLocalDevice btDevice;
 
@@ -37,7 +41,14 @@ public:
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
 
+    QVariantMap pebble() { return dbus->pebble(); }
+    QString pebbleName() { return dbus->pebble()["Name"].toString(); }
+    QString pebbleAddress() { return dbus->pebble()["Address"].toString(); }
+    bool pebbleConnected() { return watch->isConnected(); }
+
 signals:
+    void pebbleChanged();
+    void connectedChanged();
 
 public slots:
     void hangupAll();

@@ -40,7 +40,7 @@ void WatchConnector::reconnect()
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
-    qDebug() << "handleWatch" << name << (socket != nullptr);
+    qDebug() << "handleWatch" << name << address;
     if (socket != nullptr && socket->isOpen()) {
         socket->close();
         socket->deleteLater();
@@ -54,12 +54,13 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     qDebug() << "Creating socket";
     socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
 
-    // FIXME: Assuming port 1 (with Pebble)
-    socket->connectToService(QBluetoothAddress(address), 1);
-
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
     connect(socket, SIGNAL(connected()), SLOT(onConnected()));
     connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
+    connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
+
+    // FIXME: Assuming port 1 (with Pebble)
+    socket->connectToService(QBluetoothAddress(address), 1);
 }
 
 QString WatchConnector::decodeEndpoint(unsigned int val)
@@ -169,6 +170,10 @@ void WatchConnector::onDisconnected()
 
     // Try to connect again after a timeout
     QTimer::singleShot(__reconnect_timeout, this, SLOT(reconnect()));
+}
+
+void WatchConnector::onError(QBluetoothSocket::SocketError error) {
+    qWarning() << "Error connecting Pebble" << error << socket->errorString();
 }
 
 void WatchConnector::sendData(const QByteArray &data)
