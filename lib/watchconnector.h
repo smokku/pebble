@@ -116,6 +116,7 @@ public slots:
     void onReadSocket();
     void onConnected();
     void onDisconnected();
+    void onError(QBluetoothSocket::SocketError error);
     void reconnect();
 
 private:
