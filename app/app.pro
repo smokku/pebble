@@ -4,10 +4,10 @@ CONFIG += sailfishapp
 
 SOURCES += \
     pebble.cpp \
-    daemonproxy.cpp
+    pebbledinterface.cpp
 
 HEADERS += \
-    daemonproxy.h
+    pebbledinterface.h
 
 QT += dbus
 QMAKE_CXXFLAGS += -std=c++0x
