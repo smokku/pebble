@@ -3,12 +3,13 @@ TARGET = pebble
 CONFIG += sailfishapp
 
 SOURCES += \
-    pebble.cpp
+    pebble.cpp \
+    daemonproxy.cpp
 
-INCLUDEPATH += ../lib
-LIBS += -L$$OUT_PWD/../lib -lpebble
+HEADERS += \
+    daemonproxy.h
 
-QT += bluetooth
+QT += dbus
 QMAKE_CXXFLAGS += -std=c++0x
 
 OTHER_FILES += \

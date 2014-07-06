@@ -37,8 +37,8 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
         dbus->findPebble();
     }
 
-    DBusProxy *proxy = new DBusProxy(this);
-    DBusAdaptor *adaptor = new DBusAdaptor(proxy);
+    PebbledProxy *proxy = new PebbledProxy(this);
+    PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
     QDBusConnection connection = QDBusConnection::sessionBus();
     connection.registerObject("/", proxy);
     connection.registerService("org.pebbled");

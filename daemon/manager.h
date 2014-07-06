@@ -19,7 +19,7 @@ class Manager : public QObject
 {
     Q_OBJECT
 
-    friend class DBusProxy;
+    friend class PebbledProxy;
 
     QBluetoothLocalDevice btDevice;
 
@@ -55,7 +55,7 @@ protected slots:
 
 };
 
-class DBusProxy : public QObject
+class PebbledProxy : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariantMap pebble READ pebble)
@@ -69,7 +69,7 @@ class DBusProxy : public QObject
     bool pebbleConnected() { return static_cast<Manager*>(parent())->watch->isConnected(); }
 
 public:
-    explicit DBusProxy(QObject *parent) : QObject(parent) {}
+    explicit PebbledProxy(QObject *parent) : QObject(parent) {}
 
 };
 

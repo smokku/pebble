@@ -5,25 +5,24 @@ CONFIG -= app_bundle
 CONFIG += link_pkgconfig
 QT -= gui
 
-INCLUDEPATH += ../lib
-LIBS += -L$$OUT_PWD/../lib -lpebble
-
 QT += bluetooth dbus contacts
 PKGCONFIG += commhistory-qt5 mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += \
     daemon.cpp \
+    manager.cpp \
     voicecallmanager.cpp \
     voicecallhandler.cpp \
-    manager.cpp \
+    watchconnector.cpp \
     dbusconnector.cpp \
     dbusadaptor.cpp
 
 HEADERS += \
+    manager.h \
     voicecallmanager.h \
     voicecallhandler.h \
-    manager.h \
+    watchconnector.h \
     dbusconnector.h \
     dbusadaptor.h
 
