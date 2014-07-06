@@ -32,14 +32,12 @@
 #include <QtQuick>
 
 #include <sailfishapp.h>
-#include "watchconnector.h"
-
-using namespace watch;
+#include "daemonproxy.h"
 
 int main(int argc, char *argv[])
 {
-    // Registert WatchController object on QML side
-    qmlRegisterType<WatchConnector>("watch", 0, 1, "WatchConnector");
+    // Register Pebble daemon interface object on QML side
+    qmlRegisterType<org::pebbled>("org.pebbled", 0, 1, "PebbledInterface");
 
     return SailfishApp::main(argc, argv);
 }
