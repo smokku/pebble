@@ -36,12 +36,25 @@ CoverBackground {
     Label {
         id: label
         anchors.centerIn: parent
-        text: watchPage.name ? watchPage.name : "Pebble"
+        font.pointSize: Theme.fontSizeLarge
+        text: pebbled.name ? pebbled.name : "Pebble"
     }
     Label {
         anchors.top: label.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         font.pointSize: Theme.fontSizeSmall
-        text: watchPage.connected ? "connected" : "disconnected"
+        text: pebbled.connected ? qsTr("connected") : qsTr("disconnected")
+    }
+
+    CoverActionList {
+        id: coverAction
+
+        CoverAction {
+            iconSource: pebbled.connected ? "image://theme/icon-cover-transfers" : "image://theme/icon-cover-sync"
+            onTriggered: {
+                // FIXME: implement
+                console.log('reconnect');
+            }
+        }
     }
 }

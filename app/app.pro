@@ -14,6 +14,7 @@ QMAKE_CXXFLAGS += -std=c++0x
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
+    qml/pages/ManagerPage.qml \
     qml/pages/WatchPage.qml \
     qml/pebble.qml \
     pebble.desktop \
