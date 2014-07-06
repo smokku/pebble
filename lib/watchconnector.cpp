@@ -60,7 +60,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
 
     // FIXME: Assuming port 1 (with Pebble)
-    socket->connectToService(QBluetoothAddress(address), 1);
+    socket->connectToService(QBluetoothAddress(address), QBluetoothUuid(QBluetoothUuid::SerialPort));
 }
 
 QString WatchConnector::decodeEndpoint(unsigned int val)
