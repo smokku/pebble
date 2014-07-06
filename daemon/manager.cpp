@@ -37,12 +37,13 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
         dbus->findPebble();
     }
 
-    DBusAdaptor *adaptor = new DBusAdaptor(this);
+    DBusProxy *proxy = new DBusProxy(this);
+    DBusAdaptor *adaptor = new DBusAdaptor(proxy);
     QDBusConnection connection = QDBusConnection::sessionBus();
-    connection.registerObject("/", this);
+    connection.registerObject("/", proxy);
     connection.registerService("org.pebbled");
-    connect(this, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
-    connect(this, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
+    connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
+    connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
 }
 
 void Manager::onPebbleChanged()
@@ -54,7 +55,6 @@ void Manager::onPebbleChanged()
     } else {
         watch->deviceConnect(name, pebble["Address"].toString());
     }
-    emit pebbleChanged();
 }
 
 void Manager::onConnectedChanged()
@@ -70,7 +70,6 @@ void Manager::onConnectedChanged()
     if (!notification.publish()) {
         qDebug() << "Failed publishing notification";
     }
-    emit connectedChanged();
 }
 
 void Manager::onActiveVoiceCallChanged()
