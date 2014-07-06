@@ -32,9 +32,14 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import "pages"
+import org.pebbled 0.1
 
 ApplicationWindow
 {
-    initialPage: WatchPage { id: watchPage }
+    initialPage: Component { ManagerPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
+
+    PebbledInterface {
+        id: pebbled
+    }
 }
