@@ -98,9 +98,7 @@ Page {
                 description: pebbled.active ? qsTr("Running") : qsTr("Dead")
                 checked: pebbled.active
                 automaticCheck: false
-                onClicked: {
-                    console.log('pebbled.start|stop()');
-                }
+                onClicked: pebbled.setActive(!checked)
             }
             TextSwitch {
                 text: qsTr("Connection")

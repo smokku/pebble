@@ -34,3 +34,7 @@ pebbled.files = $${TARGET}.service
 pebbled.path = /usr/lib/systemd/user
 
 OTHER_FILES += org.pebbled.xml
+
+# so QtCreator could find commhistory headers... :-(
+INCLUDEPATH += ../lib $$[QT_HOST_PREFIX]/include/commhistory-qt5
+INCLUDEPATH += ../lib $$[QT_HOST_PREFIX]/include/mlite5
