@@ -111,6 +111,7 @@ public slots:
     void endPhoneCall(unsigned int cookie=0);
 
     void deviceConnect(const QString &name, const QString &address);
+    void disconnect();
     void deviceDiscovered(const QBluetoothDeviceInfo&);
     void handleWatch(const QString &name, const QString &address);
     void onReadSocket();

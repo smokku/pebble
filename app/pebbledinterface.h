@@ -3,18 +3,20 @@
 
 #include <QObject>
 #include <QtDBus/QtDBus>
+#include <QDBusArgument>
 
 class PebbledInterface : public QObject
 {
     Q_OBJECT
 
+    static QString PEBBLED_SYSTEMD_UNIT;
+    static QString SYSTEMD_UNIT_IFACE;
+
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     bool enabled() const;
-    void setEnabled(bool);
 
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
     bool active() const;
-    void setActive(bool);
 
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     bool connected() const;
@@ -42,12 +44,20 @@ signals:
     void addressChanged();
 
 public slots:
+    void setEnabled(bool);
+    void setActive(bool);
+
+private slots:
+    void getUnitProperties();
+    void onPropertiesChanged(QString interface, QMap<QString, QVariant> changed, QStringList invalidated);
+    void onPebbleChanged();
 
 private:
-    QDBusInterface *systemd;
-    QString systemdUnit;
-
     QDBusInterface *pebbled;
+    QDBusInterface *systemd;
+    QDBusInterface *unitprops;
+
+    QVariantMap properties;
 };
 
 #endif // PEBBLEDINTERFACE_H

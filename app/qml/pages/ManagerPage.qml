@@ -53,7 +53,7 @@ Page {
             Label {
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeSmall
-                visible: !pebbled.connected
+                visible: pebbled.active && !pebbled.connected
                 text: qsTr("Waiting for watch...\nIf it can't be found plase check it's available and paired in Bluetooth settings.")
                 wrapMode: Text.Wrap
                 anchors {
@@ -89,18 +89,14 @@ Page {
                 description: pebbled.enabled ? qsTr("Automatic startup") : qsTr("Manual startup")
                 checked: pebbled.enabled
                 automaticCheck: false
-                onClicked: {
-                    console.log('pebbled.(dis|en)able()');
-                }
+                onClicked: pebbled.setEnabled(!checked)
             }
             TextSwitch {
                 text: qsTr("Active")
                 description: pebbled.active ? qsTr("Running") : qsTr("Dead")
                 checked: pebbled.active
                 automaticCheck: false
-                onClicked: {
-                    console.log('pebbled.start|stop()');
-                }
+                onClicked: pebbled.setActive(!checked)
             }
             TextSwitch {
                 text: qsTr("Connection")

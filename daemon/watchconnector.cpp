@@ -38,6 +38,13 @@ void WatchConnector::reconnect()
     }
 }
 
+void WatchConnector::disconnect()
+{
+    qDebug() << __FUNCTION__;
+    socket->close();
+    socket->deleteLater();
+}
+
 void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
     qDebug() << "handleWatch" << name << address;
