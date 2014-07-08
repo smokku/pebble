@@ -1,6 +1,6 @@
 Name: pebble
 Summary: Support for Pebble watch in SailfishOS
-Version: 0.2
+Version: 0.3
 Release: 1
 Group: Qt/Qt
 URL: http://getpebble.com/
@@ -23,8 +23,6 @@ PkgConfigBR:
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets
-AutoSubPackages:
-- devel
 Files:
 - '%{_bindir}'
 - '%{_datadir}/%{name}/qml'
