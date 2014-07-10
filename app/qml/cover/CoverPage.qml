@@ -33,16 +33,26 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
+    Image {
+        fillMode: Image.PreserveAspectCrop
+        anchors.fill: parent
+        source: "back.png"
+    }
+
     Label {
         id: label
-        anchors.centerIn: parent
-        font.pointSize: Theme.fontSizeLarge
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: state.top
+        anchors.bottomMargin: Theme.paddingSmall
+        font.pointSize: Theme.fontSizeExtraLarge
         text: pebbled.name ? pebbled.name : "Pebble"
     }
     Label {
-        anchors.top: label.bottom
+        id: state
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pointSize: Theme.fontSizeSmall
+        anchors.bottom: parent.verticalCenter
+        font.pointSize: Theme.fontSizeExtraSmall
+        color: Theme.highlightColor
         text: pebbled.connected ? qsTr("connected") : qsTr("disconnected")
     }
 
@@ -52,8 +62,11 @@ CoverBackground {
         CoverAction {
             iconSource: pebbled.connected ? "image://theme/icon-cover-transfers" : "image://theme/icon-cover-sync"
             onTriggered: {
-                // FIXME: implement
-                console.log('reconnect');
+                if (pebbled.connected) {
+                    pebbled.ping();
+                } else {
+                    pebbled.connect();
+                }
             }
         }
     }
