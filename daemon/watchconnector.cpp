@@ -249,10 +249,10 @@ QString WatchConnector::timeStamp()
 void WatchConnector::sendNotification(unsigned int lead, QString sender, QString data, QString subject)
 {
     QStringList tmp;
-    tmp.append(sender);
-    tmp.append(data);
+    tmp.append(sender.isEmpty() ? " " : sender);
+    tmp.append(data.isEmpty() ? " " : data);
     tmp.append(timeStamp());
-    if (lead == 0) tmp.append(subject);
+    if (lead == 0) tmp.append(subject.isEmpty() ? " " : subject);
 
     QByteArray res = buildMessageData(lead, tmp);
 
