@@ -71,6 +71,11 @@ class PebbledProxy : public QObject
 public:
     explicit PebbledProxy(QObject *parent) : QObject(parent) {}
 
+public slots:
+    void ping(int val) { static_cast<Manager*>(parent())->watch->ping((unsigned int)val); }
+    void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
+    void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
+
 };
 
 #endif // MANAGER_H

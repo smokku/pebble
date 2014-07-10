@@ -65,7 +65,7 @@ CoverBackground {
                 if (pebbled.connected) {
                     pebbled.ping();
                 } else {
-                    pebbled.connect();
+                    pebbled.reconnect();
                 }
             }
         }

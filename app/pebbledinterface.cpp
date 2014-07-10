@@ -142,3 +142,18 @@ QString PebbledInterface::address() const
     qDebug() << __FUNCTION__;
     return pebbled->property(__FUNCTION__).toString();
 }
+
+void PebbledInterface::ping()
+{
+    pebbled->call("ping", 66);
+}
+
+void PebbledInterface::disconnect()
+{
+    pebbled->call("disconnect");
+}
+
+void PebbledInterface::reconnect()
+{
+    pebbled->call("reconnect");
+}

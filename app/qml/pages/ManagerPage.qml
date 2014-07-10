@@ -104,7 +104,11 @@ Page {
                 checked: pebbled.connected
                 automaticCheck: false
                 onClicked: {
-                    console.log('pebbled.(dis)connect()');
+                    if (pebbled.connected) {
+                        pebbled.disconnect();
+                    } else {
+                        pebbled.connect();
+                    }
                 }
             }
 

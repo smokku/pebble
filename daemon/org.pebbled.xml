@@ -10,5 +10,10 @@
     <property name="connected" type="b" access="read"/>
     <signal name="pebbleChanged"/>
     <signal name="connectedChanged"/>
+    <method name="ping">
+      <arg name="val" type="i" direction="in"/>
+    </method>
+    <method name="disconnect"/>
+    <method name="reconnect"/>
   </interface>
 </node>

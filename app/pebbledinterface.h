@@ -46,6 +46,9 @@ signals:
 public slots:
     void setEnabled(bool);
     void setActive(bool);
+    void ping();
+    void disconnect();
+    void reconnect();
 
 private slots:
     void getUnitProperties();
