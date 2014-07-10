@@ -4,6 +4,7 @@
 #include "watchconnector.h"
 #include "dbusconnector.h"
 #include "voicecallmanager.h"
+#include "notificationmanager.h"
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
@@ -26,6 +27,7 @@ class Manager : public QObject
     watch::WatchConnector *watch;
     DBusConnector *dbus;
     VoiceCallManager *voice;
+    NotificationManager *notifications;
 
     MNotification notification;
 
@@ -34,7 +36,7 @@ class Manager : public QObject
     GroupManager *conversations;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice);
+    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
@@ -52,7 +54,9 @@ protected slots:
     void onActiveVoiceCallStatusChanged();
     void onConversationGroupAdded(GroupObject *group);
     void onUnreadMessagesChanged();
-
+    void onNotifyError(const QString &message);
+    void onSmsNotify(const QString &sender, const QString &data);
+    void onEmailNotify(const QString &sender, const QString &data,const QString &subject);
 };
 
 class PebbledProxy : public QObject

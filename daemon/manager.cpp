@@ -5,8 +5,8 @@
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice),
+Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications) :
+    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications),
     notification(MNotification::DeviceEvent)
 {
     // We don't need to handle presence changes, so report them separately and ignore them
@@ -23,6 +23,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
+
+    connect(notifications, SIGNAL(error(const QString &)), SLOT(onNotifyError(const QString &)));
+    connect(notifications, SIGNAL(emailNotify(const QString &,const QString &,const QString &)), SLOT(onEmailNotify(const QString &,const QString &,const QString &)));
+    connect(notifications, SIGNAL(smsNotify(const QString &,const QString &)), SLOT(onSmsNotify(const QString &,const QString &)));
 
     // Watch instantiated hangup, follow the orders
     connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
@@ -143,6 +147,29 @@ QString Manager::findPersonByNumber(QString number)
 void Manager::onVoiceError(const QString &message)
 {
     qWarning() << "Error: " << message;
+}
+
+
+void Manager::onNotifyError(const QString &message)
+{
+    qWarning() << "Error: " << message;
+}
+
+void Manager::onSmsNotify(const QString &sender, const QString &data)
+{
+    qDebug() << "SMS:";
+    qDebug() << sender;
+    qDebug() << data;
+    watch->sendSMSNotification(sender, data);
+}
+
+void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
+{
+    qDebug() << "Email:";
+    qDebug() << sender;
+    qDebug() << data;
+    qDebug() << subject;
+    watch->sendEmailNotification(sender, data, subject);
 }
 
 void Manager::hangupAll()

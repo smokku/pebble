@@ -16,7 +16,8 @@ SOURCES += \
     voicecallhandler.cpp \
     watchconnector.cpp \
     dbusconnector.cpp \
-    dbusadaptor.cpp
+    dbusadaptor.cpp \
+    notificationmanager.cpp
 
 HEADERS += \
     manager.h \
@@ -24,7 +25,8 @@ HEADERS += \
     voicecallhandler.h \
     watchconnector.h \
     dbusconnector.h \
-    dbusadaptor.h
+    dbusadaptor.h \
+    notificationmanager.h
 
 INSTALLS += target pebbled
 
