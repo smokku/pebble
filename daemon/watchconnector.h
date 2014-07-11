@@ -130,6 +130,7 @@ private:
 
     QPointer<QBluetoothSocket> socket;
     bool is_connected;
+    QTimer reconnectTimer;
     QString _last_name;
     QString _last_address;
 };

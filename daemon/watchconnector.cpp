@@ -4,11 +4,14 @@
 
 using namespace watch;
 
-static int __reconnect_timeout = 5000; //ms
+static int __reconnect_timeout = 1000; //ms
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), socket(nullptr), is_connected(false)
-{}
+{
+    reconnectTimer.setSingleShot(true);
+    connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+}
 
 WatchConnector::~WatchConnector()
 {
@@ -43,11 +46,14 @@ void WatchConnector::disconnect()
     logger()->debug() << __FUNCTION__;
     socket->close();
     socket->deleteLater();
+    reconnectTimer.stop();
+    logger()->debug() << "Stopped reconnect timer";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
     logger()->debug() << "handleWatch " << name << " " << address;
+    reconnectTimer.stop();
     if (socket != nullptr && socket->isOpen()) {
         socket->close();
         socket->deleteLater();
@@ -67,7 +73,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
 
     // FIXME: Assuming port 1 (with Pebble)
-    socket->connectToService(QBluetoothAddress(address), QBluetoothUuid(QBluetoothUuid::SerialPort));
+    socket->connectToService(QBluetoothAddress(address), 1);
 }
 
 QString WatchConnector::decodeEndpoint(unsigned int val)
@@ -158,6 +164,8 @@ void WatchConnector::onConnected()
     logger()->debug() << "Connected!";
     bool was_connected = is_connected;
     is_connected = true;
+    reconnectTimer.stop();
+    reconnectTimer.setInterval(0);
     if (not was_connected) emit connectedChanged();
 }
 
@@ -175,8 +183,9 @@ void WatchConnector::onDisconnected()
 
     socket->deleteLater();
 
-    // Try to connect again after a timeout
-    QTimer::singleShot(__reconnect_timeout, this, SLOT(reconnect()));
+    reconnectTimer.setInterval(reconnectTimer.interval() + __reconnect_timeout);
+    reconnectTimer.start();
+    logger()->debug() << "Will reconnect in " << reconnectTimer.interval() << " ms";
 }
 
 void WatchConnector::onError(QBluetoothSocket::SocketError error) {

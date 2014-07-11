@@ -107,7 +107,7 @@ Page {
                     if (pebbled.connected) {
                         pebbled.disconnect();
                     } else {
-                        pebbled.connect();
+                        pebbled.reconnect();
                     }
                 }
             }

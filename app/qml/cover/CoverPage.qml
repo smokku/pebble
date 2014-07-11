@@ -58,6 +58,7 @@ CoverBackground {
 
     CoverActionList {
         id: coverAction
+        enabled: pebbled.active
 
         CoverAction {
             iconSource: pebbled.connected ? "image://theme/icon-cover-transfers" : "image://theme/icon-cover-sync"
