@@ -2,15 +2,15 @@ TARGET = pebble
 
 CONFIG += sailfishapp
 
+QT += dbus
+QMAKE_CXXFLAGS += -std=c++0x
+
 SOURCES += \
     pebble.cpp \
     pebbledinterface.cpp
 
 HEADERS += \
     pebbledinterface.h
-
-QT += dbus
-QMAKE_CXXFLAGS += -std=c++0x
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
