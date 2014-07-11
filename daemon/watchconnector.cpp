@@ -214,8 +214,9 @@ void WatchConnector::buildData(QByteArray &res, QStringList data)
     for (QString d : data)
     {
         QByteArray tmp = d.left(0xF0).toUtf8();
-        res.append(tmp.length() & 0xFF);
+        res.append((tmp.length() + 1) & 0xFF);
         res.append(tmp);
+        res.append('\0');
     }
 }
 
@@ -249,10 +250,10 @@ QString WatchConnector::timeStamp()
 void WatchConnector::sendNotification(unsigned int lead, QString sender, QString data, QString subject)
 {
     QStringList tmp;
-    tmp.append(sender.isEmpty() ? " " : sender);
-    tmp.append(data.isEmpty() ? " " : data);
+    tmp.append(sender);
+    tmp.append(data);
     tmp.append(timeStamp());
-    if (lead == 0) tmp.append(subject.isEmpty() ? " " : subject);
+    if (lead == 0) tmp.append(subject);
 
     QByteArray res = buildMessageData(lead, tmp);
 
