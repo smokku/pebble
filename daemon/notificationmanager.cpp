@@ -97,8 +97,8 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
     if (app_name == "messageserver5") {
         emit this->emailNotify(hints.value("x-nemo-preview-summary", detectCleanAppname(app_name)).toString(),
-                               "",
-                               hints.value("x-nemo-preview-body", "").toString()
+                               hints.value("x-nemo-preview-body", "").toString(),
+                               ""
                                );
     } else if (app_name == "commhistoryd") {
         if (summary == "" && body == "") {
@@ -115,9 +115,9 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         if (subject.isEmpty()) {
            subject =  hints.value("x-nemo-preview-body", "").toString();
         }
-        if (subject.isEmpty() && !data.isEmpty()) {
-            subject = data;
-            data = "";
+        if (data.isEmpty() && !subject.isEmpty()) {
+            data = subject;
+            subject = "";
         }
         emit this->emailNotify(detectCleanAppname(app_name), data, subject);
     }
