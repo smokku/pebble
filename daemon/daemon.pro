@@ -1,7 +1,6 @@
 TARGET = pebbled
 
 CONFIG += console
-CONFIG -= app_bundle
 CONFIG += link_pkgconfig
 QT -= gui
 
@@ -10,7 +9,7 @@ PKGCONFIG += commhistory-qt5 mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
 LIBS += -L$$OUT_PWD/../ext/Log4Qt/ -llog4qt
-QMAKE_RPATHDIR += /usr/share/$$TARGET/lib
+QMAKE_RPATHDIR += /usr/share/pebble/lib
 INCLUDEPATH += ../ext/Log4Qt/src ../ext/Log4Qt/deploy/include
 
 SOURCES += \
@@ -35,7 +34,7 @@ OTHER_FILES += \
     ../log4qt-debug.conf \
     ../log4qt-release.conf
 
-INSTALLS += target pebbled config
+INSTALLS += target pebbled confile lib
 
 target.path = /usr/bin
 
@@ -44,15 +43,18 @@ pebbled.path = /usr/lib/systemd/user
 
 CONFIG(debug, debug|release) {
     message(Debug build)
-    log4qt_demo_config.extra = cp $$PWD/../../log4qt-debug.conf $$OUT_PWD/../../log4qt.conf
+    confile.extra = cp $$PWD/../log4qt-debug.conf $$OUT_PWD/../log4qt.conf
 }
 else {
     message(Release build)
-    log4qt_demo_config.extra = cp $$PWD/../../log4qt-release.conf $$OUT_PWD/../../log4qt.conf
+    confile.extra = cp $$PWD/../log4qt-release.conf $$OUT_PWD/../log4qt.conf
 }
 
-config.files = $$OUT_PWD/../../log4qt.conf
-config.path = /usr/share/$$TARGET
+confile.files = $$OUT_PWD/../log4qt.conf
+confile.path = /usr/share/pebble
+
+lib.files += $$OUT_PWD/../ext/Log4Qt/*.s*
+lib.path = /usr/share/pebble/lib
 
 # so QtCreator could find commhistory headers... :-(
 INCLUDEPATH += $$[QT_HOST_PREFIX]/include/commhistory-qt5

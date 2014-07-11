@@ -33,9 +33,11 @@
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
+#include <QTimer>
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
 #include <QBluetoothServiceInfo>
+#include "Logger"
 
 using namespace QtBluetooth;
 
@@ -45,8 +47,11 @@ namespace watch
 class WatchConnector : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
+
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString connected READ isConnected NOTIFY connectedChanged)
+
 public:
     enum {
         watchTIME = 11,

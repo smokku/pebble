@@ -32,7 +32,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     notification.setImage("icon-system-bluetooth-device");
 
     if (btDevice.isValid()) {
-        qDebug() << "BT local name:" << btDevice.name();
+        logger()->debug() << "BT local name:" << btDevice.name();
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
@@ -51,7 +51,7 @@ void Manager::onPebbleChanged()
     const QVariantMap & pebble = dbus->pebble();
     QString name = pebble["Name"].toString();
     if (name.isEmpty()) {
-        qDebug() << "Pebble gone";
+        logger()->debug() << "Pebble gone";
     } else {
         watch->deviceConnect(name, pebble["Address"].toString());
     }
@@ -62,19 +62,19 @@ void Manager::onConnectedChanged()
     QString message = QString("%1 %2")
             .arg(watch->name().isEmpty() ? "Pebble" : watch->name())
             .arg(watch->isConnected() ? "connected" : "disconnected");
-    qDebug() << message;
+    logger()->debug() << message;
 
     if (notification.isPublished()) notification.remove();
 
     notification.setBody(message);
     if (!notification.publish()) {
-        qDebug() << "Failed publishing notification";
+        logger()->debug() << "Failed publishing notification";
     }
 }
 
 void Manager::onActiveVoiceCallChanged()
 {
-    qDebug() << "Manager::onActiveVoiceCallChanged()";
+    logger()->debug() << "Manager::onActiveVoiceCallChanged()";
 
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (handler) {
@@ -87,11 +87,11 @@ void Manager::onActiveVoiceCallStatusChanged()
 {
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (!handler) {
-        qWarning() << "ActiveVoiceCallStatusChanged but no activeVoiceCall??";
+        logger()->debug() << "ActiveVoiceCallStatusChanged but no activeVoiceCall??";
         return;
     }
 
-    qDebug() << "handlerId:" << handler->handlerId()
+    logger()->debug() << "handlerId:" << handler->handlerId()
              << "providerId:" << handler->providerId()
              << "status:" << handler->status()
              << "statusText:" << handler->statusText()
@@ -99,28 +99,28 @@ void Manager::onActiveVoiceCallStatusChanged()
              << "incoming:" << handler->isIncoming();
 
     if (!watch->isConnected()) {
-        qDebug() << "Watch is not connected";
+        logger()->debug() << "Watch is not connected";
         return;
     }
 
     switch ((VoiceCallHandler::VoiceCallStatus)handler->status()) {
     case VoiceCallHandler::STATUS_ALERTING:
     case VoiceCallHandler::STATUS_DIALING:
-        qDebug() << "Tell outgoing:" << handler->lineId();
+        logger()->debug() << "Tell outgoing:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()), false);
         break;
     case VoiceCallHandler::STATUS_INCOMING:
     case VoiceCallHandler::STATUS_WAITING:
-        qDebug() << "Tell incoming:" << handler->lineId();
+        logger()->debug() << "Tell incoming:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()));
         break;
     case VoiceCallHandler::STATUS_NULL:
     case VoiceCallHandler::STATUS_DISCONNECTED:
-        qDebug() << "Endphone";
+        logger()->debug() << "Endphone";
         watch->endPhoneCall();
         break;
     case VoiceCallHandler::STATUS_ACTIVE:
-        qDebug() << "Startphone";
+        logger()->debug() << "Startphone";
         watch->startPhoneCall();
         break;
     case VoiceCallHandler::STATUS_HELD:
@@ -142,7 +142,7 @@ QString Manager::findPersonByNumber(QString number)
 
 void Manager::onVoiceError(const QString &message)
 {
-    qWarning() << "Error: " << message;
+    logger()->error() << "Error: " << message;
 }
 
 void Manager::hangupAll()
@@ -155,7 +155,7 @@ void Manager::hangupAll()
 void Manager::onConversationGroupAdded(GroupObject *group)
 {
     if (!group) {
-        qWarning() << "Got null conversation group";
+        logger()->debug() << "Got null conversation group";
         return;
     }
 
@@ -168,7 +168,7 @@ void Manager::onUnreadMessagesChanged()
 {
     GroupObject *group = qobject_cast<GroupObject*>(sender());
     if (!group) {
-        qWarning() << "Got unreadMessagesChanged for null group";
+        logger()->debug() << "Got unreadMessagesChanged for null group";
         return;
     }
     processUnreadMessages(group);
@@ -179,10 +179,10 @@ void Manager::processUnreadMessages(GroupObject *group)
     if (group->unreadMessages()) {
         QString name = group->contactName();
         QString message = group->lastMessageText();
-        qDebug() << "Msg:" << message;
-        qDebug() << "From:" << name;
+        logger()->debug() << "Msg:" << message;
+        logger()->debug() << "From:" << name;
         watch->sendSMSNotification(name.isEmpty()?"Unknown":name, message);
     } else {
-        qWarning() << "Got processUnreadMessages for group with no new messages";
+        logger()->debug() << "Got processUnreadMessages for group with no new messages";
     }
 }

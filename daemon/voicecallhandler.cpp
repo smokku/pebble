@@ -48,7 +48,7 @@ VoiceCallHandler::VoiceCallHandler(const QString &handlerId, QObject *parent)
     : QObject(parent), d_ptr(new VoiceCallHandlerPrivate(this, handlerId))
 {
     Q_D(VoiceCallHandler);
-    qDebug() << QString("Creating D-Bus interface to: ") + handlerId;
+    logger()->debug() << QString("Creating D-Bus interface to: ") + handlerId;
     d->interface = new QDBusInterface("org.nemomobile.voicecall",
                                       "/calls/" + handlerId,
                                       "org.nemomobile.voicecall.VoiceCall",
@@ -178,7 +178,8 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
         QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
         if (reply.isValid()) {
             QVariantMap props = reply.value();
-            qDebug() << props;
+            QString str; QDebug(&str) << props;
+            logger()->debug() << str;
             d->providerId = props["providerId"].toString();
             d->duration = props["duration"].toInt();
             d->status = props["status"].toInt();
@@ -196,7 +197,7 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
             emit emergencyChanged();
             emit forwardedChanged();
         } else if (notifyError) {
-            qWarning() << "Failed to get VoiceCall properties from VCM D-Bus service.";
+            logger()->error() << "Failed to get VoiceCall properties from VCM D-Bus service.";
             emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
         }
     }
@@ -413,10 +414,10 @@ void VoiceCallHandler::onPendingCallFinished(QDBusPendingCallWatcher *watcher)
     QDBusPendingReply<bool> reply = *watcher;
 
     if (reply.isError()) {
-        qWarning() << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
+        logger()->error() << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
         emit this->error(reply.error().message());
         watcher->deleteLater();
     } else {
-        qDebug() << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
+        logger()->debug() << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
     }
 }

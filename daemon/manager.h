@@ -11,6 +11,7 @@
 #include <QtContacts/QContactDetailFilter>
 #include <CommHistory/GroupModel>
 #include <MNotification>
+#include "Logger"
 
 using namespace QtContacts;
 using namespace CommHistory;
@@ -18,6 +19,7 @@ using namespace CommHistory;
 class Manager : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     friend class PebbledProxy;
 

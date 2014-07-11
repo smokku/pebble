@@ -4,9 +4,9 @@
 #include "voicecallhandler.h"
 
 #include <QObject>
-
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
+#include "Logger"
 
 class VoiceCallProviderData
 {
@@ -27,6 +27,7 @@ typedef QList<VoiceCallHandler*> VoiceCallHandlerList;
 class VoiceCallManager : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     Q_PROPERTY(QDBusInterface* interface READ interface)
 

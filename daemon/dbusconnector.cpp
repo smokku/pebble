@@ -25,14 +25,14 @@ bool DBusConnector::findPebble()
                                                                                                       "org.bluez.Manager",
                                                                                                       "ListAdapters"));
     if (not ListAdaptersReply.isValid()) {
-        qWarning() << ListAdaptersReply.error().message();
+        logger()->error() << ListAdaptersReply.error().message();
         return false;
     }
 
     QList<QDBusObjectPath> adapters = ListAdaptersReply.value();
 
     if (adapters.isEmpty()) {
-        qWarning() << "No BT adapters found";
+        logger()->debug() << "No BT adapters found";
         return false;
     }
 
@@ -41,7 +41,7 @@ bool DBusConnector::findPebble()
                                                                                                 "org.bluez.Adapter",
                                                                                                 "GetProperties"));
     if (not AdapterPropertiesReply.isValid()) {
-        qWarning() << AdapterPropertiesReply.error().message();
+        logger()->error() << AdapterPropertiesReply.error().message();
         return false;
     }
 
@@ -57,16 +57,16 @@ bool DBusConnector::findPebble()
                                                                                                    "org.bluez.Device",
                                                                                                    "GetProperties"));
         if (not DevicePropertiesReply.isValid()) {
-            qWarning() << DevicePropertiesReply.error().message();
+            logger()->error() << DevicePropertiesReply.error().message();
             continue;
         }
 
         const QVariantMap &dict = DevicePropertiesReply.value();
 
         QString tmp = dict["Name"].toString();
-        qDebug() << "Found BT device:" << tmp;
+        logger()->debug() << "Found BT device:" << tmp;
         if (tmp.startsWith("Pebble")) {
-            qDebug() << "Found Pebble:" << tmp;
+            logger()->debug() << "Found Pebble:" << tmp;
             pebbleProps = dict;
             emit pebbleChanged();
             return true;

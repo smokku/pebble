@@ -98,7 +98,7 @@ QString VoiceCallManager::defaultProviderId() const
 {
     Q_D(const VoiceCallManager);
     if(d->providers.count() == 0) {
-        qWarning() << Q_FUNC_INFO << "No provider added";
+        logger()->debug() << Q_FUNC_INFO << "No provider added";
         return QString::null;
     }
 
@@ -288,7 +288,7 @@ void VoiceCallManager::onPendingCallFinished(QDBusPendingCallWatcher *watcher)
     if (reply.isError()) {
         emit this->error(reply.error().message());
     } else {
-        qDebug() << QString("Received successful reply for member: ") + reply.reply().member();
+        logger()->debug() << QString("Received successful reply for member: ") + reply.reply().member();
     }
 
     watcher->deleteLater();
@@ -301,7 +301,7 @@ void VoiceCallManager::onPendingSilenceFinished(QDBusPendingCallWatcher *watcher
     if (reply.isError()) {
         emit this->error(reply.error().message());
     } else {
-        qDebug() << QString("Received successful reply for member: ") + reply.reply().member();
+        logger()->debug() << QString("Received successful reply for member: ") + reply.reply().member();
     }
 
     watcher->deleteLater();
