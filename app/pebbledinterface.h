@@ -10,7 +10,9 @@ class PebbledInterface : public QObject
     Q_OBJECT
 
     static QString PEBBLED_SYSTEMD_UNIT;
-    static QString SYSTEMD_UNIT_IFACE;
+    static QString PEBBLED_DBUS_SERVICE;
+    static QString PEBBLED_DBUS_PATH;
+    static QString PEBBLED_DBUS_IFACE;
 
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     bool enabled() const;
@@ -58,7 +60,7 @@ private slots:
 private:
     QDBusInterface *pebbled;
     QDBusInterface *systemd;
-    QDBusInterface *unitprops;
+    QDBusObjectPath unitPath;
 
     QVariantMap properties;
 };

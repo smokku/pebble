@@ -24,7 +24,6 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
 
-    // Watch instantiated hangup, follow the orders
     connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 

@@ -176,10 +176,10 @@ void WatchConnector::onDisconnected()
     bool was_connected = is_connected;
     is_connected = false;
 
+    if (was_connected) emit connectedChanged();
+
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
     if (!socket) return;
-
-    if (was_connected) emit connectedChanged();
 
     socket->deleteLater();
 

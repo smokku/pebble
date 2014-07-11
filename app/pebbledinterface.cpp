@@ -1,25 +1,28 @@
 #include "pebbledinterface.h"
 
 QString PebbledInterface::PEBBLED_SYSTEMD_UNIT("pebbled.service");
-QString PebbledInterface::SYSTEMD_UNIT_IFACE("org.freedesktop.systemd1.Unit");
+QString PebbledInterface::PEBBLED_DBUS_SERVICE("org.pebbled");
+QString PebbledInterface::PEBBLED_DBUS_PATH("/");
+QString PebbledInterface::PEBBLED_DBUS_IFACE("org.pebbled");
 
 
 PebbledInterface::PebbledInterface(QObject *parent) :
-    QObject(parent), pebbled(0), systemd(0), unitprops(0)
+    QObject(parent), pebbled(0), systemd(0)
 {
-    pebbled = new QDBusInterface("org.pebbled",
-                                 "/",
-                                 "org.pebbled",
-                                 QDBusConnection::sessionBus(), this);
-    pebbled->connection()
-            .connect(pebbled->service(), pebbled->path(), pebbled->interface(),
-                     "connectedChanged", this, SIGNAL(connectedChanged()));
-    pebbled->connection()
-            .connect(pebbled->service(), pebbled->path(), pebbled->interface(),
-                     "pebbleChanged", this, SLOT(onPebbleChanged()));
+    QDBusConnection::sessionBus().connect(
+                PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
+                "connectedChanged", this, SIGNAL(connectedChanged()));
+
+    QDBusConnection::sessionBus().connect(
+                PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
+                "pebbleChanged", this, SLOT(onPebbleChanged()));
 
     // simulate connected change on active changed
-    connect(this, SIGNAL(activeChanged()), this, SIGNAL(connectedChanged()));
+    // as the daemon might not had a chance to send connectedChanged()
+    connect(this, SIGNAL(activeChanged()), SIGNAL(connectedChanged()));
+
+    pebbled = new QDBusInterface(PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
+                                 QDBusConnection::sessionBus(), this);
 
     systemd = new QDBusInterface("org.freedesktop.systemd1",
                                  "/org/freedesktop/systemd1",
@@ -29,29 +32,30 @@ PebbledInterface::PebbledInterface(QObject *parent) :
     systemd->call("Subscribe");
 
     QDBusReply<QDBusObjectPath> unit = systemd->call("LoadUnit", PEBBLED_SYSTEMD_UNIT);
-    if (not unit.isValid()) {
-        qWarning() << unit.error().message();
-    } else {
-        unitprops = new QDBusInterface("org.freedesktop.systemd1",
-                                        unit.value().path(),
-                                        "org.freedesktop.DBus.Properties",
-                                        QDBusConnection::sessionBus(), this);
+    if (unit.isValid()) {
+        unitPath = unit.value();
+
         getUnitProperties();
 
-        unitprops->connection()
-                .connect("org.freedesktop.systemd1",
-                         unitprops->path(),
-                         "org.freedesktop.DBus.Properties",
-                         "PropertiesChanged",
-                         this,
-                         SLOT(onPropertiesChanged(QString,QMap<QString,QVariant>,QStringList))
-                        );
+        QDBusConnection::sessionBus().connect(
+                    "org.freedesktop.systemd1",
+                    unitPath.path(),
+                    "org.freedesktop.DBus.Properties",
+                    "PropertiesChanged",
+                    this,
+                    SLOT(onPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
+    } else {
+        qWarning() << unit.error().message();
     }
 }
 
 void PebbledInterface::getUnitProperties()
 {
-    QDBusReply<QVariantMap> reply = unitprops->call("GetAll", SYSTEMD_UNIT_IFACE);
+    QDBusMessage request = QDBusMessage::createMethodCall(
+                "org.freedesktop.systemd1", unitPath.path(),
+                "org.freedesktop.DBus.Properties", "GetAll");
+    request << "org.freedesktop.systemd1.Unit";
+    QDBusReply<QVariantMap> reply = QDBusConnection::sessionBus().call(request);
     if (reply.isValid()) {
         QVariantMap newProperties = reply.value();
         bool emitEnabledChanged = (properties["UnitFileState"] != newProperties["UnitFileState"]);
