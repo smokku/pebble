@@ -10,11 +10,9 @@
 #include <QBluetoothLocalDevice>
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
-#include <CommHistory/GroupModel>
 #include <MNotification>
 
 using namespace QtContacts;
-using namespace CommHistory;
 
 class Manager : public QObject
 {
@@ -33,13 +31,11 @@ class Manager : public QObject
 
     QContactManager *contacts;
     QContactDetailFilter numberFilter;
-    GroupManager *conversations;
 
 public:
     explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
-    Q_INVOKABLE void processUnreadMessages(GroupObject *group);
 
 signals:
 
@@ -52,8 +48,6 @@ protected slots:
     void onActiveVoiceCallChanged();
     void onVoiceError(const QString &message);
     void onActiveVoiceCallStatusChanged();
-    void onConversationGroupAdded(GroupObject *group);
-    void onUnreadMessagesChanged();
     void onNotifyError(const QString &message);
     void onSmsNotify(const QString &sender, const QString &data);
     void onEmailNotify(const QString &sender, const QString &data,const QString &subject);
