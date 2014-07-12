@@ -93,7 +93,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         return;
     }
 
-    qDebug() << "Got notification via dbus from" << detectCleanAppname(app_name);
+    logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << detectCleanAppname(app_name);
 
     if (app_name == "messageserver5") {
         emit this->emailNotify(hints.value("x-nemo-preview-summary", detectCleanAppname(app_name)).toString(),

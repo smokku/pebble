@@ -2,6 +2,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <QObject>
+#include "Logger"
 
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
@@ -9,6 +10,7 @@
 class NotificationManager : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
     Q_CLASSINFO("D-Bus Interface", "org.freedesktop.Notifications")
 
     Q_PROPERTY(QDBusInterface* interface READ interface)
