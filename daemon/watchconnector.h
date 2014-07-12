@@ -85,6 +85,29 @@ public:
         callSTART = 8,
         callEND = 9
     };
+    enum {
+         sessionCapGAMMA_RAY = 0x80000000
+    };
+    enum {
+         remoteCapTELEPHONY = 16,
+         remoteCapSMS = 32,
+         remoteCapGPS = 64,
+         remoteCapBTLE = 128,
+         remoteCapCAMERA_REAR = 256,
+         remoteCapACCEL = 512,
+         remoteCapGYRO = 1024,
+         remoteCapCOMPASS = 2048
+    };
+    enum {
+         osUNKNOWN = 0,
+         osIOS = 1,
+         osANDROID = 2,
+         osOSX = 3,
+         osLINUX = 4,
+         osWINDOWS = 5
+    };
+
+
     explicit WatchConnector(QObject *parent = 0);
     virtual ~WatchConnector();
     bool isConnected() const { return is_connected; }
@@ -106,6 +129,7 @@ public slots:
     void sendNotification(unsigned int lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
+    void sendPhoneVersion();
 
     void buildData(QByteArray &res, QStringList data);
     QByteArray buildMessageData(unsigned int lead, QStringList data);
