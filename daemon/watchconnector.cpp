@@ -266,6 +266,14 @@ void WatchConnector::sendPhoneVersion()
     res.append((char)((remoteCap >> 8) & 0xff));
     res.append((char)(remoteCap & 0xff));
 
+    //Version Magic
+    res.append((char)0x02);
+
+    //Append Version
+    res.append((char)0x02); //Major
+    res.append((char)0x00); //Minor
+    res.append((char)0x00); //Bugfix
+
     sendMessage(watchPHONE_VERSION, res);
 }
 
