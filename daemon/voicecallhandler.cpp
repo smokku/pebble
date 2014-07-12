@@ -48,7 +48,7 @@ VoiceCallHandler::VoiceCallHandler(const QString &handlerId, QObject *parent)
     : QObject(parent), d_ptr(new VoiceCallHandlerPrivate(this, handlerId))
 {
     Q_D(VoiceCallHandler);
-    qDebug() << QString("Creating D-Bus interface to: ") + handlerId;
+    logger()->debug() << QString("Creating D-Bus interface to: ") + handlerId;
     d->interface = new QDBusInterface("org.nemomobile.voicecall",
                                       "/calls/" + handlerId,
                                       "org.nemomobile.voicecall.VoiceCall",
@@ -66,7 +66,6 @@ VoiceCallHandler::~VoiceCallHandler()
 void VoiceCallHandler::initialize(bool notifyError)
 {
     Q_D(VoiceCallHandler);
-    bool success = false;
 
 /*
 method return sender=:1.13 -> dest=:1.150 reply_serial=2
@@ -154,31 +153,20 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
 "
 */
 
-    if(d->interface->isValid())
-    {
-        success = true;
-        success &= (bool)QObject::connect(d->interface, SIGNAL(error(QString)), SIGNAL(error(QString)));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(statusChanged()), SLOT(onStatusChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(lineIdChanged()), SLOT(onLineIdChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(durationChanged()), SLOT(onDurationChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(startedAtChanged()), SLOT(onStartedAtChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(emergencyChanged()), SLOT(onEmergencyChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(multipartyChanged()), SLOT(onMultipartyChanged()));
-        success &= (bool)QObject::connect(d->interface, SIGNAL(forwardedChanged()), SLOT(onForwardedChanged()));
-    }
-
-    if(!(d->connected = success))
+    if (not d->connected)
     {
         QTimer::singleShot(2000, this, SLOT(initialize()));
         if(notifyError) emit this->error("Failed to connect to VCM D-Bus service.");
-    } else {
+    }
+    else if (d->interface->isValid()) {
         QDBusInterface props(d->interface->service(), d->interface->path(),
                              "org.freedesktop.DBus.Properties", d->interface->connection());
 
         QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
         if (reply.isValid()) {
             QVariantMap props = reply.value();
-            qDebug() << props;
+            QString str; QDebug(&str) << props;
+            logger()->debug() << str;
             d->providerId = props["providerId"].toString();
             d->duration = props["duration"].toInt();
             d->status = props["status"].toInt();
@@ -195,10 +183,20 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
             emit multipartyChanged();
             emit emergencyChanged();
             emit forwardedChanged();
-        } else if (notifyError) {
-            qWarning() << "Failed to get VoiceCall properties from VCM D-Bus service.";
-            emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
         }
+        else {
+            logger()->error() << "Failed to get VoiceCall properties from VCM D-Bus service.";
+            if (notifyError) emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
+        }
+
+        connect(d->interface, SIGNAL(error(QString)), SIGNAL(error(QString)));
+        connect(d->interface, SIGNAL(statusChanged()), SLOT(onStatusChanged()));
+        connect(d->interface, SIGNAL(lineIdChanged()), SLOT(onLineIdChanged()));
+        connect(d->interface, SIGNAL(durationChanged()), SLOT(onDurationChanged()));
+        connect(d->interface, SIGNAL(startedAtChanged()), SLOT(onStartedAtChanged()));
+        connect(d->interface, SIGNAL(emergencyChanged()), SLOT(onEmergencyChanged()));
+        connect(d->interface, SIGNAL(multipartyChanged()), SLOT(onMultipartyChanged()));
+        connect(d->interface, SIGNAL(forwardedChanged()), SLOT(onForwardedChanged()));
     }
 }
 
@@ -413,10 +411,10 @@ void VoiceCallHandler::onPendingCallFinished(QDBusPendingCallWatcher *watcher)
     QDBusPendingReply<bool> reply = *watcher;
 
     if (reply.isError()) {
-        qWarning() << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
+        logger()->error() << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
         emit this->error(reply.error().message());
         watcher->deleteLater();
     } else {
-        qDebug() << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
+        logger()->debug() << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
     }
 }

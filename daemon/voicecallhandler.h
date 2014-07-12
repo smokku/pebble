@@ -3,12 +3,13 @@
 
 #include <QObject>
 #include <QDateTime>
-
 #include <QDBusPendingCallWatcher>
+#include "Logger"
 
 class VoiceCallHandler : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     Q_ENUMS(VoiceCallStatus)
 

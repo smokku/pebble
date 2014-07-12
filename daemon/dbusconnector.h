@@ -3,10 +3,12 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include "Logger"
 
 class DBusConnector : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     Q_PROPERTY(QVariantMap pebble READ pebble NOTIFY pebbleChanged)
 

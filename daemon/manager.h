@@ -11,12 +11,14 @@
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
 #include <MNotification>
+#include "Logger"
 
 using namespace QtContacts;
 
 class Manager : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     friend class PebbledProxy;
 

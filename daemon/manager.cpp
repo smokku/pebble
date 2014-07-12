@@ -24,7 +24,6 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(notifications, SIGNAL(emailNotify(const QString &,const QString &,const QString &)), SLOT(onEmailNotify(const QString &,const QString &,const QString &)));
     connect(notifications, SIGNAL(smsNotify(const QString &,const QString &)), SLOT(onSmsNotify(const QString &,const QString &)));
 
-    // Watch instantiated hangup, follow the orders
     connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 
@@ -32,7 +31,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     notification.setImage("icon-system-bluetooth-device");
 
     if (btDevice.isValid()) {
-        qDebug() << "BT local name:" << btDevice.name();
+        logger()->debug() << "BT local name:" << btDevice.name();
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
@@ -51,7 +50,7 @@ void Manager::onPebbleChanged()
     const QVariantMap & pebble = dbus->pebble();
     QString name = pebble["Name"].toString();
     if (name.isEmpty()) {
-        qDebug() << "Pebble gone";
+        logger()->debug() << "Pebble gone";
     } else {
         watch->deviceConnect(name, pebble["Address"].toString());
     }
@@ -62,19 +61,19 @@ void Manager::onConnectedChanged()
     QString message = QString("%1 %2")
             .arg(watch->name().isEmpty() ? "Pebble" : watch->name())
             .arg(watch->isConnected() ? "connected" : "disconnected");
-    qDebug() << message;
+    logger()->debug() << message;
 
     if (notification.isPublished()) notification.remove();
 
     notification.setBody(message);
     if (!notification.publish()) {
-        qDebug() << "Failed publishing notification";
+        logger()->debug() << "Failed publishing notification";
     }
 }
 
 void Manager::onActiveVoiceCallChanged()
 {
-    qDebug() << "Manager::onActiveVoiceCallChanged()";
+    logger()->debug() << "Manager::onActiveVoiceCallChanged()";
 
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (handler) {
@@ -87,11 +86,11 @@ void Manager::onActiveVoiceCallStatusChanged()
 {
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (!handler) {
-        qWarning() << "ActiveVoiceCallStatusChanged but no activeVoiceCall??";
+        logger()->debug() << "ActiveVoiceCallStatusChanged but no activeVoiceCall??";
         return;
     }
 
-    qDebug() << "handlerId:" << handler->handlerId()
+    logger()->debug() << "handlerId:" << handler->handlerId()
              << "providerId:" << handler->providerId()
              << "status:" << handler->status()
              << "statusText:" << handler->statusText()
@@ -99,28 +98,28 @@ void Manager::onActiveVoiceCallStatusChanged()
              << "incoming:" << handler->isIncoming();
 
     if (!watch->isConnected()) {
-        qDebug() << "Watch is not connected";
+        logger()->debug() << "Watch is not connected";
         return;
     }
 
     switch ((VoiceCallHandler::VoiceCallStatus)handler->status()) {
     case VoiceCallHandler::STATUS_ALERTING:
     case VoiceCallHandler::STATUS_DIALING:
-        qDebug() << "Tell outgoing:" << handler->lineId();
+        logger()->debug() << "Tell outgoing:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()), false);
         break;
     case VoiceCallHandler::STATUS_INCOMING:
     case VoiceCallHandler::STATUS_WAITING:
-        qDebug() << "Tell incoming:" << handler->lineId();
+        logger()->debug() << "Tell incoming:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()));
         break;
     case VoiceCallHandler::STATUS_NULL:
     case VoiceCallHandler::STATUS_DISCONNECTED:
-        qDebug() << "Endphone";
+        logger()->debug() << "Endphone";
         watch->endPhoneCall();
         break;
     case VoiceCallHandler::STATUS_ACTIVE:
-        qDebug() << "Startphone";
+        logger()->debug() << "Startphone";
         watch->startPhoneCall();
         break;
     case VoiceCallHandler::STATUS_HELD:
@@ -142,7 +141,7 @@ QString Manager::findPersonByNumber(QString number)
 
 void Manager::onVoiceError(const QString &message)
 {
-    qWarning() << "Error: " << message;
+    logger()->error() << "Error: " << message;
 }
 
 
@@ -153,18 +152,18 @@ void Manager::onNotifyError(const QString &message)
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)
 {
-    qDebug() << "SMS:";
-    qDebug() << sender;
-    qDebug() << data;
+    logger()->debug() << "SMS:";
+    logger()->debug() << sender;
+    logger()->debug() << data;
     watch->sendSMSNotification(sender, data);
 }
 
 void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
 {
-    qDebug() << "Email:";
-    qDebug() << sender;
-    qDebug() << data;
-    qDebug() << subject;
+    logger()->debug() << "Email:";
+    logger()->debug() << sender;
+    logger()->debug() << data;
+    logger()->debug() << subject;
     watch->sendEmailNotification(sender, data, subject);
 }
 
