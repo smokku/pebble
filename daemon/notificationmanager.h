@@ -7,6 +7,8 @@
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
 
+typedef QHash<QString, QString> QStringHash;
+
 class NotificationManager : public QObject
 {
     Q_OBJECT
@@ -34,7 +36,8 @@ protected Q_SLOTS:
 private:
     class NotificationManagerPrivate *d_ptr;
 
-    QString detectCleanAppname(QString app_name);
+    QString getCleanAppName(QString app_name);
+    QStringHash getCategoryParams(QString category);
 
     Q_DISABLE_COPY(NotificationManager)
     Q_DECLARE_PRIVATE(NotificationManager)

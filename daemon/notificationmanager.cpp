@@ -70,9 +70,9 @@ QDBusInterface* NotificationManager::interface() const
     return d->interface;
 }
 
-QString NotificationManager::detectCleanAppname(QString app_name)
+QString NotificationManager::getCleanAppName(QString app_name)
 {
-    QString desktopFile = "/usr/share/applications/" + app_name + ".desktop";
+    QString desktopFile = QString("/usr/share/applications/%1.desktop").arg(app_name);
     QFile testFile(desktopFile);
     if (testFile.exists()) {
         QSettings settings(desktopFile, QSettings::IniFormat);
@@ -86,6 +86,24 @@ QString NotificationManager::detectCleanAppname(QString app_name)
     return app_name;
 }
 
+QStringHash NotificationManager::getCategoryParams(QString category)
+{
+    if (!category.isEmpty()) {
+        QString categoryConfigFile = QString("/usr/share/lipstick/notificationcategories/%1.conf").arg(category);
+        QFile testFile(categoryConfigFile);
+        if (testFile.exists()) {
+            QStringHash categories;
+            QSettings settings(categoryConfigFile, QSettings::IniFormat);
+            const QStringList settingKeys = settings.allKeys();
+            foreach (const QString &settingKey, settingKeys) {
+                categories[settingKey] = settings.value(settingKey).toString();
+            }
+            return categories;
+        }
+    }
+    return QStringHash();
+}
+
 void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout) {
 
     //Ignore notifcations from myself
@@ -93,10 +111,10 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         return;
     }
 
-    logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << detectCleanAppname(app_name);
+    logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
 
     if (app_name == "messageserver5") {
-        emit this->emailNotify(hints.value("x-nemo-preview-summary", detectCleanAppname(app_name)).toString(),
+        emit this->emailNotify(hints.value("x-nemo-preview-summary", this->getCleanAppName(app_name)).toString(),
                                hints.value("x-nemo-preview-body", "default").toString(),
                                ""
                                );
@@ -106,10 +124,19 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                                  hints.value("x-nemo-preview-body", "default").toString()
                                 );
         }
+    } else if (app_name == "harbour-mitakuuluu2-server") {
+        emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
+                             hints.value("x-nemo-preview-summary", "default").toString()
+                            );
     } else {
         //Prioritize x-nemo-preview* over dbus direct summary and body
         QString subject = hints.value("x-nemo-preview-summary", "").toString();
         QString data = hints.value("x-nemo-preview-body", "").toString();
+        QString category = hints.value("category", "").toString();
+        QStringHash categoryParams = this->getCategoryParams(category);
+        int prio = categoryParams.value("x-nemo-priority", "0").toInt();
+
+        logger()->debug() << "MSG Prio:" << prio;
 
         if (subject.isEmpty()) {
             subject = summary;
@@ -130,6 +157,6 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             return;
         }
 
-        emit this->emailNotify(detectCleanAppname(app_name), data, subject);
+        emit this->emailNotify(this->getCleanAppName(app_name), data, subject);
     }
 }
