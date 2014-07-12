@@ -97,7 +97,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
     if (app_name == "messageserver5") {
         emit this->emailNotify(hints.value("x-nemo-preview-summary", detectCleanAppname(app_name)).toString(),
-                               hints.value("x-nemo-preview-body", "").toString(),
+                               hints.value("x-nemo-preview-body", "default").toString(),
                                ""
                                );
     } else if (app_name == "commhistoryd") {
@@ -107,18 +107,29 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                                 );
         }
     } else {
-        QString data = summary;
-        QString subject = body;
-        if (data.isEmpty()) {
-           data = hints.value("x-nemo-preview-summary", "").toString();
-        }
+        //Prioritize x-nemo-preview* over dbus direct summary and body
+        QString subject = hints.value("x-nemo-preview-summary", "").toString();
+        QString data = hints.value("x-nemo-preview-body", "").toString();
+
         if (subject.isEmpty()) {
-           subject =  hints.value("x-nemo-preview-body", "").toString();
+            subject = summary;
         }
+        if (data.isEmpty()) {
+            data = body;
+        }
+
+        //Prioritize data over subject
         if (data.isEmpty() && !subject.isEmpty()) {
             data = subject;
             subject = "";
         }
+
+        //Never send empty data and subject
+        if (data.isEmpty() && subject.isEmpty()) {
+            logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app " << app_name;
+            return;
+        }
+
         emit this->emailNotify(detectCleanAppname(app_name), data, subject);
     }
 }
