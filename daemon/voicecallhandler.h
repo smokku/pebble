@@ -71,6 +71,7 @@ public Q_SLOTS:
 
 protected Q_SLOTS:
     void initialize(bool notifyError = false);
+    bool getProperties();
 
     void onPendingCallFinished(QDBusPendingCallWatcher *watcher);
     void onDurationChanged();

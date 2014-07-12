@@ -56,6 +56,6 @@ confile.path = /usr/share/pebble
 lib.files += $$OUT_PWD/../ext/Log4Qt/*.s*
 lib.path = /usr/share/pebble/lib
 
-# so QtCreator could find commhistory headers... :-(
+# unnecesary includes, just so QtCreator could find headers... :-(
 INCLUDEPATH += $$[QT_HOST_PREFIX]/include/commhistory-qt5
 INCLUDEPATH += $$[QT_HOST_PREFIX]/include/mlite5

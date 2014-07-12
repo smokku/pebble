@@ -1,7 +1,6 @@
 #include "voicecallhandler.h"
 
 #include <QDebug>
-#include <QTimer>
 #include <QDBusInterface>
 #include <QDBusPendingReply>
 #include <QDBusReply>
@@ -19,7 +18,7 @@ class VoiceCallHandlerPrivate
 
 public:
     VoiceCallHandlerPrivate(VoiceCallHandler *q, const QString &pHandlerId)
-        : q_ptr(q), handlerId(pHandlerId), interface(NULL), connected(false)
+        : q_ptr(q), handlerId(pHandlerId), interface(NULL)
         , duration(0), status(0), emergency(false), multiparty(false), forwarded(false)
     { /* ... */ }
 
@@ -29,7 +28,6 @@ public:
 
     QDBusInterface *interface;
 
-    bool connected;
     int duration;
     int status;
     QString statusText;
@@ -153,29 +151,8 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
 "
 */
 
-    if (not d->connected)
-    {
-        QTimer::singleShot(2000, this, SLOT(initialize()));
-        if(notifyError) emit this->error("Failed to connect to VCM D-Bus service.");
-    }
-    else if (d->interface->isValid()) {
-        QDBusInterface props(d->interface->service(), d->interface->path(),
-                             "org.freedesktop.DBus.Properties", d->interface->connection());
-
-        QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
-        if (reply.isValid()) {
-            QVariantMap props = reply.value();
-            QString str; QDebug(&str) << props;
-            logger()->debug() << str;
-            d->providerId = props["providerId"].toString();
-            d->duration = props["duration"].toInt();
-            d->status = props["status"].toInt();
-            d->statusText = props["statusText"].toString();
-            d->lineId = props["lineId"].toString();
-            d->startedAt = QDateTime::fromMSecsSinceEpoch(props["startedAt"].toULongLong());
-            d->multiparty = props["isMultiparty"].toBool();
-            d->emergency = props["isEmergency"].toBool();
-            d->forwarded = props["isForwarded"].toBool();
+    if (d->interface->isValid()) {
+        if (getProperties()) {
             emit durationChanged();
             emit statusChanged();
             emit lineIdChanged();
@@ -183,20 +160,51 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
             emit multipartyChanged();
             emit emergencyChanged();
             emit forwardedChanged();
+
+            connect(d->interface, SIGNAL(error(QString)), SIGNAL(error(QString)));
+            connect(d->interface, SIGNAL(statusChanged()), SLOT(onStatusChanged()));
+            connect(d->interface, SIGNAL(lineIdChanged()), SLOT(onLineIdChanged()));
+            connect(d->interface, SIGNAL(durationChanged()), SLOT(onDurationChanged()));
+            connect(d->interface, SIGNAL(startedAtChanged()), SLOT(onStartedAtChanged()));
+            connect(d->interface, SIGNAL(emergencyChanged()), SLOT(onEmergencyChanged()));
+            connect(d->interface, SIGNAL(multipartyChanged()), SLOT(onMultipartyChanged()));
+            connect(d->interface, SIGNAL(forwardedChanged()), SLOT(onForwardedChanged()));
         }
         else {
-            logger()->error() << "Failed to get VoiceCall properties from VCM D-Bus service.";
             if (notifyError) emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
         }
+    }
+    else {
+        logger()->error() << d->interface->lastError().name() << d->interface->lastError().message();
+    }
+}
 
-        connect(d->interface, SIGNAL(error(QString)), SIGNAL(error(QString)));
-        connect(d->interface, SIGNAL(statusChanged()), SLOT(onStatusChanged()));
-        connect(d->interface, SIGNAL(lineIdChanged()), SLOT(onLineIdChanged()));
-        connect(d->interface, SIGNAL(durationChanged()), SLOT(onDurationChanged()));
-        connect(d->interface, SIGNAL(startedAtChanged()), SLOT(onStartedAtChanged()));
-        connect(d->interface, SIGNAL(emergencyChanged()), SLOT(onEmergencyChanged()));
-        connect(d->interface, SIGNAL(multipartyChanged()), SLOT(onMultipartyChanged()));
-        connect(d->interface, SIGNAL(forwardedChanged()), SLOT(onForwardedChanged()));
+bool VoiceCallHandler::getProperties()
+{
+    Q_D(VoiceCallHandler);
+
+    QDBusInterface props(d->interface->service(), d->interface->path(),
+                         "org.freedesktop.DBus.Properties", d->interface->connection());
+
+    QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
+    if (reply.isValid()) {
+        QVariantMap props = reply.value();
+        QString str; QDebug(&str) << props;
+        logger()->debug() << str;
+        d->providerId = props["providerId"].toString();
+        d->duration = props["duration"].toInt();
+        d->status = props["status"].toInt();
+        d->statusText = props["statusText"].toString();
+        d->lineId = props["lineId"].toString();
+        d->startedAt = QDateTime::fromMSecsSinceEpoch(props["startedAt"].toULongLong());
+        d->multiparty = props["isMultiparty"].toBool();
+        d->emergency = props["isEmergency"].toBool();
+        d->forwarded = props["isForwarded"].toBool();
+        return true;
+    }
+    else {
+        logger()->error() << "Failed to get VoiceCall properties from VCM D-Bus service.";
+        return false;
     }
 }
 
@@ -209,9 +217,10 @@ void VoiceCallHandler::onDurationChanged()
 
 void VoiceCallHandler::onStatusChanged()
 {
-    Q_D(VoiceCallHandler);
-    d->status = d->interface->property("status").toInt();
-    d->statusText = d->interface->property("statusText").toString();
+    // a) initialize() might returned crap with STATUS_NULL (no lineId)
+    // b) we need to fetch two properties "status" and "statusText"
+    //    so, we might aswell get them all
+    getProperties();
     emit statusChanged();
 }
 
