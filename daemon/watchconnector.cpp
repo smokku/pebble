@@ -136,12 +136,16 @@ void WatchConnector::decodeMsg(QByteArray data)
 
     logger()->debug() << "Length:" << datalen << " Endpoint:" << decodeEndpoint(endpoint);
     logger()->debug() << "Data:" << data.mid(index).toHex();
+
+    //TODO: move the handling to a seperate method/class
     if (endpoint == watchPHONE_CONTROL) {
         if (data.length() >= 5) {
             if (data.at(4) == callHANGUP) {
                 emit hangup();
             }
         }
+    } else if (endpoint == watchPHONE_VERSION) {
+        this->sendPhoneVersion();
     }
 }
 
@@ -235,6 +239,42 @@ QByteArray WatchConnector::buildMessageData(unsigned int lead, QStringList data)
     buildData(res, data);
 
     return res;
+}
+
+void WatchConnector::sendPhoneVersion()
+{
+    unsigned int sessionCap = sessionCapGAMMA_RAY;
+    unsigned int remoteCap = remoteCapTELEPHONY | remoteCapSMS | osANDROID;
+    QByteArray res;
+
+    //Prefix
+    res.append(0x01);
+    res.append(0xff);
+    res.append(0xff);
+    res.append(0xff);
+    res.append(0xff);
+
+    //Session Capabilities
+    res.append((char)((sessionCap >> 24) & 0xff));
+    res.append((char)((sessionCap >> 16) & 0xff));
+    res.append((char)((sessionCap >> 8) & 0xff));
+    res.append((char)(sessionCap & 0xff));
+
+    //Remote Capabilities
+    res.append((char)((remoteCap >> 24) & 0xff));
+    res.append((char)((remoteCap >> 16) & 0xff));
+    res.append((char)((remoteCap >> 8) & 0xff));
+    res.append((char)(remoteCap & 0xff));
+
+    //Version Magic
+    res.append((char)0x02);
+
+    //Append Version
+    res.append((char)0x02); //Major
+    res.append((char)0x00); //Minor
+    res.append((char)0x00); //Bugfix
+
+    sendMessage(watchPHONE_VERSION, res);
 }
 
 void WatchConnector::ping(unsigned int val)
