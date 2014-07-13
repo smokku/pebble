@@ -49,11 +49,13 @@ class WatchConnector : public QObject
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
 
+    Q_ENUMS(Endpoints)
+
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString connected READ isConnected NOTIFY connectedChanged)
 
 public:
-    enum {
+    enum Endpoints {
         watchTIME = 11,
         watchVERSION = 16,
         watchPHONE_VERSION = 17,
@@ -128,34 +130,34 @@ public:
     explicit WatchConnector(QObject *parent = 0);
     virtual ~WatchConnector();
     bool isConnected() const { return is_connected; }
-    QString name() const { if (socket != nullptr) return socket->peerName(); return ""; }
+    QString name() const { return socket != nullptr ? socket->peerName() : ""; }
 
     QString timeStamp();
-    QString decodeEndpoint(unsigned int val);
+    QString decodeEndpoint(uint val);
 
 signals:
     void messageReceived(QString peer, QString msg);
+    void messageDecoded(uint endpoint, uint datalen, QByteArray data);
     void nameChanged();
     void connectedChanged();
-    void hangup();
 
 public slots:
     void sendData(const QByteArray &data);
-    void sendMessage(unsigned int endpoint, QByteArray data);
-    void ping(unsigned int val);
-    void sendNotification(unsigned int lead, QString sender, QString data, QString subject);
+    void sendMessage(uint endpoint, QByteArray data);
+    void ping(uint val);
+    void sendNotification(uint lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
     void sendMusicNowPlaying(QString track, QString album, QString artist);
     void sendPhoneVersion();
 
     void buildData(QByteArray &res, QStringList data);
-    QByteArray buildMessageData(unsigned int lead, QStringList data);
+    QByteArray buildMessageData(uint lead, QStringList data);
 
-    void phoneControl(char act, unsigned int cookie, QStringList datas);
-    void ring(QString number, QString name, bool incoming=true, unsigned int cookie=0);
-    void startPhoneCall(unsigned int cookie=0);
-    void endPhoneCall(unsigned int cookie=0);
+    void phoneControl(char act, uint cookie, QStringList datas);
+    void ring(QString number, QString name, bool incoming=true, uint cookie=0);
+    void startPhoneCall(uint cookie=0);
+    void endPhoneCall(uint cookie=0);
 
     void deviceConnect(const QString &name, const QString &address);
     void disconnect();

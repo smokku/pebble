@@ -6,7 +6,7 @@
 #include <QtContacts/QContactPhoneNumber>
 
 Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice),
+    QObject(0), watch(watch), dbus(dbus), voice(voice), commands(new WatchCommands(watch, this)),
     notification(MNotification::DeviceEvent)
 {
     // We don't need to handle presence changes, so report them separately and ignore them
@@ -24,8 +24,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
 
-    connect(watch, SIGNAL(hangup()), SLOT(hangupAll()));
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
+
+    connect(watch, SIGNAL(messageDecoded(uint,uint,QByteArray)), commands, SLOT(processMessage(uint,uint,QByteArray)));
+    connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
 
     // Set BT icon for notification
     notification.setImage("icon-system-bluetooth-device");

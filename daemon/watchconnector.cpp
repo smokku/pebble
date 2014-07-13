@@ -1,6 +1,7 @@
 #include "watchconnector.h"
 #include <QTimer>
 #include <QDateTime>
+#include <QMetaEnum>
 
 using namespace watch;
 
@@ -76,51 +77,11 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     socket->connectToService(QBluetoothAddress(address), 1);
 }
 
-QString WatchConnector::decodeEndpoint(unsigned int val)
+QString WatchConnector::decodeEndpoint(uint val)
 {
-    //FIXME: Create a map of these values
-    switch(val) {
-        case watchTIME:
-            return "TIME";
-        case watchVERSION:
-            return "VERSION";
-        case watchPHONE_VERSION:
-            return "PHONE_VERSION";
-        case watchSYSTEM_MESSAGE:
-            return "SYSTEM_MESSAGE";
-        case watchMUSIC_CONTROL:
-            return "MUSIC_CONTROL";
-        case watchPHONE_CONTROL:
-            return "PHONE_CONTROL";
-        case watchAPPLICATION_MESSAGE:
-            return "APP_MSG";
-        case watchLAUNCHER:
-            return "LAUNCHER";
-        case watchLOGS:
-            return "LOGS";
-        case watchPING:
-            return "PING";
-        case watchLOG_DUMP:
-            return "DUMP";
-        case watchRESET:
-            return "RESET";
-        case watchAPP:
-            return "APP";
-        case watchAPP_LOGS:
-            return "APP_LOGS";
-        case watchNOTIFICATION:
-            return "NOTIFICATION";
-        case watchRESOURCE:
-            return "RESOURCE";
-        case watchAPP_MANAGER:
-            return "APP_MANAG";
-        case watchSCREENSHOT:
-            return "SCREENSHOT";
-        case watchPUTBYTES:
-            return "PUTBYTES";
-        default:
-            return "Unknown: "+ QString::number(val);
-    }
+    QMetaEnum Endpoints = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("Endpoints"));
+    const char *endpoint = Endpoints.valueToKey(val);
+    return endpoint ? QString(endpoint) : QString("watchUNKNOWN_%1").arg(val);
 }
 
 void WatchConnector::decodeMsg(QByteArray data)
@@ -137,16 +98,7 @@ void WatchConnector::decodeMsg(QByteArray data)
     logger()->debug() << "Length:" << datalen << " Endpoint:" << decodeEndpoint(endpoint);
     logger()->debug() << "Data:" << data.mid(index).toHex();
 
-    //TODO: move the handling to a seperate method/class
-    if (endpoint == watchPHONE_CONTROL) {
-        if (data.length() >= 5) {
-            if (data.at(4) == callHANGUP) {
-                emit hangup();
-            }
-        }
-    } else if (endpoint == watchPHONE_VERSION) {
-        this->sendPhoneVersion();
-    }
+    emit messageDecoded(endpoint, datalen, data);
 }
 
 void WatchConnector::onReadSocket()
@@ -203,7 +155,7 @@ void WatchConnector::sendData(const QByteArray &data)
     socket->write(data);
 }
 
-void WatchConnector::sendMessage(unsigned int endpoint, QByteArray data)
+void WatchConnector::sendMessage(uint endpoint, QByteArray data)
 {
     logger()->debug() << "Sending message";
     QByteArray msg;
@@ -232,7 +184,7 @@ void WatchConnector::buildData(QByteArray &res, QStringList data)
     }
 }
 
-QByteArray WatchConnector::buildMessageData(unsigned int lead, QStringList data)
+QByteArray WatchConnector::buildMessageData(uint lead, QStringList data)
 {
     QByteArray res;
     res.append(lead & 0xFF);
@@ -277,7 +229,7 @@ void WatchConnector::sendPhoneVersion()
     sendMessage(watchPHONE_VERSION, res);
 }
 
-void WatchConnector::ping(unsigned int val)
+void WatchConnector::ping(uint val)
 {
     QByteArray res;
     res.append((char)0);
@@ -295,7 +247,7 @@ QString WatchConnector::timeStamp()
     return QString::number(QDateTime::currentMSecsSinceEpoch());
 }
 
-void WatchConnector::sendNotification(unsigned int lead, QString sender, QString data, QString subject)
+void WatchConnector::sendNotification(uint lead, QString sender, QString data, QString subject)
 {
     QStringList tmp;
     tmp.append(sender);
@@ -330,7 +282,7 @@ void WatchConnector::sendMusicNowPlaying(QString track, QString album, QString a
     sendMessage(watchMUSIC_CONTROL, res);
 }
 
-void WatchConnector::phoneControl(char act, unsigned int cookie, QStringList datas)
+void WatchConnector::phoneControl(char act, uint cookie, QStringList datas)
 {
     QByteArray head;
     head.append((char)act);
@@ -343,7 +295,7 @@ void WatchConnector::phoneControl(char act, unsigned int cookie, QStringList dat
     sendMessage(watchPHONE_CONTROL, head);
 }
 
-void WatchConnector::ring(QString number, QString name, bool incoming, unsigned int cookie)
+void WatchConnector::ring(QString number, QString name, bool incoming, uint cookie)
 {
     QStringList tmp;
     tmp.append(number);
@@ -357,12 +309,12 @@ void WatchConnector::ring(QString number, QString name, bool incoming, unsigned 
     phoneControl(act, cookie, tmp);
 }
 
-void WatchConnector::startPhoneCall(unsigned int cookie)
+void WatchConnector::startPhoneCall(uint cookie)
 {
     phoneControl(callSTART, cookie, QStringList());
 }
 
-void WatchConnector::endPhoneCall(unsigned int cookie)
+void WatchConnector::endPhoneCall(uint cookie)
 {
     phoneControl(callEND, cookie, QStringList());
 }

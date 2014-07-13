@@ -4,6 +4,7 @@
 #include "watchconnector.h"
 #include "dbusconnector.h"
 #include "voicecallmanager.h"
+#include "watchcommands.h"
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
@@ -31,6 +32,8 @@ class Manager :
     watch::WatchConnector *watch;
     DBusConnector *dbus;
     VoiceCallManager *voice;
+
+    WatchCommands *commands;
 
     MNotification notification;
 

@@ -19,7 +19,8 @@ SOURCES += \
     voicecallhandler.cpp \
     watchconnector.cpp \
     dbusconnector.cpp \
-    dbusadaptor.cpp
+    dbusadaptor.cpp \
+    watchcommands.cpp
 
 HEADERS += \
     manager.h \
@@ -27,7 +28,8 @@ HEADERS += \
     voicecallhandler.h \
     watchconnector.h \
     dbusconnector.h \
-    dbusadaptor.h
+    dbusadaptor.h \
+    watchcommands.h
 
 OTHER_FILES += \
     org.pebbled.xml \
