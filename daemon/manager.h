@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
+#include <QDBusContext>
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
 #include <CommHistory/GroupModel>
@@ -16,7 +17,9 @@
 using namespace QtContacts;
 using namespace CommHistory;
 
-class Manager : public QObject
+class Manager :
+        public QObject,
+        protected QDBusContext
 {
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
@@ -35,11 +38,14 @@ class Manager : public QObject
     QContactDetailFilter numberFilter;
     GroupManager *conversations;
 
+    QString lastSeenMpris;
+
 public:
     explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
+    Q_INVOKABLE QString mpris();
 
 signals:
 
@@ -54,6 +60,7 @@ protected slots:
     void onActiveVoiceCallStatusChanged();
     void onConversationGroupAdded(GroupObject *group);
     void onUnreadMessagesChanged();
+    void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
 
 };
 

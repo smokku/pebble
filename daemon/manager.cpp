@@ -38,11 +38,16 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     PebbledProxy *proxy = new PebbledProxy(this);
     PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
-    QDBusConnection connection = QDBusConnection::sessionBus();
-    connection.registerObject("/", proxy);
-    connection.registerService("org.pebbled");
+    QDBusConnection session = QDBusConnection::sessionBus();
+    session.registerObject("/", proxy);
+    session.registerService("org.pebbled");
     connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
     connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
+
+    // Music Control interface
+    session.connect("", "/org/mpris/MediaPlayer2",
+                "org.freedesktop.DBus.Properties", "PropertiesChanged",
+                this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
 }
 
 void Manager::onPebbleChanged()
@@ -184,4 +189,23 @@ void Manager::processUnreadMessages(GroupObject *group)
     } else {
         logger()->debug() << "Got processUnreadMessages for group with no new messages";
     }
+}
+
+void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
+{
+    qDebug() << interface << changed << invalidated;
+    lastSeenMpris = message().service();
+}
+
+QString Manager::mpris()
+{
+    const QStringList &services = dbus->services();
+    if (not lastSeenMpris.isEmpty() && services.contains(lastSeenMpris))
+        return lastSeenMpris;
+
+    foreach (QString service,services)
+        if (service.startsWith("org.mpris.MediaPlayer2."))
+            return service;
+
+    return QString();
 }

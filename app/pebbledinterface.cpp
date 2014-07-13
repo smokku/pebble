@@ -38,12 +38,9 @@ PebbledInterface::PebbledInterface(QObject *parent) :
         getUnitProperties();
 
         QDBusConnection::sessionBus().connect(
-                    "org.freedesktop.systemd1",
-                    unitPath.path(),
-                    "org.freedesktop.DBus.Properties",
-                    "PropertiesChanged",
-                    this,
-                    SLOT(onPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
+                    "org.freedesktop.systemd1", unitPath.path(),
+                    "org.freedesktop.DBus.Properties", "PropertiesChanged",
+                    this, SLOT(onPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
     } else {
         qWarning() << unit.error().message();
     }
