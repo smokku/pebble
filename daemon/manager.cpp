@@ -50,6 +50,8 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     session.connect("", "/org/mpris/MediaPlayer2",
                 "org.freedesktop.DBus.Properties", "PropertiesChanged",
                 this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
+
+    connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), commands, SLOT(onMprisMetadataChanged(QVariantMap)));
 }
 
 void Manager::onPebbleChanged()
@@ -75,6 +77,22 @@ void Manager::onConnectedChanged()
     notification.setBody(message);
     if (!notification.publish()) {
         logger()->debug() << "Failed publishing notification";
+    }
+
+    if (watch->isConnected()) {
+        QString mpris = this->mpris();
+        if (not mpris.isEmpty()) {
+            QDBusReply<QDBusVariant> Metadata = QDBusConnection::sessionBus().call(
+                        QDBusMessage::createMethodCall(mpris, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get")
+                        << "org.mpris.MediaPlayer2.Player" << "Metadata");
+            if (Metadata.isValid()) {
+                setMprisMetadata(Metadata.value().variant().value<QDBusArgument>());
+            }
+            else {
+                logger()->error() << Metadata.error().message();
+                setMprisMetadata(QVariantMap());
+            }
+        }
     }
 }
 
@@ -196,6 +214,18 @@ void Manager::processUnreadMessages(GroupObject *group)
 void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
 {
     qDebug() << interface << changed << invalidated;
+
+    if (changed.contains("Metadata")) {
+        setMprisMetadata(changed.value("Metadata").value<QDBusArgument>());
+    }
+
+    if (changed.contains("PlaybackStatus")) {
+        QString PlaybackStatus = changed.value("PlaybackStatus").toString();
+        if (PlaybackStatus == "Stopped") {
+            setMprisMetadata(QVariantMap());
+        }
+    }
+
     lastSeenMpris = message().service();
 }
 
@@ -210,4 +240,18 @@ QString Manager::mpris()
             return service;
 
     return QString();
+}
+
+void Manager::setMprisMetadata(QDBusArgument metadata)
+{
+    if (metadata.currentType() == QDBusArgument::MapType) {
+        metadata >> mprisMetadata;
+        emit mprisMetadataChanged(mprisMetadata);
+    }
+}
+
+void Manager::setMprisMetadata(QVariantMap metadata)
+{
+    mprisMetadata = metadata;
+    emit mprisMetadataChanged(mprisMetadata);
 }

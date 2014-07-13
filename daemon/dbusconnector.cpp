@@ -18,8 +18,6 @@ DBusConnector::DBusConnector(QObject *parent) :
 {
     QDBusConnection bus = QDBusConnection::sessionBus();
     QDBusConnectionInterface *interface = bus.interface();
-    connect(interface, SIGNAL(serviceRegistered(QString&)), SLOT(onServiceRegistered(QString&)));
-    connect(interface, SIGNAL(serviceUnregistered(QString&)), SIGNAL(onServiceUnregistered(QString&)));
 
     QDBusReply<QStringList> serviceNames = interface->registeredServiceNames();
     if (serviceNames.isValid()) {
@@ -28,6 +26,8 @@ DBusConnector::DBusConnector(QObject *parent) :
     else {
         logger()->error() << serviceNames.error().message();
     }
+    connect(interface, SIGNAL(serviceRegistered(QString&)), SLOT(onServiceRegistered(QString&)));
+    connect(interface, SIGNAL(serviceUnregistered(QString&)), SIGNAL(onServiceUnregistered(QString&)));
 }
 
 bool DBusConnector::findPebble()

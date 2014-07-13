@@ -49,8 +49,10 @@ public:
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
     Q_INVOKABLE QString mpris();
+    QVariantMap mprisMetadata;
 
 signals:
+    void mprisMetadataChanged(QVariantMap);
 
 public slots:
     void hangupAll();
@@ -64,6 +66,8 @@ protected slots:
     void onConversationGroupAdded(GroupObject *group);
     void onUnreadMessagesChanged();
     void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
+    void setMprisMetadata(QDBusArgument metadata);
+    void setMprisMetadata(QVariantMap metadata);
 
 };
 

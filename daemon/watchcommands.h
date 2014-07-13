@@ -2,12 +2,14 @@
 #define WATCHCOMMANDS_H
 
 #include "watchconnector.h"
+#include "Logger"
 
 #include <QObject>
 
 class WatchCommands : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
     watch::WatchConnector *watch;
 
@@ -19,6 +21,9 @@ signals:
 
 public slots:
     void processMessage(uint endpoint, uint datalen, QByteArray data);
+
+protected slots:
+    void onMprisMetadataChanged(QVariantMap metadata);
 
 };
 
