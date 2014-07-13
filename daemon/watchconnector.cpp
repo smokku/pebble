@@ -244,7 +244,7 @@ QByteArray WatchConnector::buildMessageData(unsigned int lead, QStringList data)
 void WatchConnector::sendPhoneVersion()
 {
     unsigned int sessionCap = sessionCapGAMMA_RAY;
-    unsigned int remoteCap = remoteCapTELEPHONY | remoteCapSMS | osANDROID;
+    unsigned int remoteCap = remoteCapTELEPHONY | remoteCapSMS | osLINUX;
     QByteArray res;
 
     //Prefix
@@ -301,7 +301,7 @@ void WatchConnector::sendNotification(unsigned int lead, QString sender, QString
     tmp.append(sender);
     tmp.append(data);
     tmp.append(timeStamp());
-    if (lead == 0) tmp.append(subject);
+    if (lead == leadEMAIL) tmp.append(subject);
 
     QByteArray res = buildMessageData(lead, tmp);
 
@@ -310,12 +310,24 @@ void WatchConnector::sendNotification(unsigned int lead, QString sender, QString
 
 void WatchConnector::sendSMSNotification(QString sender, QString data)
 {
-    sendNotification(1, sender, data, "");
+    sendNotification(leadSMS, sender, data, "");
 }
 
 void WatchConnector::sendEmailNotification(QString sender, QString data, QString subject)
 {
-    sendNotification(0, sender, data, subject);
+    sendNotification(leadEMAIL, sender, data, subject);
+}
+
+void WatchConnector::sendMusicNowPlaying(QString track, QString album, QString artist)
+{
+    QStringList tmp;
+    tmp.append(track);
+    tmp.append(album);
+    tmp.append(artist);
+
+    QByteArray res = buildMessageData(leadNOW_PLAYING_DATA, tmp);
+
+    sendMessage(watchMUSIC_CONTROL, res);
 }
 
 void WatchConnector::phoneControl(char act, unsigned int cookie, QStringList datas)

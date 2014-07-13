@@ -71,6 +71,7 @@ public:
         watchNOTIFICATION = 3000,
         watchRESOURCE = 4000,
         watchAPP_MANAGER = 6000,
+        watchDATA_LOGGING = 6778,
         watchSCREENSHOT = 8000,
         watchPUTBYTES = 48879
     };
@@ -84,6 +85,22 @@ public:
         callRING = 7,
         callSTART = 8,
         callEND = 9
+    };
+    enum {
+        musicPLAY_PAUSE = 1,
+        musicPAUSE = 2,
+        musicPLAY = 3,
+        musicNEXT = 4,
+        musicPREVIOUS = 5,
+        musicVOLUME_UP = 6,
+        musicVOLUME_DOWN = 7,
+        musicGET_NOW_PLAYING = 8,
+        musicSEND_NOW_PLAYING = 9
+    };
+    enum {
+        leadEMAIL = 0,
+        leadSMS = 1,
+        leadNOW_PLAYING_DATA = 16
     };
     enum {
          sessionCapGAMMA_RAY = 0x80000000
@@ -129,6 +146,7 @@ public slots:
     void sendNotification(unsigned int lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
+    void sendMusicNowPlaying(QString track, QString album, QString artist);
     void sendPhoneVersion();
 
     void buildData(QByteArray &res, QStringList data);
