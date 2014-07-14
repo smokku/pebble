@@ -12,5 +12,4 @@
 *.la
 *.a
 
-/rpm/*.spec
 /*.pro.user
