@@ -28,7 +28,6 @@ BuildRequires:  pkgconfig(Qt5Contacts)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
-BuildRequires:  pkgconfig(commhistory-qt5)
 BuildRequires:  pkgconfig(mlite5)
 BuildRequires:  pkgconfig(sailfishapp) >= 0.0.10
 BuildRequires:  desktop-file-utils
@@ -69,6 +68,11 @@ desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
    %{buildroot}%{_datadir}/applications/*.desktop
 
+%post
+# >> post
+systemctl --user daemon-reload
+# << post
+
 %files
 %defattr(-,root,root,-)
 %{_bindir}
@@ -81,8 +85,3 @@ desktop-file-install --delete-original       \
 %{_datadir}/%{name}/lib
 # >> files
 # << files
-
-%post
-# >> post
-systemctl --user daemon-reload
-# << post

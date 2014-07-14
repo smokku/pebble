@@ -5,7 +5,7 @@ CONFIG += link_pkgconfig
 QT -= gui
 
 QT += bluetooth dbus contacts
-PKGCONFIG += commhistory-qt5 mlite5
+PKGCONFIG += mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
 LIBS += -L$$OUT_PWD/../ext/Log4Qt/ -llog4qt
@@ -61,5 +61,4 @@ lib.files += $$OUT_PWD/../ext/Log4Qt/*.s*
 lib.path = /usr/share/pebble/lib
 
 # unnecesary includes, just so QtCreator could find headers... :-(
-INCLUDEPATH += $$[QT_HOST_PREFIX]/include/commhistory-qt5
 INCLUDEPATH += $$[QT_HOST_PREFIX]/include/mlite5

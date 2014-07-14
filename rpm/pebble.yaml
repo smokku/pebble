@@ -18,7 +18,6 @@ PkgConfigBR:
 - Qt5Quick
 - Qt5Qml
 - Qt5Core
-- commhistory-qt5
 - mlite5
 - sailfishapp >= 0.0.10
 Requires:
