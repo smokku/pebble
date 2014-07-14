@@ -104,7 +104,13 @@ QStringHash NotificationManager::getCategoryParams(QString category)
     return QStringHash();
 }
 
-void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout) {
+void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon,
+                                 const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout)
+{
+    Q_UNUSED(replaces_id);
+    Q_UNUSED(app_icon);
+    Q_UNUSED(actions);
+    Q_UNUSED(expire_timeout);
 
     //Ignore notifcations from myself
     if (app_name == "pebbled") {
