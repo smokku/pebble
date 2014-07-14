@@ -8,6 +8,8 @@ WatchCommands::WatchCommands(WatchConnector *watch, QObject *parent) :
 
 void WatchCommands::processMessage(uint endpoint, uint datalen, QByteArray data)
 {
+    Q_UNUSED(datalen);
+
     logger()->debug() << __FUNCTION__ << endpoint << "/" << data.length();
     switch (endpoint) {
     case WatchConnector::watchPHONE_VERSION:
