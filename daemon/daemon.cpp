@@ -125,8 +125,9 @@ int main(int argc, char *argv[])
     watch::WatchConnector watch;
     DBusConnector dbus;
     VoiceCallManager voice;
+    NotificationManager notifications;
 
-    Manager manager(&watch, &dbus, &voice);
+    Manager manager(&watch, &dbus, &voice, &notifications);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);

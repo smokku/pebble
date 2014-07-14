@@ -5,8 +5,8 @@
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice), commands(new WatchCommands(watch, this)),
+Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications) :
+    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
     notification(MNotification::DeviceEvent)
 {
     // We don't need to handle presence changes, so report them separately and ignore them
@@ -17,14 +17,14 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     numberFilter.setDetailType(QContactDetail::TypePhoneNumber, QContactPhoneNumber::FieldNumber);
     numberFilter.setMatchFlags(QContactFilter::MatchPhoneNumber);
 
-    conversations = new GroupManager(this);
-    connect(conversations, SIGNAL(groupAdded(GroupObject*)), SLOT(onConversationGroupAdded(GroupObject*)));
-    conversations->getGroups();
+    connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
 
-    connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
+    connect(notifications, SIGNAL(error(const QString &)), SLOT(onNotifyError(const QString &)));
+    connect(notifications, SIGNAL(emailNotify(const QString &,const QString &,const QString &)), SLOT(onEmailNotify(const QString &,const QString &,const QString &)));
+    connect(notifications, SIGNAL(smsNotify(const QString &,const QString &)), SLOT(onSmsNotify(const QString &,const QString &)));
 
     connect(watch, SIGNAL(messageDecoded(uint,uint,QByteArray)), commands, SLOT(processMessage(uint,uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
@@ -169,45 +169,33 @@ void Manager::onVoiceError(const QString &message)
     logger()->error() << "Error: " << message;
 }
 
+
+void Manager::onNotifyError(const QString &message)
+{
+    qWarning() << "Error: " << message;
+}
+
+void Manager::onSmsNotify(const QString &sender, const QString &data)
+{
+    logger()->debug() << "SMS:";
+    logger()->debug() << sender;
+    logger()->debug() << data;
+    watch->sendSMSNotification(sender, data);
+}
+
+void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
+{
+    logger()->debug() << "Email:";
+    logger()->debug() << sender;
+    logger()->debug() << data;
+    logger()->debug() << subject;
+    watch->sendEmailNotification(sender, data, subject);
+}
+
 void Manager::hangupAll()
 {
     foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
         handler->hangup();
-    }
-}
-
-void Manager::onConversationGroupAdded(GroupObject *group)
-{
-    if (!group) {
-        logger()->debug() << "Got null conversation group";
-        return;
-    }
-
-    connect(group, SIGNAL(unreadMessagesChanged()), SLOT(onUnreadMessagesChanged()));
-    if (group->unreadMessages()) processUnreadMessages(group);
-}
-
-
-void Manager::onUnreadMessagesChanged()
-{
-    GroupObject *group = qobject_cast<GroupObject*>(sender());
-    if (!group) {
-        logger()->debug() << "Got unreadMessagesChanged for null group";
-        return;
-    }
-    processUnreadMessages(group);
-}
-
-void Manager::processUnreadMessages(GroupObject *group)
-{
-    if (group->unreadMessages()) {
-        QString name = group->contactName();
-        QString message = group->lastMessageText();
-        logger()->debug() << "Msg:" << message;
-        logger()->debug() << "From:" << name;
-        watch->sendSMSNotification(name.isEmpty()?"Unknown":name, message);
-    } else {
-        logger()->debug() << "Got processUnreadMessages for group with no new messages";
     }
 }
 

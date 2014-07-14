@@ -17,6 +17,7 @@ SOURCES += \
     manager.cpp \
     voicecallmanager.cpp \
     voicecallhandler.cpp \
+    notificationmanager.cpp \
     watchconnector.cpp \
     dbusconnector.cpp \
     dbusadaptor.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     manager.h \
     voicecallmanager.h \
     voicecallhandler.h \
+    notificationmanager.h \
     watchconnector.h \
     dbusconnector.h \
     dbusadaptor.h \

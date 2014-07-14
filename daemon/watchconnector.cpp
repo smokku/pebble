@@ -178,9 +178,10 @@ void WatchConnector::buildData(QByteArray &res, QStringList data)
 {
     for (QString d : data)
     {
-        QByteArray tmp = d.left(0xF0).toUtf8();
-        res.append(tmp.length() & 0xFF);
+        QByteArray tmp = d.left(0xEF).toUtf8();
+        res.append((tmp.length() + 1) & 0xFF);
         res.append(tmp);
+        res.append('\0');
     }
 }
 
