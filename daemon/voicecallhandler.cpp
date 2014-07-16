@@ -189,8 +189,7 @@ bool VoiceCallHandler::getProperties()
     QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
     if (reply.isValid()) {
         QVariantMap props = reply.value();
-        QString str; QDebug(&str) << props;
-        logger()->debug() << str;
+        logger()->debug() << props;
         d->providerId = props["providerId"].toString();
         d->duration = props["duration"].toInt();
         d->status = props["status"].toInt();
