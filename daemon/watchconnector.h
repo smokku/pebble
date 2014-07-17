@@ -88,7 +88,7 @@ public:
         callSTART = 8,
         callEND = 9
     };
-    enum {
+    enum MusicControl {
         musicPLAY_PAUSE = 1,
         musicPAUSE = 2,
         musicPLAY = 3,
@@ -137,7 +137,7 @@ public:
 
 signals:
     void messageReceived(QString peer, QString msg);
-    void messageDecoded(uint endpoint, uint datalen, QByteArray data);
+    void messageDecoded(uint endpoint, QByteArray data);
     void nameChanged();
     void connectedChanged();
 

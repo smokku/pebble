@@ -98,7 +98,7 @@ void WatchConnector::decodeMsg(QByteArray data)
     logger()->debug() << "Length:" << datalen << " Endpoint:" << decodeEndpoint(endpoint);
     logger()->debug() << "Data:" << data.mid(index).toHex();
 
-    emit messageDecoded(endpoint, datalen, data);
+    emit messageDecoded(endpoint, data.mid(index, datalen));
 }
 
 void WatchConnector::onReadSocket()

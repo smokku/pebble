@@ -27,6 +27,9 @@ class Manager :
 
     friend class PebbledProxy;
 
+    Q_PROPERTY(QString mpris READ mpris)
+    Q_PROPERTY(QVariantMap mprisMetadata READ getMprisMetadata WRITE setMprisMetadata NOTIFY mprisMetadataChanged)
+
     QBluetoothLocalDevice btDevice;
 
     watch::WatchConnector *watch;
@@ -50,6 +53,7 @@ public:
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
     Q_INVOKABLE QString mpris();
     QVariantMap mprisMetadata;
+    QVariantMap getMprisMetadata() { return mprisMetadata; }
 
 signals:
     void mprisMetadataChanged(QVariantMap);

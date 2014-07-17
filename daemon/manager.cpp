@@ -26,7 +26,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
 
-    connect(watch, SIGNAL(messageDecoded(uint,uint,QByteArray)), commands, SLOT(processMessage(uint,uint,QByteArray)));
+    connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
 
     // Set BT icon for notification
