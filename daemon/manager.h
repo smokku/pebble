@@ -5,6 +5,7 @@
 #include "dbusconnector.h"
 #include "voicecallmanager.h"
 #include "watchcommands.h"
+#include "settings.h"
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
@@ -38,6 +39,8 @@ class Manager :
 
     WatchCommands *commands;
 
+    Settings *settings;
+
     MNotification notification;
 
     QContactManager *contacts;
@@ -47,7 +50,7 @@ class Manager :
     QString lastSeenMpris;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice);
+    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, Settings *settings);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
@@ -62,6 +65,8 @@ public slots:
     void hangupAll();
 
 protected slots:
+    void onSettingChanged(const QString &key);
+    void onSettingsChanged();
     void onPebbleChanged();
     void onConnectedChanged();
     void onActiveVoiceCallChanged();
