@@ -86,7 +86,9 @@ int main(int argc, char *argv[])
     DBusConnector dbus;
     VoiceCallManager voice;
 
-    Manager manager(&watch, &dbus, &voice);
+    Settings settings;
+
+    Manager manager(&watch, &dbus, &voice, &settings);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);
