@@ -18,6 +18,8 @@ OTHER_FILES += \
     qml/cover/CoverPage.qml \
     qml/pages/ManagerPage.qml \
     qml/pages/WatchPage.qml \
+    qml/pages/AboutPage.qml \
     qml/pebble.qml \
+    qml/images/* \
     pebble.desktop \
     pebble.png
