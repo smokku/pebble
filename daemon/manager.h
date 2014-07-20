@@ -47,6 +47,8 @@ class Manager :
     QContactDetailFilter numberFilter;
     GroupManager *conversations;
 
+    QString defaultProfile;
+
     QString lastSeenMpris;
 
 public:
@@ -54,6 +56,7 @@ public:
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE void processUnreadMessages(GroupObject *group);
+    Q_INVOKABLE QString getCurrentProfile();
     Q_INVOKABLE QString mpris();
     QVariantMap mprisMetadata;
     QVariantMap getMprisMetadata() { return mprisMetadata; }
@@ -63,6 +66,7 @@ signals:
 
 public slots:
     void hangupAll();
+    void applyProfile();
 
 protected slots:
     void onSettingChanged(const QString &key);

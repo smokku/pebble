@@ -50,6 +50,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
     connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
 
+    QString currentProfile = getCurrentProfile();
+    defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
+    connect(watch, SIGNAL(connectedChanged()), SLOT(applyProfile()));
+
     // Music Control interface
     session.connect("", "/org/mpris/MediaPlayer2",
                 "org.freedesktop.DBus.Properties", "PropertiesChanged",
@@ -61,6 +65,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 void Manager::onSettingChanged(const QString &key)
 {
     logger()->debug() << __FUNCTION__ << key << ":" << settings->property(qPrintable(key));
+    if (key == "silentWhenConnected") applyProfile();
 }
 
 void Manager::onSettingsChanged()
@@ -268,4 +273,51 @@ void Manager::setMprisMetadata(QVariantMap metadata)
 {
     mprisMetadata = metadata;
     emit mprisMetadataChanged(mprisMetadata);
+}
+
+QString Manager::getCurrentProfile()
+{
+    QDBusReply<QString> profile = QDBusConnection::sessionBus().call(
+                QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "get_profile"));
+    if (profile.isValid()) {
+        QString currentProfile = profile.value();
+        logger()->debug() << "Got profile" << currentProfile;
+        return currentProfile;
+    }
+
+    logger()->error() << profile.error().message();
+    return QString();
+}
+
+void Manager::applyProfile()
+{
+    QString currentProfile = getCurrentProfile();
+    QString newProfile;
+
+    if (settings->property("silentWhenConnected").toBool()) {
+        if (watch->isConnected() && currentProfile != "silent") {
+            newProfile = "silent";
+            defaultProfile = currentProfile;
+        }
+        if (!watch->isConnected() && currentProfile == "silent" && defaultProfile != "silent") {
+            newProfile = defaultProfile;
+        }
+    }
+    else if (currentProfile != defaultProfile) {
+        newProfile = defaultProfile;
+    }
+
+    if (!newProfile.isEmpty()) {
+        QDBusReply<bool> res = QDBusConnection::sessionBus().call(
+                    QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "set_profile")
+                    << newProfile);
+        if (res.isValid()) {
+            if (!res.value()) {
+                logger()->error() << "Unable to set profile" << newProfile;
+            }
+        }
+        else {
+            logger()->error() << res.error().message();
+        }
+    }
 }
