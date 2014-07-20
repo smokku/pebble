@@ -12,6 +12,8 @@ LIBS += -L$$OUT_PWD/../ext/Log4Qt/ -llog4qt
 QMAKE_RPATHDIR += /usr/share/pebble/lib
 INCLUDEPATH += ../ext/Log4Qt/src ../ext/Log4Qt/deploy/include
 
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
 SOURCES += \
     daemon.cpp \
     manager.cpp \

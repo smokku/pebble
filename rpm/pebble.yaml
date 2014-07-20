@@ -11,6 +11,8 @@ Description: |
   Include support for Pebble watch to receive event from SailfishOS device. Communicates via Bluetooth, supporting the Pebble protocol.
 Configure: none
 Builder: qtc5
+QMakeOptions:
+- VERSION='%{version}-%{release}'
 PkgConfigBR:
 - Qt5DBus
 - Qt5Bluetooth

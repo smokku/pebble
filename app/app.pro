@@ -5,6 +5,8 @@ CONFIG += sailfishapp
 QT += dbus
 QMAKE_CXXFLAGS += -std=c++0x
 
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
 SOURCES += \
     pebble.cpp \
     pebbledinterface.cpp
