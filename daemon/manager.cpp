@@ -5,10 +5,14 @@
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications) :
+Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings) :
     QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
-    notification(MNotification::DeviceEvent)
+    settings(settings), notification(MNotification::DeviceEvent)
 {
+    connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
+    connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));
+    connect(settings, SIGNAL(silentWhenConnectedChanged()), SLOT(onSettingsChanged()));
+
     // We don't need to handle presence changes, so report them separately and ignore them
     QMap<QString, QString> parameters;
     parameters.insert(QString::fromLatin1("mergePresenceChanges"), QString::fromLatin1("false"));
@@ -26,7 +30,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(notifications, SIGNAL(emailNotify(const QString &,const QString &,const QString &)), SLOT(onEmailNotify(const QString &,const QString &,const QString &)));
     connect(notifications, SIGNAL(smsNotify(const QString &,const QString &)), SLOT(onSmsNotify(const QString &,const QString &)));
 
-    connect(watch, SIGNAL(messageDecoded(uint,uint,QByteArray)), commands, SLOT(processMessage(uint,uint,QByteArray)));
+    connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
 
     // Set BT icon for notification
@@ -52,6 +56,16 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
                 this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
 
     connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), commands, SLOT(onMprisMetadataChanged(QVariantMap)));
+}
+
+void Manager::onSettingChanged(const QString &key)
+{
+    logger()->debug() << __FUNCTION__ << key << ":" << settings->property(qPrintable(key));
+}
+
+void Manager::onSettingsChanged()
+{
+    logger()->warn() << __FUNCTION__ << "Not implemented!";
 }
 
 void Manager::onPebbleChanged()

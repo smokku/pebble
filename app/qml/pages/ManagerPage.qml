@@ -32,9 +32,16 @@
 import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 
 Page {
     id: page
+
+    ConfigurationGroup {
+        id: settings
+        path: "/org/pebbled/settings"
+        property bool silentWhenConnected: false
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -121,10 +128,10 @@ Page {
             }
             TextSwitch {
                 text: qsTr("Silent when connected")
-                checked: false
+                checked: settings.silentWhenConnected
                 automaticCheck: false
                 onClicked: {
-                    console.log('settings.silentConnected');
+                    settings.silentWhenConnected = !settings.silentWhenConnected;
                 }
             }
         }

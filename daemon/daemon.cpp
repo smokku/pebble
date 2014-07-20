@@ -54,18 +54,8 @@ void signalhandler(int sig)
     }
 }
 
-// For some reason exactly SystemLogAppender doesn't have a factory registered in log4qt,
-// so in order for it to be instantiatable from .conf file (or even in general?) we declare factory
-// right here and will register it in initLoggin()
-Log4Qt::Appender *create_system_log_appender() {
-    return new Log4Qt::SystemLogAppender;
-}
-
 void initLogging()
 {
-    // Should really be done in log4qt, but somehow it's missing these
-    Log4Qt::Factory::registerAppender("org.apache.log4j.SystemLogAppender", create_system_log_appender);
-
     // Sailfish OS-specific locations for the app settings files and app's own files
     const QString logConfigFilePath(QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).at(0)
                                     + "pebble/log4qt.conf");
@@ -73,36 +63,6 @@ void initLogging()
 
     const QString& usedConfigFile = QFile::exists(logConfigFilePath) ? logConfigFilePath : fallbackLogConfigPath;
     Log4Qt::PropertyConfigurator::configure(usedConfigFile);
-
-    // Uglyish hack for replacing $XDG_CACHE_HOME with the proper cache directory
-    // TODO: Implement replacing of $XDG_CACHE_HOME (and other vars?) with the proper values before configuring log4qt
-
-    // Iterate all appenders attached to root logger and whenever a FileAppender (or its descender found), replace
-    // $XDG_CACHE_HOME with the proper folder name
-    QList<Log4Qt::Appender *> appenders = Log4Qt::LogManager::rootLogger()->appenders();
-    QList<Log4Qt::Appender *>::iterator i;
-    QDir pathCreator;
-    for (i = appenders.begin(); i != appenders.end(); ++i) {
-          Log4Qt::FileAppender* fa = qobject_cast<Log4Qt::FileAppender*>(*i);
-          if(fa) {
-              QString filename = fa->file();
-
-              // As per March 2014 on emulator QStandardPaths::CacheLocation is /home/nemo/.cache
-              // while on device it is /home/nemo/.cache/app-name
-              // both things are fine, logging path will just be a little deeper on device
-              filename.replace("$XDG_CACHE_HOME",
-                              QStandardPaths::standardLocations(QStandardPaths::CacheLocation).at(0)
-                              );
-              // make sure loggin dir exists
-              QFileInfo fi(filename);
-              if(!pathCreator.mkpath(fi.path())) {
-                  Log4Qt::LogManager::rootLogger()->error("Failed to create dir for logging: %1", fi.path());
-              }
-
-              fa->setFile(filename);
-              fa->activateOptions();
-          }
-    }
 
     // For capturing qDebug() and console.log() messages
     // Note that console.log() might fail in Sailfish OS device builds. Not sure why, but it seems like
@@ -126,8 +86,9 @@ int main(int argc, char *argv[])
     DBusConnector dbus;
     VoiceCallManager voice;
     NotificationManager notifications;
+    Settings settings;
 
-    Manager manager(&watch, &dbus, &voice, &notifications);
+    Manager manager(&watch, &dbus, &voice, &notifications, &settings);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);

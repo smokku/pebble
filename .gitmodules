@@ -1,0 +1,3 @@
+[submodule "ext/Log4Qt"]
+	path = ext/Log4Qt
+	url = git@github.com:smokku/Log4Qt.git

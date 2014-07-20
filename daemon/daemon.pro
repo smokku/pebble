@@ -31,7 +31,8 @@ HEADERS += \
     watchconnector.h \
     dbusconnector.h \
     dbusadaptor.h \
-    watchcommands.h
+    watchcommands.h \
+    settings.h
 
 OTHER_FILES += \
     org.pebbled.xml \

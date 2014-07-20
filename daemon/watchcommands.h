@@ -20,10 +20,11 @@ signals:
     void hangup();
 
 public slots:
-    void processMessage(uint endpoint, uint datalen, QByteArray data);
+    void processMessage(uint endpoint, QByteArray data);
 
 protected slots:
     void onMprisMetadataChanged(QVariantMap metadata);
+    void musicControl(watch::WatchConnector::MusicControl operation);
 
 };
 

@@ -6,6 +6,7 @@
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
 #include "watchcommands.h"
+#include "settings.h"
 
 #include <QObject>
 #include <QBluetoothLocalDevice>
@@ -26,6 +27,9 @@ class Manager :
 
     friend class PebbledProxy;
 
+    Q_PROPERTY(QString mpris READ mpris)
+    Q_PROPERTY(QVariantMap mprisMetadata READ getMprisMetadata WRITE setMprisMetadata NOTIFY mprisMetadataChanged)
+
     QBluetoothLocalDevice btDevice;
 
     watch::WatchConnector *watch;
@@ -35,6 +39,8 @@ class Manager :
 
     WatchCommands *commands;
 
+    Settings *settings;
+
     MNotification notification;
 
     QContactManager *contacts;
@@ -43,11 +49,12 @@ class Manager :
     QString lastSeenMpris;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications);
+    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE QString mpris();
     QVariantMap mprisMetadata;
+    QVariantMap getMprisMetadata() { return mprisMetadata; }
 
 signals:
     void mprisMetadataChanged(QVariantMap);
@@ -56,6 +63,8 @@ public slots:
     void hangupAll();
 
 protected slots:
+    void onSettingChanged(const QString &key);
+    void onSettingsChanged();
     void onPebbleChanged();
     void onConnectedChanged();
     void onActiveVoiceCallChanged();
