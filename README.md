@@ -14,6 +14,7 @@ Features
 * Voice Calls notification and control
 * SMS, IM Messages forwarding
 * MPRIS compatible media player support
+* Set "silent" profile when watch is connected
 * daemon management app
 * "org.pebbled" DBus interface
 

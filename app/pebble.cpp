@@ -39,6 +39,13 @@ int main(int argc, char *argv[])
     // Register Pebble daemon interface object on QML side
     qmlRegisterType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface");
 
-    return SailfishApp::main(argc, argv);
+    QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+
+    QScopedPointer<QQuickView> view(SailfishApp::createView());
+    view->rootContext()->setContextProperty("APP_VERSION", APP_VERSION);
+    view->setSource(SailfishApp::pathTo("qml/pebble.qml"));
+    view->show();
+
+    return app->exec();
 }
 

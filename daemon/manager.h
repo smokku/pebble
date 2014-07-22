@@ -46,12 +46,15 @@ class Manager :
     QContactManager *contacts;
     QContactDetailFilter numberFilter;
 
+    QString defaultProfile;
+
     QString lastSeenMpris;
 
 public:
     explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
+    Q_INVOKABLE QString getCurrentProfile();
     Q_INVOKABLE QString mpris();
     QVariantMap mprisMetadata;
     QVariantMap getMprisMetadata() { return mprisMetadata; }
@@ -61,6 +64,7 @@ signals:
 
 public slots:
     void hangupAll();
+    void applyProfile();
 
 protected slots:
     void onSettingChanged(const QString &key);

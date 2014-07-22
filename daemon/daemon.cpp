@@ -70,8 +70,6 @@ void initLogging()
     Log4Qt::LogManager::setHandleQtMessages(true);
 
     qDebug() << "Using following log config file: " << usedConfigFile;
-
-    Log4Qt::Logger::logger(QLatin1String("Main Logger"))->info("Logging started");
 }
 
 int main(int argc, char *argv[])
@@ -81,6 +79,8 @@ int main(int argc, char *argv[])
     // Init logging should be called after app object creation as initLogging() will examine
     // QCoreApplication for determining the .conf files locations
     initLogging();
+
+    Log4Qt::Logger::logger(QLatin1String("Main Logger"))->info() << argv[0] << APP_VERSION;
 
     watch::WatchConnector watch;
     DBusConnector dbus;
