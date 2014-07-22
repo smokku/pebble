@@ -41,6 +41,12 @@ Page {
         id: settings
         path: "/org/pebbled/settings"
         property bool silentWhenConnected: false
+        property bool notificationsCommhistoryd: true
+        property bool notificationsMissedCall: true
+        property bool notificationsEmails: false
+        property bool notificationsMitakuuluu: true
+        property bool notificationsOther: true
+        property bool notificationsAll: false
     }
 
     SilicaFlickable {
@@ -138,6 +144,69 @@ Page {
                 automaticCheck: false
                 onClicked: {
                     settings.silentWhenConnected = !settings.silentWhenConnected;
+                }
+            }
+
+            Label {
+                text: qsTr("Notifications")
+                font.family: Theme.fontFamilyHeading
+                color: Theme.highlightColor
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.paddingMedium
+            }
+
+            TextSwitch {
+                text: qsTr("Messaging (SMS and IM)")
+                checked: settings.notificationsCommhistoryd
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsCommhistoryd = !settings.notificationsCommhistoryd;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("Missed call")
+                checked: settings.notificationsMissedCall
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsMissedCall = !settings.notificationsMissedCall;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("Emails")
+                checked: settings.notificationsEmails
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsEmails = !settings.notificationsEmails;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("Mitakuuluu")
+                checked: settings.notificationsMitakuuluu
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsMitakuuluu = !settings.notificationsMitakuuluu;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("Other phone notification")
+                checked: settings.notificationsOther
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsOther = !settings.notificationsOther;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("All phone notifications")
+                checked: settings.notificationsAll
+                automaticCheck: false
+                enabled: settings.notificationsOther
+                onClicked: {
+                    settings.notificationsAll = !settings.notificationsAll;
                 }
             }
         }

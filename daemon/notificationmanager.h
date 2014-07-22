@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "Logger"
+#include "settings.h"
 
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
@@ -29,6 +30,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
+    void setSettings(Settings *settings);
 
 protected Q_SLOTS:
     void initialize(bool notifyError = false);
@@ -38,6 +40,7 @@ private:
 
     QString getCleanAppName(QString app_name);
     QStringHash getCategoryParams(QString category);
+    Settings *settings;
 
     Q_DISABLE_COPY(NotificationManager)
     Q_DECLARE_PRIVATE(NotificationManager)

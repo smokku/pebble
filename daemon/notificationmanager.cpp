@@ -104,6 +104,11 @@ QStringHash NotificationManager::getCategoryParams(QString category)
     return QStringHash();
 }
 
+void NotificationManager::setSettings(Settings *settings)
+{
+    this->settings = settings;
+}
+
 void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon,
                                  const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout)
 {
@@ -118,8 +123,15 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     }
 
     logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
+    logger()->debug() << hints;
 
     if (app_name == "messageserver5") {
+
+        if (!settings->property("notificationsEmails").toBool()) {
+            logger()->debug() << "Ignoring email notification because of setting!";
+            return;
+        }
+
         QString subject = hints.value("x-nemo-preview-summary", "").toString();
         QString data = hints.value("x-nemo-preview-body", "").toString();
         if (!data.isEmpty() && !subject.isEmpty()) {
@@ -127,11 +139,30 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         }
     } else if (app_name == "commhistoryd") {
         if (summary == "" && body == "") {
+            QString category = hints.value("category", "").toString();
+
+            if (category == "x-nemo.call.missed") {
+                if (!settings->property("notificationsMissedCall").toBool()) {
+                    logger()->debug() << "Ignoring MissedCall notification because of setting!";
+                    return;
+                }
+            } else {
+                if (!settings->property("notificationsCommhistoryd").toBool()) {
+                    logger()->debug() << "Ignoring commhistoryd notification because of setting!";
+                    return;
+                }
+            }
             emit this->smsNotify(hints.value("x-nemo-preview-summary", "default").toString(),
                                  hints.value("x-nemo-preview-body", "default").toString()
                                 );
         }
     } else if (app_name == "harbour-mitakuuluu2-server") {
+
+        if (!settings->property("notificationsMitakuuluu").toBool()) {
+            logger()->debug() << "Ignoring mitakuuluu notification because of setting!";
+            return;
+        }
+
         emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
                              hints.value("x-nemo-preview-summary", "default").toString()
                             );
@@ -144,6 +175,16 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         int prio = categoryParams.value("x-nemo-priority", "0").toInt();
 
         logger()->debug() << "MSG Prio:" << prio;
+
+        if (!settings->property("notificationsAll").toBool() && prio <= 10) {
+            logger()->debug() << "Ignoring notification because of setting! (all)";
+            return;
+        }
+
+        if (!settings->property("notificationsOther").toBool() && prio < 90) {
+            logger()->debug() << "Ignoring notification because of setting! (other)";
+            return;
+        }
 
         if (subject.isEmpty()) {
             subject = summary;

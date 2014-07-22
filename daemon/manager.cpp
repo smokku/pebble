@@ -9,6 +9,8 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
     settings(settings), notification(MNotification::DeviceEvent)
 {
+    notifications->setSettings(settings);;
+
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
     connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));
     //connect(settings, SIGNAL(silentWhenConnectedChanged(bool)), SLOT(onSilentWhenConnectedChanged(bool)));
