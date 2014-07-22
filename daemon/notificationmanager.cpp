@@ -120,10 +120,11 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
 
     if (app_name == "messageserver5") {
-        emit this->emailNotify(hints.value("x-nemo-preview-summary", this->getCleanAppName(app_name)).toString(),
-                               hints.value("x-nemo-preview-body", "default").toString(),
-                               ""
-                               );
+        QString subject = hints.value("x-nemo-preview-summary", "").toString();
+        QString data = hints.value("x-nemo-preview-body", "").toString();
+        if (!data.isEmpty() && !subject.isEmpty()) {
+            emit this->emailNotify(subject, data, "");
+        }
     } else if (app_name == "commhistoryd") {
         if (summary == "" && body == "") {
             emit this->smsNotify(hints.value("x-nemo-preview-summary", "default").toString(),
