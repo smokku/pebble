@@ -43,6 +43,7 @@ class PebbledAdaptor: public QDBusAbstractAdaptor
 "    <method name=\"ping\">\n"
 "      <arg direction=\"in\" type=\"i\" name=\"val\"/>\n"
 "    </method>\n"
+"    <method name=\"time\"/>\n"
 "    <method name=\"disconnect\"/>\n"
 "    <method name=\"reconnect\"/>\n"
 "  </interface>\n"
@@ -67,6 +68,7 @@ public: // PROPERTIES
 public Q_SLOTS: // METHODS
     void disconnect();
     void ping(int val);
+    void time();
     void reconnect();
 Q_SIGNALS: // SIGNALS
     void connectedChanged();

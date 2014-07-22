@@ -49,6 +49,7 @@ public slots:
     void setEnabled(bool);
     void setActive(bool);
     void ping();
+    void time();
     void disconnect();
     void reconnect();
 

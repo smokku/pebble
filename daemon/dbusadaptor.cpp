@@ -69,6 +69,13 @@ void PebbledAdaptor::ping(int val)
     QMetaObject::invokeMethod(parent(), "ping", Q_ARG(int, val));
 }
 
+void PebbledAdaptor::time()
+{
+    // handle method call org.pebbled.time
+    QMetaObject::invokeMethod(parent(), "time");
+}
+
+
 void PebbledAdaptor::reconnect()
 {
     // handle method call org.pebbled.reconnect

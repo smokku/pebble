@@ -102,6 +102,7 @@ public:
 
 public slots:
     void ping(int val) { static_cast<Manager*>(parent())->watch->ping((unsigned int)val); }
+    void time() { static_cast<Manager*>(parent())->watch->time(); }
     void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
     void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
 

@@ -242,6 +242,23 @@ void WatchConnector::ping(uint val)
     sendMessage(watchPING, res);
 }
 
+void WatchConnector::time()
+{
+    QByteArray res;
+    QDateTime UTC(QDateTime::currentDateTimeUtc());
+    QDateTime local(UTC.toLocalTime());
+    local.setTimeSpec(Qt::UTC);
+    int offset = UTC.secsTo(local);
+    uint val = (local.toMSecsSinceEpoch() + offset) / 1000;
+
+    res.append(0x02); //SET_TIME_REQ
+    res.append((char)((val >> 24) & 0xff));
+    res.append((char)((val >> 16) & 0xff));
+    res.append((char)((val >> 8) & 0xff));
+    res.append((char)(val & 0xff));
+    sendMessage(watchTIME, res);
+}
+
 QString WatchConnector::timeStamp()
 {
     return QString::number(QDateTime::currentMSecsSinceEpoch());
