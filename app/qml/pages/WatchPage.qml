@@ -56,6 +56,13 @@ Page {
                     pebbled.ping(66)
                 }
             }
+
+            Button {
+                text: "Sync Time"
+                onClicked: {
+                    pebbled.time()
+                }
+            }
         }
     }
 }

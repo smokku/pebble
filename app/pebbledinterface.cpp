@@ -149,6 +149,11 @@ void PebbledInterface::ping()
     pebbled->call("ping", 66);
 }
 
+void PebbledInterface::time()
+{
+    pebbled->call("time");
+}
+
 void PebbledInterface::disconnect()
 {
     pebbled->call("disconnect");

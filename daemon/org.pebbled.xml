@@ -13,6 +13,7 @@
     <method name="ping">
       <arg name="val" type="i" direction="in"/>
     </method>
+    <method name="time"/>
     <method name="disconnect"/>
     <method name="reconnect"/>
   </interface>

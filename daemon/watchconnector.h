@@ -145,6 +145,7 @@ public slots:
     void sendData(const QByteArray &data);
     void sendMessage(uint endpoint, QByteArray data);
     void ping(uint val);
+    void time();
     void sendNotification(uint lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
