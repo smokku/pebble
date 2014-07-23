@@ -26,6 +26,8 @@ public:
 Q_SIGNALS:
     void error(const QString &message);
     void smsNotify(const QString &sender, const QString &data);
+    void twitterNotify(const QString &sender, const QString &data);
+    void facebookNotify(const QString &sender, const QString &data);
     void emailNotify(const QString &sender, const QString &data,const QString &subject);
 
 public Q_SLOTS:

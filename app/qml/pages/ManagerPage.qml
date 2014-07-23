@@ -45,6 +45,8 @@ Page {
         property bool notificationsMissedCall: true
         property bool notificationsEmails: false
         property bool notificationsMitakuuluu: true
+        property bool notificationsTwitter: true
+        property bool notificationsFacebook: true
         property bool notificationsOther: true
         property bool notificationsAll: false
     }
@@ -188,6 +190,25 @@ Page {
                 automaticCheck: false
                 onClicked: {
                     settings.notificationsMitakuuluu = !settings.notificationsMitakuuluu;
+                }
+            }
+
+            TextSwitch {
+                text: qsTr("Twitter")
+                checked: settings.notificationsTwitter
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsTwitter = !settings.notificationsTwitter;
+                }
+            }
+
+            TextSwitch {
+                visible: false //not yet supported
+                text: qsTr("Facebook")
+                checked: settings.notificationsFacebook
+                automaticCheck: false
+                onClicked: {
+                    settings.notificationsFacebook = !settings.notificationsFacebook;
                 }
             }
 

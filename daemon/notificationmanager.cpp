@@ -166,6 +166,18 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
                              hints.value("x-nemo-preview-summary", "default").toString()
                             );
+
+    } else if (app_name == "twitter-notifications-client") {
+
+        if (!settings->property("notificationsTwitter").toBool()) {
+            logger()->debug() << "Ignoring twitter notification because of setting!";
+            return;
+        }
+
+        emit this->twitterNotify(hints.value("x-nemo-preview-body", body).toString(),
+                             hints.value("x-nemo-preview-summary", summary).toString()
+                            );
+
     } else {
         //Prioritize x-nemo-preview* over dbus direct summary and body
         QString subject = hints.value("x-nemo-preview-summary", "").toString();

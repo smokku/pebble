@@ -31,6 +31,8 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(notifications, SIGNAL(error(const QString &)), SLOT(onNotifyError(const QString &)));
     connect(notifications, SIGNAL(emailNotify(const QString &,const QString &,const QString &)), SLOT(onEmailNotify(const QString &,const QString &,const QString &)));
     connect(notifications, SIGNAL(smsNotify(const QString &,const QString &)), SLOT(onSmsNotify(const QString &,const QString &)));
+    connect(notifications, SIGNAL(twitterNotify(const QString &,const QString &)), SLOT(onTwitterNotify(const QString &,const QString &)));
+    connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
     connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
@@ -197,18 +199,23 @@ void Manager::onNotifyError(const QString &message)
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)
 {
-    logger()->debug() << "SMS:";
-    logger()->debug() << sender;
-    logger()->debug() << data;
     watch->sendSMSNotification(sender, data);
 }
 
+void Manager::onTwitterNotify(const QString &sender, const QString &data)
+{
+    watch->sendTwitterNotification(sender, data);
+}
+
+
+void Manager::onFacebookNotify(const QString &sender, const QString &data)
+{
+    watch->sendFacebookNotification(sender, data);
+}
+
+
 void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
 {
-    logger()->debug() << "Email:";
-    logger()->debug() << sender;
-    logger()->debug() << data;
-    logger()->debug() << subject;
     watch->sendEmailNotification(sender, data, subject);
 }
 

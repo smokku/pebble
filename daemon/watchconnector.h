@@ -150,7 +150,7 @@ public slots:
     void sendNotification(uint lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
-    void sendFaceBookNotification(QString sender, QString data);
+    void sendFacebookNotification(QString sender, QString data);
     void sendTwitterNotification(QString sender, QString data);
     void sendMusicNowPlaying(QString track, QString album, QString artist);
     void sendPhoneVersion();

@@ -76,6 +76,8 @@ protected slots:
     void onActiveVoiceCallStatusChanged();
     void onNotifyError(const QString &message);
     void onSmsNotify(const QString &sender, const QString &data);
+    void onTwitterNotify(const QString &sender, const QString &data);
+    void onFacebookNotify(const QString &sender, const QString &data);
     void onEmailNotify(const QString &sender, const QString &data,const QString &subject);
     void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
     void setMprisMetadata(QDBusArgument metadata);
