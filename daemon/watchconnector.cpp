@@ -266,6 +266,16 @@ void WatchConnector::sendSMSNotification(QString sender, QString data)
     sendNotification(leadSMS, sender, data, "");
 }
 
+void WatchConnector::sendFaceBookNotification(QString sender, QString data)
+{
+    sendNotification(leadFACEBOOK, sender, data, "");
+}
+
+void WatchConnector::sendTwitterNotification(QString sender, QString data)
+{
+    sendNotification(leadTWITTER, sender, data, "");
+}
+
 void WatchConnector::sendEmailNotification(QString sender, QString data, QString subject)
 {
     sendNotification(leadEMAIL, sender, data, subject);
