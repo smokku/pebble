@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
     watch::WatchConnector watch;
     DBusConnector dbus;
     VoiceCallManager voice;
-
+    NotificationManager notifications;
     Settings settings;
 
-    Manager manager(&watch, &dbus, &voice, &settings);
+    Manager manager(&watch, &dbus, &voice, &notifications, &settings);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);

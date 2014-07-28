@@ -102,6 +102,8 @@ public:
     enum {
         leadEMAIL = 0,
         leadSMS = 1,
+        leadFACEBOOK = 2,
+        leadTWITTER = 3,
         leadNOW_PLAYING_DATA = 16
     };
     enum {
@@ -149,6 +151,8 @@ public slots:
     void sendNotification(uint lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
+    void sendFacebookNotification(QString sender, QString data);
+    void sendTwitterNotification(QString sender, QString data);
     void sendMusicNowPlaying(QString track, QString album, QString artist);
     void sendPhoneVersion();
 
