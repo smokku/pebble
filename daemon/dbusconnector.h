@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
-#include "Logger"
+#include <Log4Qt/Logger>
 
 class DBusConnector : public QObject
 {

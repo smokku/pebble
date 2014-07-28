@@ -2,7 +2,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <QObject>
-#include "Logger"
+#include <Log4Qt/Logger>
 #include "settings.h"
 
 #include <QDBusInterface>

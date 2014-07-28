@@ -1,6 +1,5 @@
 TEMPLATE = subdirs
-CONFIG += ordered
-SUBDIRS = ext daemon app
+SUBDIRS = daemon app
 OTHER_FILES += \
     README.md \
     rpm/pebble.spec \

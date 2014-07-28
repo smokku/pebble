@@ -2,7 +2,7 @@
 #define WATCHCOMMANDS_H
 
 #include "watchconnector.h"
-#include "Logger"
+#include <Log4Qt/Logger>
 
 #include <QObject>
 

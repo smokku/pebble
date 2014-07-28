@@ -14,7 +14,7 @@
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
 #include <MNotification>
-#include "Logger"
+#include <Log4Qt/Logger>
 
 using namespace QtContacts;
 

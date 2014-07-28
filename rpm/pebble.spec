@@ -83,6 +83,5 @@ systemctl --user daemon-reload
 %{_libdir}/systemd/user/%{name}d.service
 %{_libdir}/systemd/user/user-session.target.wants/%{name}d.service
 %{_datadir}/%{name}/log4qt.conf
-%{_datadir}/%{name}/lib
 # >> files
 # << files

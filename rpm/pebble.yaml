@@ -22,6 +22,8 @@ PkgConfigBR:
 - Qt5Core
 - mlite5
 - sailfishapp >= 0.0.10
+PkgBR:
+- log4qt-devel
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets
@@ -33,5 +35,4 @@ Files:
 - '%{_libdir}/systemd/user/%{name}d.service'
 - '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
 - '%{_datadir}/%{name}/log4qt.conf'
-- '%{_datadir}/%{name}/lib'
 PkgBR: []

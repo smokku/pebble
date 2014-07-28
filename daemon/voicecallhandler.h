@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QDBusPendingCallWatcher>
-#include "Logger"
+#include <Log4Qt/Logger>
 
 class VoiceCallHandler : public QObject
 {

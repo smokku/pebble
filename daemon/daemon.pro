@@ -8,9 +8,7 @@ QT += bluetooth dbus contacts
 PKGCONFIG += mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
-LIBS += -L$$OUT_PWD/../ext/Log4Qt/ -llog4qt
-QMAKE_RPATHDIR += /usr/share/pebble/lib
-INCLUDEPATH += ../ext/Log4Qt/src ../ext/Log4Qt/deploy/include
+LIBS += -llog4qt
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
@@ -41,7 +39,7 @@ OTHER_FILES += \
     ../log4qt-debug.conf \
     ../log4qt-release.conf
 
-INSTALLS += target pebbled confile lib
+INSTALLS += target pebbled confile
 
 target.path = /usr/bin
 
@@ -59,9 +57,6 @@ else {
 
 confile.files = $$OUT_PWD/../log4qt.conf
 confile.path = /usr/share/pebble
-
-lib.files += $$OUT_PWD/../ext/Log4Qt/*.s*
-lib.path = /usr/share/pebble/lib
 
 # unnecesary includes, just so QtCreator could find headers... :-(
 INCLUDEPATH += $$[QT_HOST_PREFIX]/include/mlite5

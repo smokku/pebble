@@ -34,13 +34,8 @@
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
-
-#include "LogManager"
-#include "SystemlogAppender"
-#include "FileAppender"
-#include "helpers/factory.h"
-#include "Appender"
-#include "PropertyConfigurator"
+#include <Log4Qt/LogManager>
+#include <Log4Qt/PropertyConfigurator>
 
 void signalhandler(int sig)
 {

@@ -37,7 +37,7 @@
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
 #include <QBluetoothServiceInfo>
-#include "Logger"
+#include <Log4Qt/Logger>
 
 using namespace QtBluetooth;
 

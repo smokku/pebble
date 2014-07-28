@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
-#include "Logger"
+#include <Log4Qt/Logger>
 
 class VoiceCallProviderData
 {
