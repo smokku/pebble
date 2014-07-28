@@ -12,9 +12,13 @@ http://getpebble.com
 Features
 --------
 * Voice Calls notification and control
-* SMS, IM Messages forwarding
+* Conversations notifications forwarding
+* Missed calls notifications
+* New email notifications
+* Twitter and Mitakuuluu notifications
 * MPRIS compatible media player support
 * Set "silent" profile when watch is connected
+* Phone to Watch time synchronization
 * daemon management app
 * "org.pebbled" DBus interface
 
