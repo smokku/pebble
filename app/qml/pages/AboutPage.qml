@@ -63,6 +63,19 @@ Page {
                 icon.source: "../images/btn_donate.png"
                 onClicked: Qt.openUrlExternally("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MAGN86VCARBSA")
             }
+            Label {
+                text: "Your donations make applications better."
+                font.pixelSize: Theme.fontSizeMedium
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Button {
+                text: "Send application log to developer"
+                width: parent.width
+                onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=please describe your issue&attachment=/home/nemo/.cache/pebbled/pebble.log")
+            }
         }
     }
 }
