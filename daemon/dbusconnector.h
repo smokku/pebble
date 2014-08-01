@@ -31,8 +31,8 @@ public slots:
     bool findPebble();
 
 protected slots:
-    void onServiceRegistered(QString&);
-    void onServiceUnregistered(QString&);
+    void onServiceRegistered(const QString &);
+    void onServiceUnregistered(const QString &);
 
 };
 

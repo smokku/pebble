@@ -16,8 +16,7 @@
 DBusConnector::DBusConnector(QObject *parent) :
     QObject(parent)
 {
-    QDBusConnection bus = QDBusConnection::sessionBus();
-    QDBusConnectionInterface *interface = bus.interface();
+    QDBusConnectionInterface *interface = QDBusConnection::sessionBus().interface();
 
     QDBusReply<QStringList> serviceNames = interface->registeredServiceNames();
     if (serviceNames.isValid()) {
@@ -26,8 +25,8 @@ DBusConnector::DBusConnector(QObject *parent) :
     else {
         logger()->error() << serviceNames.error().message();
     }
-    connect(interface, SIGNAL(serviceRegistered(QString&)), SLOT(onServiceRegistered(QString&)));
-    connect(interface, SIGNAL(serviceUnregistered(QString&)), SIGNAL(onServiceUnregistered(QString&)));
+    connect(interface, SIGNAL(serviceRegistered(const QString &)), SLOT(onServiceRegistered(const QString &)));
+    connect(interface, SIGNAL(serviceUnregistered(const QString &)), SLOT(onServiceUnregistered(const QString &)));
 }
 
 bool DBusConnector::findPebble()
@@ -84,13 +83,13 @@ bool DBusConnector::findPebble()
     return false;
 }
 
-void DBusConnector::onServiceRegistered(QString &name)
+void DBusConnector::onServiceRegistered(const QString &name)
 {
     logger()->debug() << "DBus service online:" << name;
     if (!dbusServices.contains(name)) dbusServices.append(name);
 }
 
-void DBusConnector::onServiceUnregistered(QString &name)
+void DBusConnector::onServiceUnregistered(const QString &name)
 {
     logger()->debug() << "DBus service offline:" << name;
     if (dbusServices.contains(name)) dbusServices.removeAll(name);
