@@ -128,6 +128,7 @@ void Manager::onActiveVoiceCallChanged()
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (handler) {
         connect(handler, SIGNAL(statusChanged()), SLOT(onActiveVoiceCallStatusChanged()));
+        connect(handler, SIGNAL(destroyed()), SLOT(onActiveVoiceCallStatusChanged()));
         return;
     }
 }
@@ -136,7 +137,8 @@ void Manager::onActiveVoiceCallStatusChanged()
 {
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (!handler) {
-        logger()->debug() << "ActiveVoiceCallStatusChanged but no activeVoiceCall??";
+        logger()->debug() << "ActiveVoiceCall destroyed";
+        watch->endPhoneCall();
         return;
     }
 
