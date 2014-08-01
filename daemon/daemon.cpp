@@ -64,7 +64,7 @@ void initLogging()
     // console.log() exactly in Sailfish OS device release builds doesn't go through the same qDebug() channel
     Log4Qt::LogManager::setHandleQtMessages(true);
 
-    qDebug() << "Using following log config file: " << usedConfigFile;
+    qDebug() << "Using following log config file:" << usedConfigFile;
 }
 
 int main(int argc, char *argv[])

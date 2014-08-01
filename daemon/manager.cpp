@@ -191,13 +191,13 @@ QString Manager::findPersonByNumber(QString number)
 
 void Manager::onVoiceError(const QString &message)
 {
-    logger()->error() << "Error: " << message;
+    logger()->error() << "Error:" << message;
 }
 
 
 void Manager::onNotifyError(const QString &message)
 {
-    qWarning() << "Error: " << message;
+    qWarning() << "Error:" << message;
 }
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)

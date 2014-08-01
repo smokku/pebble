@@ -208,7 +208,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
         //Never send empty data and subject
         if (data.isEmpty() && subject.isEmpty()) {
-            logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app " << app_name;
+            logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app:" << app_name;
             return;
         }
 
