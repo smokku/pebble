@@ -144,8 +144,13 @@ void WatchConnector::onDisconnected()
     logger()->debug() << "Will reconnect in" << reconnectTimer.interval() << "ms";
 }
 
-void WatchConnector::onError(QBluetoothSocket::SocketError error) {
-    logger()->error() << "Error connecting Pebble:" << error << socket->errorString();
+void WatchConnector::onError(QBluetoothSocket::SocketError error)
+{
+    if (error == QBluetoothSocket::UnknownSocketError) {
+        logger()->info() << error << socket->errorString();
+    } else {
+        logger()->error() << "Error connecting Pebble:" << error << socket->errorString();
+    }
 }
 
 void WatchConnector::sendData(const QByteArray &data)
