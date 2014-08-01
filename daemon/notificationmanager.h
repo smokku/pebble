@@ -18,7 +18,7 @@ class NotificationManager : public QObject
 
     Q_PROPERTY(QDBusInterface* interface READ interface)
 public:
-    explicit NotificationManager(QObject *parent = 0);
+    explicit NotificationManager(Settings *settings, QObject *parent = 0);
             ~NotificationManager();
 
     QDBusInterface* interface() const;
@@ -32,7 +32,6 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
-    void setSettings(Settings *settings);
 
 protected Q_SLOTS:
     void initialize(bool notifyError = false);

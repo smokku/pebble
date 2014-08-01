@@ -29,8 +29,8 @@ public:
     bool connected;
 };
 
-VoiceCallManager::VoiceCallManager(QObject *parent)
-    : QObject(parent), d_ptr(new VoiceCallManagerPrivate(this))
+VoiceCallManager::VoiceCallManager(Settings *settings, QObject *parent)
+    : QObject(parent), d_ptr(new VoiceCallManagerPrivate(this)), settings(settings)
 {
     Q_D(VoiceCallManager);
     d->interface = new QDBusInterface("org.nemomobile.voicecall",

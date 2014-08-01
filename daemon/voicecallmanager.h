@@ -2,6 +2,7 @@
 #define VOICECALLMANAGER_H
 
 #include "voicecallhandler.h"
+#include "settings.h"
 
 #include <QObject>
 #include <QDBusInterface>
@@ -44,7 +45,7 @@ class VoiceCallManager : public QObject
     Q_PROPERTY(bool isSpeakerMuted READ isSpeakerMuted WRITE setMuteSpeaker NOTIFY speakerMutedChanged)
 
 public:
-    explicit VoiceCallManager(QObject *parent = 0);
+    explicit VoiceCallManager(Settings *settings, QObject *parent = 0);
             ~VoiceCallManager();
 
     QDBusInterface* interface() const;
@@ -99,6 +100,8 @@ protected Q_SLOTS:
 
 private:
     class VoiceCallManagerPrivate *d_ptr;
+
+    Settings *settings;
 
     Q_DISABLE_COPY(VoiceCallManager)
     Q_DECLARE_PRIVATE(VoiceCallManager)

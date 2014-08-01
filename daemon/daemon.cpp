@@ -77,12 +77,11 @@ int main(int argc, char *argv[])
 
     Log4Qt::Logger::logger(QLatin1String("Main Logger"))->info() << argv[0] << APP_VERSION;
 
+    Settings settings;
     watch::WatchConnector watch;
     DBusConnector dbus;
-    VoiceCallManager voice;
-    NotificationManager notifications;
-    Settings settings;
-
+    VoiceCallManager voice(&settings);
+    NotificationManager notifications(&settings);
     Manager manager(&watch, &dbus, &voice, &notifications, &settings);
 
     signal(SIGINT, signalhandler);

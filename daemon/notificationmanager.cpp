@@ -25,15 +25,15 @@ public:
     bool connected;
 };
 
-NotificationManager::NotificationManager(QObject *parent)
-    : QObject(parent), d_ptr(new NotificationManagerPrivate(this))
+NotificationManager::NotificationManager(Settings *settings, QObject *parent)
+    : QObject(parent), d_ptr(new NotificationManagerPrivate(this)), settings(settings)
 {
     Q_D(NotificationManager);
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this, QDBusConnection::ExportAllSlots);
 
     d->interface = new QDBusInterface("org.freedesktop.DBus",
                                       "/org/freedesktop/DBus",
-                                     "org.freedesktop.DBus");
+                                      "org.freedesktop.DBus");
 
     d->interface->call("AddMatch", "interface='org.freedesktop.Notifications',member='Notify',type='method_call',eavesdrop='true'");
 
@@ -102,11 +102,6 @@ QStringHash NotificationManager::getCategoryParams(QString category)
         }
     }
     return QStringHash();
-}
-
-void NotificationManager::setSettings(Settings *settings)
-{
-    this->settings = settings;
 }
 
 void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon,
