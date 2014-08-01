@@ -120,6 +120,11 @@ void Manager::onActiveVoiceCallChanged()
 {
     logger()->debug() << "Manager::onActiveVoiceCallChanged()";
 
+    if (!settings->property("incomingCallNotification").toBool()) {
+        logger()->debug() << "Ignoring ActiveVoiceCallChanged because of setting!";
+        return;
+    }
+
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (handler) {
         connect(handler, SIGNAL(statusChanged()), SLOT(onActiveVoiceCallStatusChanged()));

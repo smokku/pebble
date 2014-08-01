@@ -41,6 +41,7 @@ Page {
         id: settings
         path: "/org/pebbled/settings"
         property bool silentWhenConnected: false
+        property bool incomingCallNotification: true
         property bool notificationsCommhistoryd: true
         property bool notificationsMissedCall: true
         property bool notificationsEmails: false
@@ -139,6 +140,14 @@ Page {
                 color: Theme.highlightColor
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.paddingMedium
+            }
+            TextSwitch {
+                text: qsTr("Forward phone calls")
+                checked: settings.incomingCallNotification
+                automaticCheck: false
+                onClicked: {
+                    settings.incomingCallNotification = !settings.incomingCallNotification;
+                }
             }
             TextSwitch {
                 text: qsTr("Silent when connected")
