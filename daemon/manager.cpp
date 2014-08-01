@@ -233,7 +233,7 @@ void Manager::hangupAll()
 
 void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
 {
-    qDebug() << interface << changed << invalidated;
+    logger()->debug() << interface << changed << invalidated;
 
     if (changed.contains("Metadata")) {
         setMprisMetadata(changed.value("Metadata").value<QDBusArgument>());
@@ -247,6 +247,7 @@ void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant>
     }
 
     lastSeenMpris = message().service();
+    logger()->debug() << "lastSeenMpris:" << lastSeenMpris;
 }
 
 QString Manager::mpris()
@@ -255,7 +256,7 @@ QString Manager::mpris()
     if (not lastSeenMpris.isEmpty() && services.contains(lastSeenMpris))
         return lastSeenMpris;
 
-    foreach (QString service,services)
+    foreach (QString service, services)
         if (service.startsWith("org.mpris.MediaPlayer2."))
             return service;
 
