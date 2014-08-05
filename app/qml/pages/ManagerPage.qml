@@ -53,8 +53,11 @@ Page {
     }
 
     SilicaFlickable {
+        id: flickable
         anchors.fill: parent
         contentHeight: column.height
+
+        VerticalScrollDecorator { flickable: flickable }
 
         PullDownMenu {
             MenuItem {
@@ -85,16 +88,13 @@ Page {
                 }
 
             }
-            ListItem {
+            Button {
                 visible: pebbled.connected
-                Label {
-                    text: pebbled.name
-                    truncationMode: TruncationMode.Fade
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        margins: Theme.paddingLarge
-                    }
+                text: pebbled.name
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge
                 }
                 onClicked: pageStack.push(Qt.resolvedUrl("WatchPage.qml"))
             }

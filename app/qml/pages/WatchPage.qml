@@ -37,9 +37,11 @@ Page {
     id: page
 
     SilicaFlickable {
+        id: flickable
         anchors.fill: parent
-
         contentHeight: column.height
+
+        VerticalScrollDecorator { flickable: flickable }
 
         Column {
             id: column
@@ -50,19 +52,31 @@ Page {
                 title: pebbled.name
             }
 
-            Button {
-                text: "Ping"
-                onClicked: {
-                    pebbled.ping(66)
+            Row {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge
+                }
+
+
+                Button {
+                    text: "Ping"
+                    width: parent.width / 2
+                    onClicked: {
+                        pebbled.ping(66)
+                    }
+                }
+
+                Button {
+                    text: "Sync Time"
+                    width: parent.width / 2
+                    onClicked: {
+                        pebbled.time()
+                    }
                 }
             }
 
-            Button {
-                text: "Sync Time"
-                onClicked: {
-                    pebbled.time()
-                }
-            }
         }
     }
 }
