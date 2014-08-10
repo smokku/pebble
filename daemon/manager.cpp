@@ -181,14 +181,18 @@ void Manager::onActiveVoiceCallStatusChanged()
 
 QString Manager::findPersonByNumber(QString number)
 {
+    QString person;
     numberFilter.setValue(number);
 
     const QList<QContact> &found = contacts->contacts(numberFilter);
     if (found.size() == 1) {
-        return found[0].detail(QContactDetail::TypeDisplayLabel).value(0).toString();
+        person = found[0].detail(QContactDetail::TypeDisplayLabel).value(0).toString();
     }
 
-    return QString();
+    if (settings->property("transliterateCyrillic").toBool()) {
+        transliterateCyrillic(person);
+    }
+    return person;
 }
 
 void Manager::onVoiceError(const QString &message)
@@ -350,12 +354,12 @@ void Manager::transliterateCyrillic(const QString &text)
     static QStringList latUpper;
     static QStringList latLower;
     if (rusLower.isEmpty()) {
-        rusLower = QString::fromUtf8("абвгдеёжзийклмнопрстуфхцчшщыэюя");
-        rusUpper = QString::fromUtf8("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ");
+        rusLower = QString::fromUtf8("абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
+        rusUpper = QString::fromUtf8("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
         latUpper <<"A"<<"B"<<"V"<<"G"<<"D"<<"E"<<"Jo"<<"Zh"<<"Z"<<"I"<<"J"<<"K"<<"L"<<"M"<<"N"
-            <<"O"<<"P"<<"R"<<"S"<<"T"<<"U"<<"F"<<"H"<<"C"<<"Ch"<<"Sh"<<"Sh"<<"I"<<"E"<<"Ju"<<"Ja";
+            <<"O"<<"P"<<"R"<<"S"<<"T"<<"U"<<"F"<<"H"<<"C"<<"Ch"<<"Sh"<<"Sh'"<<""<<"I"<<"'"<<"E"<<"Ju"<<"Ja";
         latLower <<"a"<<"b"<<"v"<<"g"<<"d"<<"e"<<"jo"<<"zh"<<"z"<<"i"<<"j"<<"k"<<"l"<<"m"<<"n"
-            <<"o"<<"p"<<"r"<<"s"<<"t"<<"u"<<"f"<<"h"<<"c"<<"ch"<<"sh"<<"sh"<<"i"<<"e"<<"ju"<<"ja";
+            <<"o"<<"p"<<"r"<<"s"<<"t"<<"u"<<"f"<<"h"<<"c"<<"ch"<<"sh"<<"sh'"<<""<<"i"<<"'"<<"e"<<"ju"<<"ja";
     }
     for (int i=0; i < text.size(); ++i){
         QChar ch = text[i];
