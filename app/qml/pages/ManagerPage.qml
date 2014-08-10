@@ -41,6 +41,7 @@ Page {
         id: settings
         path: "/org/pebbled/settings"
         property bool silentWhenConnected: false
+        property bool transliterateMessage: false
         property bool incomingCallNotification: true
         property bool notificationsCommhistoryd: true
         property bool notificationsMissedCall: true
@@ -155,6 +156,15 @@ Page {
                 automaticCheck: false
                 onClicked: {
                     settings.silentWhenConnected = !settings.silentWhenConnected;
+                }
+            }
+            TextSwitch {
+                text: qsTr("Transliterate messages")
+                description: qsTr("Messages will be transliterated to ASCII before sending to Pebble")
+                checked: settings.transliterateMessage
+                automaticCheck: false
+                onClicked: {
+                    settings.transliterateMessage = !settings.transliterateMessage;
                 }
             }
 

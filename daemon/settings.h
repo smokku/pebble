@@ -8,6 +8,7 @@ class Settings : public MDConfGroup
     Q_OBJECT
 
     Q_PROPERTY(bool silentWhenConnected MEMBER silentWhenConnected NOTIFY silentWhenConnectedChanged)
+    Q_PROPERTY(bool transliterateMessage MEMBER transliterateMessage NOTIFY transliterateMessageChanged)
     Q_PROPERTY(bool incomingCallNotification MEMBER incomingCallNotification NOTIFY incomingCallNotificationChanged)
     Q_PROPERTY(bool notificationsCommhistoryd MEMBER notificationsCommhistoryd NOTIFY notificationsCommhistorydChanged)
     Q_PROPERTY(bool notificationsMissedCall MEMBER notificationsMissedCall NOTIFY notificationsMissedCallChanged)
@@ -18,6 +19,7 @@ class Settings : public MDConfGroup
     Q_PROPERTY(bool notificationsOther MEMBER notificationsOther NOTIFY notificationsOtherChanged)
     Q_PROPERTY(bool notificationsAll MEMBER notificationsAll NOTIFY notificationsAllChanged)
     bool silentWhenConnected;
+    bool transliterateMessage;
     bool incomingCallNotification;
     bool notificationsCommhistoryd;
     bool notificationsMissedCall;
@@ -35,6 +37,7 @@ public:
 
 signals:
     void silentWhenConnectedChanged(bool);
+    void transliterateMessageChanged(bool);
     void incomingCallNotificationChanged(bool);
     void notificationsCommhistorydChanged(bool);
     void notificationsMissedCallChanged(bool);

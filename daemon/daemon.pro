@@ -9,6 +9,7 @@ PKGCONFIG += mlite5
 QMAKE_CXXFLAGS += -std=c++0x
 
 LIBS += -llog4qt
+LIBS += -licuuc -licui18n
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 

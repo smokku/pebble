@@ -182,14 +182,18 @@ void Manager::onActiveVoiceCallStatusChanged()
 
 QString Manager::findPersonByNumber(QString number)
 {
+    QString person;
     numberFilter.setValue(number);
 
     const QList<QContact> &found = contacts->contacts(numberFilter);
     if (found.size() == 1) {
-        return found[0].detail(QContactDetail::TypeDisplayLabel).value(0).toString();
+        person = found[0].detail(QContactDetail::TypeDisplayLabel).value(0).toString();
     }
 
-    return QString();
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(person);
+    }
+    return person;
 }
 
 void Manager::onVoiceError(const QString &message)
@@ -205,23 +209,40 @@ void Manager::onNotifyError(const QString &message)
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
+    }
     watch->sendSMSNotification(sender, data);
 }
 
 void Manager::onTwitterNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
+    }
     watch->sendTwitterNotification(sender, data);
 }
 
 
 void Manager::onFacebookNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
+    }
     watch->sendFacebookNotification(sender, data);
 }
 
 
 void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
 {
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
+        transliterateMessage(subject);
+    }
     watch->sendEmailNotification(sender, data, subject);
 }
 
@@ -322,5 +343,28 @@ void Manager::applyProfile()
         else {
             logger()->error() << res.error().message();
         }
+    }
+}
+
+void Manager::transliterateMessage(const QString &text)
+{
+    if (transliterator.isNull()) {
+        UErrorCode status = U_ZERO_ERROR;
+        transliterator.reset(icu::Transliterator::createInstance(icu::UnicodeString::fromUTF8("Any-Latin; Latin-ASCII"),UTRANS_FORWARD, status));
+        if (U_FAILURE(status)) {
+            logger()->warn() << "Error creaing ICU Transliterator \"Any-Latin; Latin-ASCII\":" << u_errorName(status);
+        }
+    }
+    if (!transliterator.isNull()) {
+        logger()->debug() << "String before transliteration:" << text;
+
+        icu::UnicodeString uword = icu::UnicodeString::fromUTF8(text.toStdString());
+        transliterator->transliterate(uword);
+
+        std::string translited;
+        uword.toUTF8String(translited);
+
+        const_cast<QString&>(text) = QString::fromStdString(translited);
+        logger()->debug() << "String after transliteration:" << text;
     }
 }
