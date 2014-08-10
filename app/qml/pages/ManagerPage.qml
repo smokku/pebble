@@ -152,6 +152,7 @@ Page {
             }
             TextSwitch {
                 text: qsTr("Silent when connected")
+                description: qsTr("Sets phone profile to \"silent\" when Pebble is connected")
                 checked: settings.silentWhenConnected
                 automaticCheck: false
                 onClicked: {
@@ -160,7 +161,7 @@ Page {
             }
             TextSwitch {
                 text: qsTr("Transliterate messages")
-                description: qsTr("Messages will be transliterated to ASCII before sending to Pebble")
+                description: qsTr("Messages are transliterated to ASCII before sending to Pebble")
                 checked: settings.transliterateMessage
                 automaticCheck: false
                 onClicked: {
@@ -177,7 +178,8 @@ Page {
             }
 
             TextSwitch {
-                text: qsTr("Messaging (SMS and IM)")
+                text: qsTr("Messaging")
+                description: qsTr("SMS and IM")
                 checked: settings.notificationsCommhistoryd
                 automaticCheck: false
                 onClicked: {
@@ -232,7 +234,7 @@ Page {
             }
 
             TextSwitch {
-                text: qsTr("Other phone notification")
+                text: qsTr("Other notifications")
                 checked: settings.notificationsOther
                 automaticCheck: false
                 onClicked: {
@@ -241,7 +243,7 @@ Page {
             }
 
             TextSwitch {
-                text: qsTr("All phone notifications")
+                text: qsTr("All notifications")
                 checked: settings.notificationsAll
                 automaticCheck: false
                 enabled: settings.notificationsOther
