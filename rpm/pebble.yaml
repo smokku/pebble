@@ -24,6 +24,7 @@ PkgConfigBR:
 - sailfishapp >= 0.0.10
 PkgBR:
 - log4qt-devel
+- libicu-devel
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets

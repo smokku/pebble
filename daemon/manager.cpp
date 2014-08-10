@@ -189,8 +189,8 @@ QString Manager::findPersonByNumber(QString number)
         person = found[0].detail(QContactDetail::TypeDisplayLabel).value(0).toString();
     }
 
-    if (settings->property("transliterateCyrillic").toBool()) {
-        transliterateCyrillic(person);
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(person);
     }
     return person;
 }
@@ -208,18 +208,18 @@ void Manager::onNotifyError(const QString &message)
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)
 {
-    if (settings->property("transliterateCyrillic").toBool()) {
-        transliterateCyrillic(sender);
-        transliterateCyrillic(data);
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
     }
     watch->sendSMSNotification(sender, data);
 }
 
 void Manager::onTwitterNotify(const QString &sender, const QString &data)
 {
-    if (settings->property("transliterateCyrillic").toBool()) {
-        transliterateCyrillic(sender);
-        transliterateCyrillic(data);
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
     }
     watch->sendTwitterNotification(sender, data);
 }
@@ -227,9 +227,9 @@ void Manager::onTwitterNotify(const QString &sender, const QString &data)
 
 void Manager::onFacebookNotify(const QString &sender, const QString &data)
 {
-    if (settings->property("transliterateCyrillic").toBool()) {
-        transliterateCyrillic(sender);
-        transliterateCyrillic(data);
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
     }
     watch->sendFacebookNotification(sender, data);
 }
@@ -237,10 +237,10 @@ void Manager::onFacebookNotify(const QString &sender, const QString &data)
 
 void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
 {
-    if (settings->property("transliterateCyrillic").toBool()) {
-        transliterateCyrillic(sender);
-        transliterateCyrillic(data);
-        transliterateCyrillic(subject);
+    if (settings->property("transliterateMessage").toBool()) {
+        transliterateMessage(sender);
+        transliterateMessage(data);
+        transliterateMessage(subject);
     }
     watch->sendEmailNotification(sender, data, subject);
 }
@@ -345,40 +345,25 @@ void Manager::applyProfile()
     }
 }
 
-void Manager::transliterateCyrillic(const QString &text)
+void Manager::transliterateMessage(const QString &text)
 {
-    QString translit;
-    int ru;
-    static QString rusUpper;
-    static QString rusLower;
-    static QStringList latUpper;
-    static QStringList latLower;
-    if (rusLower.isEmpty()) {
-        rusLower = QString::fromUtf8("абвгдеёжзийклмнопрстуфхцчшщъыьэюя");
-        rusUpper = QString::fromUtf8("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ");
-        latUpper <<"A"<<"B"<<"V"<<"G"<<"D"<<"E"<<"Jo"<<"Zh"<<"Z"<<"I"<<"J"<<"K"<<"L"<<"M"<<"N"
-            <<"O"<<"P"<<"R"<<"S"<<"T"<<"U"<<"F"<<"H"<<"C"<<"Ch"<<"Sh"<<"Sh'"<<""<<"I"<<"'"<<"E"<<"Ju"<<"Ja";
-        latLower <<"a"<<"b"<<"v"<<"g"<<"d"<<"e"<<"jo"<<"zh"<<"z"<<"i"<<"j"<<"k"<<"l"<<"m"<<"n"
-            <<"o"<<"p"<<"r"<<"s"<<"t"<<"u"<<"f"<<"h"<<"c"<<"ch"<<"sh"<<"sh'"<<""<<"i"<<"'"<<"e"<<"ju"<<"ja";
-    }
-    for (int i=0; i < text.size(); ++i){
-        QChar ch = text[i];
-        if (ch.isLetter()) {
-            if (ch.isUpper()) {
-                ru = rusUpper.indexOf(ch);
-                if (ru >= 0) {
-                    translit.append(latUpper[ru]);
-                    continue;
-                }
-            } else if (ch.isLower()) {
-                ru = rusLower.indexOf(ch);
-                if (ru >= 0) {
-                    translit.append(latLower[ru]);
-                    continue;
-                }
-            }
+    if (transliterator.isNull()) {
+        UErrorCode status = U_ZERO_ERROR;
+        transliterator.reset(icu::Transliterator::createInstance(icu::UnicodeString::fromUTF8("Any-Latin; Latin-ASCII"),UTRANS_FORWARD, status));
+        if (U_FAILURE(status)) {
+            logger()->warn() << "Error creaing ICU Transliterator \"Any-Latin; Latin-ASCII\":" << u_errorName(status);
         }
-        translit.append(text[i]);
     }
-    const_cast<QString&>(text) = translit;
+    if (!transliterator.isNull()) {
+        logger()->debug() << "String before transliteration:" << text;
+
+        icu::UnicodeString uword = icu::UnicodeString::fromUTF8(text.toStdString());
+        transliterator->transliterate(uword);
+
+        std::string translited;
+        uword.toUTF8String(translited);
+
+        const_cast<QString&>(text) = QString::fromStdString(translited);
+        logger()->debug() << "String after transliteration:" << text;
+    }
 }

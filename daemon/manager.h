@@ -16,6 +16,8 @@
 #include <MNotification>
 #include <Log4Qt/Logger>
 
+#include <unicode/translit.h>
+
 using namespace QtContacts;
 
 class Manager :
@@ -50,6 +52,8 @@ class Manager :
 
     QString lastSeenMpris;
 
+    QScopedPointer<icu::Transliterator> transliterator;
+
 public:
     explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings);
 
@@ -60,7 +64,7 @@ public:
     QVariantMap getMprisMetadata() { return mprisMetadata; }
 
 protected:
-    void transliterateCyrillic(const QString &text);
+    void transliterateMessage(const QString &text);
 
 signals:
     void mprisMetadataChanged(QVariantMap);
