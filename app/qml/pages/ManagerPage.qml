@@ -41,6 +41,7 @@ Page {
         id: settings
         path: "/org/pebbled/settings"
         property bool silentWhenConnected: false
+        property bool transliterateCyrillic: false
         property bool incomingCallNotification: true
         property bool notificationsCommhistoryd: true
         property bool notificationsMissedCall: true
@@ -155,6 +156,14 @@ Page {
                 automaticCheck: false
                 onClicked: {
                     settings.silentWhenConnected = !settings.silentWhenConnected;
+                }
+            }
+            TextSwitch {
+                text: qsTr("Transliterate Cyrillic")
+                checked: settings.transliterateCyrillic
+                automaticCheck: false
+                onClicked: {
+                    settings.transliterateCyrillic = !settings.transliterateCyrillic;
                 }
             }
 

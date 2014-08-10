@@ -59,6 +59,9 @@ public:
     QVariantMap mprisMetadata;
     QVariantMap getMprisMetadata() { return mprisMetadata; }
 
+protected:
+    void transliterateCyrillic(const QString &text);
+
 signals:
     void mprisMetadataChanged(QVariantMap);
 

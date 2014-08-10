@@ -204,23 +204,40 @@ void Manager::onNotifyError(const QString &message)
 
 void Manager::onSmsNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateCyrillic").toBool()) {
+        transliterateCyrillic(sender);
+        transliterateCyrillic(data);
+    }
     watch->sendSMSNotification(sender, data);
 }
 
 void Manager::onTwitterNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateCyrillic").toBool()) {
+        transliterateCyrillic(sender);
+        transliterateCyrillic(data);
+    }
     watch->sendTwitterNotification(sender, data);
 }
 
 
 void Manager::onFacebookNotify(const QString &sender, const QString &data)
 {
+    if (settings->property("transliterateCyrillic").toBool()) {
+        transliterateCyrillic(sender);
+        transliterateCyrillic(data);
+    }
     watch->sendFacebookNotification(sender, data);
 }
 
 
 void Manager::onEmailNotify(const QString &sender, const QString &data,const QString &subject)
 {
+    if (settings->property("transliterateCyrillic").toBool()) {
+        transliterateCyrillic(sender);
+        transliterateCyrillic(data);
+        transliterateCyrillic(subject);
+    }
     watch->sendEmailNotification(sender, data, subject);
 }
 
@@ -322,4 +339,42 @@ void Manager::applyProfile()
             logger()->error() << res.error().message();
         }
     }
+}
+
+void Manager::transliterateCyrillic(const QString &text)
+{
+    QString translit;
+    int ru;
+    static QString rusUpper;
+    static QString rusLower;
+    static QStringList latUpper;
+    static QStringList latLower;
+    if (rusLower.isEmpty()) {
+        rusLower = QString::fromUtf8("абвгдеёжзийклмнопрстуфхцчшщыэюя");
+        rusUpper = QString::fromUtf8("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ");
+        latUpper <<"A"<<"B"<<"V"<<"G"<<"D"<<"E"<<"Jo"<<"Zh"<<"Z"<<"I"<<"J"<<"K"<<"L"<<"M"<<"N"
+            <<"O"<<"P"<<"R"<<"S"<<"T"<<"U"<<"F"<<"H"<<"C"<<"Ch"<<"Sh"<<"Sh"<<"I"<<"E"<<"Ju"<<"Ja";
+        latLower <<"a"<<"b"<<"v"<<"g"<<"d"<<"e"<<"jo"<<"zh"<<"z"<<"i"<<"j"<<"k"<<"l"<<"m"<<"n"
+            <<"o"<<"p"<<"r"<<"s"<<"t"<<"u"<<"f"<<"h"<<"c"<<"ch"<<"sh"<<"sh"<<"i"<<"e"<<"ju"<<"ja";
+    }
+    for (int i=0; i < text.size(); ++i){
+        QChar ch = text[i];
+        if (ch.isLetter()) {
+            if (ch.isUpper()) {
+                ru = rusUpper.indexOf(ch);
+                if (ru >= 0) {
+                    translit.append(latUpper[ru]);
+                    continue;
+                }
+            } else if (ch.isLower()) {
+                ru = rusLower.indexOf(ch);
+                if (ru >= 0) {
+                    translit.append(latLower[ru]);
+                    continue;
+                }
+            }
+        }
+        translit.append(text[i]);
+    }
+    const_cast<QString&>(text) = translit;
 }
