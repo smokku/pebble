@@ -32,13 +32,6 @@ public:
 VoiceCallManager::VoiceCallManager(Settings *settings, QObject *parent)
     : QObject(parent), d_ptr(new VoiceCallManagerPrivate(this)), settings(settings)
 {
-    Q_D(VoiceCallManager);
-    d->interface = new QDBusInterface("org.nemomobile.voicecall",
-                                      "/",
-                                      "org.nemomobile.voicecall.VoiceCallManager",
-                                      QDBusConnection::sessionBus(),
-                                      this);
-
     this->initialize();
 }
 
@@ -52,6 +45,13 @@ void VoiceCallManager::initialize(bool notifyError)
 {
     Q_D(VoiceCallManager);
     bool success = false;
+
+    delete d->interface;
+    d->interface = new QDBusInterface("org.nemomobile.voicecall",
+                                      "/",
+                                      "org.nemomobile.voicecall.VoiceCallManager",
+                                      QDBusConnection::sessionBus(),
+                                      this);
 
     if(d->interface->isValid())
     {
