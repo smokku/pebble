@@ -19,6 +19,7 @@ Features
 * MPRIS compatible media player support
 * Set "silent" profile when watch is connected
 * Phone to Watch time synchronization
+* Transliterate strings to plain ASCII
 * daemon management app
 * "org.pebbled" DBus interface
 
