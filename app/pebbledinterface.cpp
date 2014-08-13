@@ -5,9 +5,11 @@ QString PebbledInterface::PEBBLED_DBUS_SERVICE("org.pebbled");
 QString PebbledInterface::PEBBLED_DBUS_PATH("/");
 QString PebbledInterface::PEBBLED_DBUS_IFACE("org.pebbled");
 
+#define PebbledDbusInterface QDBusInterface(PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE)
+
 
 PebbledInterface::PebbledInterface(QObject *parent) :
-    QObject(parent), pebbled(0), systemd(0)
+    QObject(parent), systemd(0)
 {
     QDBusConnection::sessionBus().connect(
                 PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
@@ -18,11 +20,9 @@ PebbledInterface::PebbledInterface(QObject *parent) :
                 "pebbleChanged", this, SLOT(onPebbleChanged()));
 
     // simulate connected change on active changed
-    // as the daemon might not had a chance to send connectedChanged()
+    // as the daemon might not had a chance to send 'connectedChanged'
+    // when going down
     connect(this, SIGNAL(activeChanged()), SIGNAL(connectedChanged()));
-
-    pebbled = new QDBusInterface(PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
-                                 QDBusConnection::sessionBus(), this);
 
     systemd = new QDBusInterface("org.freedesktop.systemd1",
                                  "/org/freedesktop/systemd1",
@@ -83,83 +83,83 @@ void PebbledInterface::onPebbleChanged()
 
 bool PebbledInterface::enabled() const
 {
-    qDebug() << "enabled()";
+    qDebug() << __FUNCTION__;
     return properties["UnitFileState"].toString() == "enabled";
 }
 
 void PebbledInterface::setEnabled(bool enabled)
 {
-    if (systemd) {
-        qDebug() << "setEnabled" << enabled;
-        QDBusError reply;
-        if (enabled) systemd->call("EnableUnitFiles", QStringList() << PEBBLED_SYSTEMD_UNIT, false, true);
-        else systemd->call("DisableUnitFiles", QStringList() << PEBBLED_SYSTEMD_UNIT, false);
-        if (reply.isValid()) {
-            qWarning() << reply.message();
-        } else {
-            systemd->call("Reload");
-            getUnitProperties();
-        }
+    qDebug() << "setEnabled" << enabled;
+    QDBusError reply;
+    if (enabled) systemd->call("EnableUnitFiles", QStringList() << PEBBLED_SYSTEMD_UNIT, false, true);
+    else systemd->call("DisableUnitFiles", QStringList() << PEBBLED_SYSTEMD_UNIT, false);
+    if (reply.isValid()) {
+        qWarning() << reply.message();
+    } else {
+        systemd->call("Reload");
+        getUnitProperties();
     }
 }
 
 bool PebbledInterface::active() const
 {
-    qDebug() << "active()";
+    qDebug() << __FUNCTION__;
     return properties["ActiveState"].toString() == "active";
 }
 
 void PebbledInterface::setActive(bool active)
 {
-    if (systemd) {
-        qDebug() << "setActive" << active;
-        QDBusReply<QDBusObjectPath> reply = systemd->call(active?"StartUnit":"StopUnit", PEBBLED_SYSTEMD_UNIT, "replace");
-        if (!reply.isValid()) {
-            qWarning() << reply.error().message();
-        }
+    qDebug() << "setActive" << active;
+    QDBusReply<QDBusObjectPath> reply = systemd->call(active?"StartUnit":"StopUnit", PEBBLED_SYSTEMD_UNIT, "replace");
+    if (!reply.isValid()) {
+        qWarning() << reply.error().message();
     }
 }
 
 bool PebbledInterface::connected() const
 {
     qDebug() << __FUNCTION__;
-    return pebbled->property(__FUNCTION__).toBool();
+    return PebbledDbusInterface.property(__FUNCTION__).toBool();
 }
 
 QVariantMap PebbledInterface::pebble() const
 {
     qDebug() << __FUNCTION__;
-    return pebbled->property(__FUNCTION__).toMap();
+    return PebbledDbusInterface.property(__FUNCTION__).toMap();
 }
 
 QString PebbledInterface::name() const
 {
     qDebug() << __FUNCTION__;
-    return pebbled->property(__FUNCTION__).toString();
+    return PebbledDbusInterface.property(__FUNCTION__).toString();
 }
 
 QString PebbledInterface::address() const
 {
     qDebug() << __FUNCTION__;
-    return pebbled->property(__FUNCTION__).toString();
+    return PebbledDbusInterface.property(__FUNCTION__).toString();
 }
 
 void PebbledInterface::ping()
 {
-    pebbled->call("ping", 66);
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("ping", 66);
 }
 
 void PebbledInterface::time()
 {
-    pebbled->call("time");
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("time");
 }
 
 void PebbledInterface::disconnect()
 {
-    pebbled->call("disconnect");
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("disconnect");
 }
 
 void PebbledInterface::reconnect()
 {
-    pebbled->call("reconnect");
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("reconnect");
 }

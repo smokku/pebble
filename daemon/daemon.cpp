@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);
     QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(endPhoneCall()));
+    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(disconnect()));
 
     return app.exec();
 }

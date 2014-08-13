@@ -35,15 +35,6 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
 
-    // Set BT icon for notification
-    notification.setImage("icon-system-bluetooth-device");
-
-    if (btDevice.isValid()) {
-        logger()->debug() << "BT local name:" << btDevice.name();
-        connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
-        dbus->findPebble();
-    }
-
     PebbledProxy *proxy = new PebbledProxy(this);
     PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
     QDBusConnection session = QDBusConnection::sessionBus();
@@ -62,6 +53,16 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
                 this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
 
     connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), commands, SLOT(onMprisMetadataChanged(QVariantMap)));
+
+    // Set BT icon for notification
+    notification.setImage("icon-system-bluetooth-device");
+
+    if (btDevice.isValid()) {
+        logger()->debug() << "BT local name:" << btDevice.name();
+        connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
+        dbus->findPebble();
+    }
+
 }
 
 void Manager::onSettingChanged(const QString &key)

@@ -59,7 +59,6 @@ private slots:
     void onPebbleChanged();
 
 private:
-    QDBusInterface *pebbled;
     QDBusInterface *systemd;
     QDBusObjectPath unitPath;
 
