@@ -1,3 +1,10 @@
+* Sat Aug 13 2014 Tomasz Sterna <tomek@xiaoka.com> 0.10
+- Transliterate strings to plain ASCII
+- Handle e-mail notifications without subject
+- Fixed handling of connected signal in Manager app
+- Do not spam journal after reboot
+- Fixed call hangup by Pebble
+
 * Sat Aug 2 2014 Tomasz Sterna <tomek@xiaoka.com> 0.9
 - option to disable phone call forwarding to watch
 - "Send application log to developer" button on About page

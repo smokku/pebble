@@ -1,14 +1,14 @@
 Name: pebble
 Summary: Support for Pebble watch in SailfishOS
-Version: 0.9
+Version: 0.10
 Release: 1
 Group: Qt/Qt
 URL: http://getpebble.com/
-License: BSD
+License: GPL3
 Sources:
 - '%{name}-%{version}.tar.xz'
 Description: |
-  Include support for Pebble watch to receive event from SailfishOS device. Communicates via Bluetooth, supporting the Pebble protocol.
+  Support for Pebble watch to receive events from SailfishOS device via Bluetooth.
 Configure: none
 Builder: qtc5
 QMakeOptions:
