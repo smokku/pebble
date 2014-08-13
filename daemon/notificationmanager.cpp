@@ -130,7 +130,14 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
         QString subject = hints.value("x-nemo-preview-summary", "").toString();
         QString data = hints.value("x-nemo-preview-body", "").toString();
-        if (!data.isEmpty() && !subject.isEmpty()) {
+
+        //Prioritize subject over data
+        if (subject.isEmpty() && !data.isEmpty()) {
+            subject = data;
+            data = "";
+        }
+
+        if (!subject.isEmpty()) {
             emit this->emailNotify(subject, data, "");
         }
     } else if (app_name == "commhistoryd") {
