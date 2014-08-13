@@ -12,18 +12,17 @@ WatchCommands::WatchCommands(WatchConnector *watch, QObject *parent) :
 
 void WatchCommands::processMessage(uint endpoint, QByteArray data)
 {
-    logger()->debug() << __FUNCTION__ << endpoint << "/" << data.length();
+    logger()->debug() << __FUNCTION__ << endpoint << "/" << data.toHex() << data.length();
     switch (endpoint) {
     case WatchConnector::watchPHONE_VERSION:
         watch->sendPhoneVersion();
         break;
     case WatchConnector::watchPHONE_CONTROL:
-        if (data.length() >= 5 && data.at(4) == WatchConnector::callHANGUP) {
+        if (data.at(0) == WatchConnector::callHANGUP) {
             emit hangup();
         }
         break;
     case WatchConnector::watchMUSIC_CONTROL:
-        logger()->debug() << "MUSIC_CONTROL" << data.toHex();
         musicControl(WatchConnector::MusicControl(data.at(0)));
         break;
 
