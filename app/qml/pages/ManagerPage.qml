@@ -80,7 +80,7 @@ Page {
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 visible: pebbled.active && !pebbled.connected
-                text: qsTr("Waiting for watch...\nIf it can't be found plase check it's available and paired in Bluetooth settings.")
+                text: qsTr("Waiting for watch...\nIf it can't be found please check it's available and paired in Bluetooth settings.")
                 wrapMode: Text.Wrap
                 anchors {
                     left: parent.left
