@@ -7,6 +7,47 @@
 #include <QDBusInterface>
 #include <QDBusPendingReply>
 
+NotificationManagerQueueHandler::NotificationManagerQueueHandler(QObject *parent) : QThread(parent)
+{
+    this->queue = new QQueue<NotificationManagerMessage>();
+    this->mutex = new QMutex();
+    this->start();
+}
+
+NotificationManagerQueueHandler::~NotificationManagerQueueHandler()
+{
+    /* */
+}
+
+void NotificationManagerQueueHandler::queueNotification(const NotificationManagerMessage &notification)
+{
+    QMutexLocker locker(this->mutex);
+
+    //Wake only if it was empty before
+    if (this->queue->isEmpty()) {
+        this->queue->enqueue(notification);
+        this->waitcond.wakeOne();
+    } else {
+        this->queue->enqueue(notification);
+    }
+}
+
+void NotificationManagerQueueHandler::run()
+{
+    forever {
+        {
+            QMutexLocker locker(this->mutex);
+            if (this->queue->isEmpty())
+                this->waitcond.wait(this->mutex);
+
+            this->waitcond.wait(this->mutex, 250); // wait some ms between notifications
+
+            const NotificationManagerMessage &notification = this->queue->dequeue();
+            this->notificationReady(notification);
+        }
+    }
+}
+
 class NotificationManagerPrivate
 {
     Q_DECLARE_PUBLIC(NotificationManager)
@@ -36,6 +77,11 @@ NotificationManager::NotificationManager(Settings *settings, QObject *parent)
                                       "org.freedesktop.DBus");
 
     d->interface->call("AddMatch", "interface='org.freedesktop.Notifications',member='Notify',type='method_call',eavesdrop='true'");
+
+    this->queueHandler = new NotificationManagerQueueHandler();
+
+    qRegisterMetaType<NotificationManagerMessage>("NotificationManagerMessage");
+    connect(this->queueHandler, SIGNAL(notificationReady(const NotificationManagerMessage&)), SLOT(onQueuedNotification(const NotificationManagerMessage&)));
 
     this->initialize();
 }
@@ -68,6 +114,23 @@ QDBusInterface* NotificationManager::interface() const
 {
     Q_D(const NotificationManager);
     return d->interface;
+}
+
+void NotificationManager::onQueuedNotification(const NotificationManagerMessage &notification)
+{
+    switch (notification.type) {
+        case notificationEMAIL:
+            emit this->emailNotify(notification.sender, notification.data, notification.subject);
+            break;
+        case notificationSMS:
+            emit this->smsNotify(notification.sender, notification.data);
+            break;
+        case notificationFACEBOOK:
+            emit this->facebookNotify(notification.sender, notification.data);
+            break;
+        case notificationTWITTER:
+            emit this->twitterNotify(notification.sender, notification.data);
+    }
 }
 
 QString NotificationManager::getCleanAppName(QString app_name)
@@ -138,7 +201,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         }
 
         if (!subject.isEmpty()) {
-            emit this->emailNotify(subject, data, "");
+            this->queueHandler->queueNotification(NotificationManagerMessage(notificationEMAIL, subject, data));
         }
     } else if (app_name == "commhistoryd") {
         if (summary == "" && body == "") {
@@ -157,9 +220,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                     return;
                 }
             }
-            emit this->smsNotify(hints.value("x-nemo-preview-summary", "default").toString(),
-                                 hints.value("x-nemo-preview-body", "default").toString()
-                                );
+            this->queueHandler->queueNotification(NotificationManagerMessage(notificationSMS, hints.value("x-nemo-preview-summary", "default").toString(), hints.value("x-nemo-preview-body", "").toString()));
         }
     } else if (app_name == "harbour-mitakuuluu2-server") {
         QVariant notificationsMitakuuluu = settings->property("notificationsMitakuuluu");
@@ -167,10 +228,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             logger()->debug() << "Ignoring mitakuuluu notification because of setting!";
             return;
         }
-
-        emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
-                             hints.value("x-nemo-preview-summary", "default").toString()
-                            );
+        this->queueHandler->queueNotification(NotificationManagerMessage(notificationSMS, hints.value("x-nemo-preview-body", "default").toString(), hints.value("x-nemo-preview-summary", "").toString()));
 
     } else if (app_name == "twitter-notifications-client") {
         QVariant notificationsTwitter = settings->property("notificationsTwitter");
@@ -178,10 +236,7 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             logger()->debug() << "Ignoring twitter notification because of setting!";
             return;
         }
-
-        emit this->twitterNotify(hints.value("x-nemo-preview-body", body).toString(),
-                             hints.value("x-nemo-preview-summary", summary).toString()
-                            );
+        this->queueHandler->queueNotification(NotificationManagerMessage(notificationTWITTER, hints.value("x-nemo-preview-body", body).toString(), hints.value("x-nemo-preview-summary", summary).toString()));
 
     } else {
         //Prioritize x-nemo-preview* over dbus direct summary and body
@@ -223,7 +278,6 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app:" << app_name;
             return;
         }
-
-        emit this->emailNotify(this->getCleanAppName(app_name), data, subject);
+        this->queueHandler->queueNotification(NotificationManagerMessage(notificationEMAIL, this->getCleanAppName(app_name), data, subject));
     }
 }
