@@ -2,6 +2,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <QObject>
+#include <QtDBus/QDBusContext>
 #include <Log4Qt/Logger>
 #include "settings.h"
 
@@ -10,7 +11,7 @@
 
 typedef QHash<QString, QString> QStringHash;
 
-class NotificationManager : public QObject
+class NotificationManager : public QObject, protected QDBusContext
 {
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
@@ -31,7 +32,7 @@ Q_SIGNALS:
     void emailNotify(const QString &sender, const QString &data,const QString &subject);
 
 public Q_SLOTS:
-    void Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
+    uint Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
 
 protected Q_SLOTS:
     void initialize(bool notifyError = false);

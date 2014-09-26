@@ -104,7 +104,7 @@ QStringHash NotificationManager::getCategoryParams(QString category)
     return QStringHash();
 }
 
-void NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon,
+uint NotificationManager::Notify(const QString &app_name, uint replaces_id, const QString &app_icon,
                                  const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout)
 {
     Q_UNUSED(replaces_id);
@@ -112,26 +112,30 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     Q_UNUSED(actions);
     Q_UNUSED(expire_timeout);
 
-    //Ignore notifcations from myself
+    // Ignore notifcations from myself
     if (app_name == "pebbled") {
-        return;
+        return 0;
     }
 
     logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
     logger()->debug() << hints;
 
-    if (app_name == "messageserver5") {
+    // Avoid sending a reply for this method call, since we've received it because we're eavesdropping.
+    // The actual target of the method call will send the proper reply.
+    Q_ASSERT(calledFromDBus());
+    setDelayedReply(true);
 
+    if (app_name == "messageserver5") {
         QVariant notificationsEmails = settings->property("notificationsEmails");
         if (!notificationsEmails.isValid() || !notificationsEmails.toBool()) {
             logger()->debug() << "Ignoring email notification because of setting!";
-            return;
+            return 0;
         }
 
         QString subject = hints.value("x-nemo-preview-summary", "").toString();
         QString data = hints.value("x-nemo-preview-body", "").toString();
 
-        //Prioritize subject over data
+        // Prioritize subject over data
         if (subject.isEmpty() && !data.isEmpty()) {
             subject = data;
             data = "";
@@ -148,13 +152,13 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                 QVariant notificationsMissedCall = settings->property("notificationsMissedCall");
                 if (notificationsMissedCall.isValid() && !notificationsMissedCall.toBool()) {
                     logger()->debug() << "Ignoring MissedCall notification because of setting!";
-                    return;
+                    return 0;
                 }
             } else {
                 QVariant notificationsCommhistoryd = settings->property("notificationsCommhistoryd");
                 if (notificationsCommhistoryd.isValid() && !notificationsCommhistoryd.toBool()) {
                     logger()->debug() << "Ignoring commhistoryd notification because of setting!";
-                    return;
+                    return 0;
                 }
             }
             emit this->smsNotify(hints.value("x-nemo-preview-summary", "default").toString(),
@@ -165,26 +169,24 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         QVariant notificationsMitakuuluu = settings->property("notificationsMitakuuluu");
         if (notificationsMitakuuluu.isValid() && !notificationsMitakuuluu.toBool()) {
             logger()->debug() << "Ignoring mitakuuluu notification because of setting!";
-            return;
+            return 0;
         }
 
         emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
                              hints.value("x-nemo-preview-summary", "default").toString()
                             );
-
     } else if (app_name == "twitter-notifications-client") {
         QVariant notificationsTwitter = settings->property("notificationsTwitter");
         if (notificationsTwitter.isValid() && !notificationsTwitter.toBool()) {
             logger()->debug() << "Ignoring twitter notification because of setting!";
-            return;
+            return 0;
         }
 
         emit this->twitterNotify(hints.value("x-nemo-preview-body", body).toString(),
-                             hints.value("x-nemo-preview-summary", summary).toString()
-                            );
-
+                                 hints.value("x-nemo-preview-summary", summary).toString()
+                                );
     } else {
-        //Prioritize x-nemo-preview* over dbus direct summary and body
+        // Prioritize x-nemo-preview* over dbus direct summary and body
         QString subject = hints.value("x-nemo-preview-summary", "").toString();
         QString data = hints.value("x-nemo-preview-body", "").toString();
         QString category = hints.value("category", "").toString();
@@ -196,13 +198,13 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         QVariant notificationsAll = settings->property("notificationsAll");
         if ((!notificationsAll.isValid() || !notificationsAll.toBool()) && prio <= 10) {
             logger()->debug() << "Ignoring notification because of setting! (all)";
-            return;
+            return 0;
         }
 
         QVariant notificationsOther = settings->property("notificationsOther");
         if (notificationsOther.isValid() && !notificationsOther.toBool() && prio < 90) {
             logger()->debug() << "Ignoring notification because of setting! (other)";
-            return;
+            return 0;
         }
 
         if (subject.isEmpty()) {
@@ -221,9 +223,11 @@ void NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         //Never send empty data and subject
         if (data.isEmpty() && subject.isEmpty()) {
             logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app:" << app_name;
-            return;
+            return 0;
         }
 
         emit this->emailNotify(this->getCleanAppName(app_name), data, subject);
     }
+
+    return 0;
 }
