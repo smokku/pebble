@@ -21,6 +21,7 @@ PkgConfigBR:
 - Qt5Qml
 - Qt5Core
 - mlite5
+- timed-voland-qt5
 - sailfishapp >= 0.0.10
 PkgBR:
 - log4qt-devel

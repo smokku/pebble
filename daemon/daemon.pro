@@ -5,7 +5,7 @@ CONFIG += link_pkgconfig
 QT -= gui
 
 QT += bluetooth dbus contacts
-PKGCONFIG += mlite5
+PKGCONFIG += mlite5 timed-voland-qt5
 QMAKE_CXXFLAGS += -std=c++0x
 
 LIBS += -llog4qt

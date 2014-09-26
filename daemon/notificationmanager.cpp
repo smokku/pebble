@@ -30,12 +30,14 @@ NotificationManager::NotificationManager(Settings *settings, QObject *parent)
 {
     Q_D(NotificationManager);
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this, QDBusConnection::ExportAllSlots);
+    QDBusConnection::sessionBus().registerObject("/com/nokia/voland", this, QDBusConnection::ExportAllSlots);
 
     d->interface = new QDBusInterface("org.freedesktop.DBus",
                                       "/org/freedesktop/DBus",
                                       "org.freedesktop.DBus");
 
     d->interface->call("AddMatch", "interface='org.freedesktop.Notifications',member='Notify',type='method_call',eavesdrop='true'");
+    d->interface->call("AddMatch", "interface='com.nokia.voland',member='open',type='method_call',eavesdrop='true'");
 
     this->initialize();
 }
@@ -230,4 +232,16 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     }
 
     return 0;
+}
+
+bool NotificationManager::open(const Maemo::Timed::Voland::Reminder &data)
+{
+    logger()->debug() << Q_FUNC_INFO  << data.attributes();
+
+    // Avoid sending a reply for this method call, since we've received it because we're eavesdropping.
+    // The actual target of the method call will send the proper reply.
+    Q_ASSERT(calledFromDBus());
+    setDelayedReply(true);
+
+    return false;
 }

@@ -9,6 +9,8 @@
 #include <QDBusInterface>
 #include <QDBusPendingCallWatcher>
 
+#include <timed-voland-qt5/interface>
+
 typedef QHash<QString, QString> QStringHash;
 
 class NotificationManager : public QObject, protected QDBusContext
@@ -33,6 +35,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     uint Notify(const QString &app_name, uint replaces_id, const QString &app_icon, const QString &summary, const QString &body, const QStringList &actions, const QVariantHash &hints, int expire_timeout);
+    bool open(const Maemo::Timed::Voland::Reminder &data);
 
 protected Q_SLOTS:
     void initialize(bool notifyError = false);
