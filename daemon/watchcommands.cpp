@@ -25,6 +25,10 @@ void WatchCommands::processMessage(uint endpoint, QByteArray data)
     case WatchConnector::watchMUSIC_CONTROL:
         musicControl(WatchConnector::MusicControl(data.at(0)));
         break;
+    case WatchConnector::watchSYSTEM_MESSAGE:
+        logger()->info() << "Got SYSTEM_MESSAGE" << WatchConnector::SystemMessage(data.at(0));
+        // TODO: handle systemBLUETOOTH_START_DISCOVERABLE/systemBLUETOOTH_END_DISCOVERABLE
+        break;
 
     default:
         logger()->info() << __FUNCTION__ << "endpoint" << endpoint << "not supported yet";

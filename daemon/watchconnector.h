@@ -99,6 +99,16 @@ public:
         musicGET_NOW_PLAYING = 8,
         musicSEND_NOW_PLAYING = 9
     };
+    enum SystemMessage {
+        systemFIRMWARE_AVAILABLE = 0,
+        systemFIRMWARE_START = 1,
+        systemFIRMWARE_COMPLETE = 2,
+        systemFIRMWARE_FAIL = 3,
+        systemFIRMWARE_UP_TO_DATE = 4,
+        systemFIRMWARE_OUT_OF_DATE = 5,
+        systemBLUETOOTH_START_DISCOVERABLE = 6,
+        systemBLUETOOTH_END_DISCOVERABLE = 7
+    };
     enum {
         leadEMAIL = 0,
         leadSMS = 1,
