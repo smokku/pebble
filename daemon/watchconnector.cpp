@@ -5,7 +5,7 @@
 
 using namespace watch;
 
-static int __reconnect_timeout = 1000; //ms
+static int RECONNECT_TIMEOUT = 500; //ms
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), socket(nullptr), is_connected(false)
@@ -69,6 +69,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
 
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
+    connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
     connect(socket, SIGNAL(connected()), SLOT(onConnected()));
     connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
     connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
@@ -122,7 +123,13 @@ void WatchConnector::onConnected()
     is_connected = true;
     reconnectTimer.stop();
     reconnectTimer.setInterval(0);
-    if (not was_connected) emit connectedChanged();
+    if (not was_connected) {
+        if (not writeData.isEmpty()) {
+            logger()->info() << "Found" << writeData.length() << "bytes in write buffer - resending";
+            sendData(writeData);
+        }
+        emit connectedChanged();
+    }
 }
 
 void WatchConnector::onDisconnected()
@@ -139,7 +146,13 @@ void WatchConnector::onDisconnected()
 
     socket->deleteLater();
 
-    reconnectTimer.setInterval(reconnectTimer.interval() + __reconnect_timeout);
+    if (not writeData.isEmpty() && reconnectTimer.interval() > RECONNECT_TIMEOUT) {
+        writeData.clear(); // 3rd time around - user is not here, do not bother with resending last message
+    }
+
+    if (reconnectTimer.interval() < 10 * RECONNECT_TIMEOUT) {
+        reconnectTimer.setInterval(reconnectTimer.interval() + RECONNECT_TIMEOUT);
+    }
     reconnectTimer.start();
     logger()->debug() << "Will reconnect in" << reconnectTimer.interval() << "ms";
 }
@@ -155,9 +168,22 @@ void WatchConnector::onError(QBluetoothSocket::SocketError error)
 
 void WatchConnector::sendData(const QByteArray &data)
 {
-    if (socket == nullptr) return;
+    writeData = data;
+    if (socket == nullptr) {
+        logger()->debug() << "No socket - reconnecting";
+        reconnect();
+        return;
+    }
+    if (is_connected) {
+        logger()->debug() << "Writing" << data.length() << "bytes to socket";
+        socket->write(data);
+    }
+}
 
-    socket->write(data);
+void WatchConnector::onBytesWritten(qint64 bytes)
+{
+    writeData = writeData.mid(bytes);
+    logger()->debug() << "Socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
 void WatchConnector::sendMessage(uint endpoint, QByteArray data)

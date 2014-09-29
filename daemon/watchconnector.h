@@ -169,6 +169,7 @@ public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo&);
     void handleWatch(const QString &name, const QString &address);
     void onReadSocket();
+    void onBytesWritten(qint64);
     void onConnected();
     void onDisconnected();
     void onError(QBluetoothSocket::SocketError error);
@@ -179,6 +180,7 @@ private:
 
     QPointer<QBluetoothSocket> socket;
     bool is_connected;
+    QByteArray writeData;
     QTimer reconnectTimer;
     QString _last_name;
     QString _last_address;
