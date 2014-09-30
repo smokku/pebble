@@ -1,10 +1,10 @@
 [Unit]
 Description=Pebble connector daemon
-Requires=dbus.socket bluetooth.target booster-qt5.service
-After=pre-user-session.target lipstick.service dbus.socket bluetooth.target booster-qt5.service
+Requires=dbus.socket bluetooth.target
+After=pre-user-session.target lipstick.service dbus.socket bluetooth.target
 
 [Service]
-ExecStart=/usr/bin/invoker -o --type=qt5 /usr/bin/pebbled
+ExecStart=/usr/bin/pebbled
 Restart=always
 
 [Install]
