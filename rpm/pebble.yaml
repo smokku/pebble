@@ -29,7 +29,8 @@ Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets
 Files:
-- '%{_bindir}'
+- '%{_bindir}/%{name}'
+- '%{_bindir}/%{name}d'
 - '%{_datadir}/%{name}/qml'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
@@ -37,3 +38,17 @@ Files:
 - '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
 - '%{_datadir}/%{name}/log4qt.conf'
 PkgBR: []
+SubPackages:
+  - Name: harbour-pebble
+    Summary: Support for Pebble watch in SailfishOS
+    Description: |
+      Support for Pebble watch to receive events from SailfishOS device via Bluetooth.
+    Group: Qt/Qt
+    Files:
+    - '%{_bindir}/harbour-%{name}'
+    - '%{_datadir}/harbour-%{name}/%{name}d'
+    - '%{_datadir}/harbour-%{name}/qml'
+    - '%{_datadir}/applications/harbour-%{name}.desktop'
+    - '%{_datadir}/icons/hicolor/86x86/apps/harbour-%{name}.png'
+    AsWholeName: true
+    AutoDepend: false

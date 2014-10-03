@@ -23,3 +23,10 @@ OTHER_FILES += \
     qml/images/* \
     pebble.desktop \
     pebble.png
+
+INSTALLS += harbour
+
+harbour.path = /usr/share/harbour-$$TARGET
+harbour.files = \
+    harbour-pebble.desktop \
+    harbour-pebble.png
