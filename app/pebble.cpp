@@ -30,19 +30,25 @@
 */
 
 #include <QtQuick>
+#include <QProcess>
 
 #include <sailfishapp.h>
 #include "pebbledinterface.h"
 
+bool harbour = false;
+
 int main(int argc, char *argv[])
 {
+    harbour = QString(argv[0]).endsWith("harbour-pebble");
+
     // Register Pebble daemon interface object on QML side
-    qmlRegisterType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface");
+    qmlRegisterType<PebbledInterface>("harbour.org.pebbled", 0, 1, "PebbledInterface");
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
 
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     view->rootContext()->setContextProperty("APP_VERSION", APP_VERSION);
+    view->rootContext()->setContextProperty("HARBOUR", harbour);
     view->setSource(SailfishApp::pathTo("qml/pebble.qml"));
     view->show();
 

@@ -22,7 +22,8 @@ OTHER_FILES += \
     qml/pebble.qml \
     qml/images/* \
     pebble.desktop \
-    pebble.png
+    pebble.png \
+    qml/pages/HarbourPage.qml
 
 INSTALLS += harbour
 

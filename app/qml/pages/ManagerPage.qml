@@ -112,7 +112,7 @@ Page {
                 description: pebbled.enabled ? qsTr("Automatic startup") : qsTr("Manual startup")
                 checked: pebbled.enabled
                 automaticCheck: false
-                onClicked: pebbled.setEnabled(!checked)
+                onClicked: HARBOUR ? pageStack.push(Qt.resolvedUrl("HarbourPage.qml")) : pebbled.setEnabled(!checked)
             }
             TextSwitch {
                 text: qsTr("Active")

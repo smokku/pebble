@@ -1,5 +1,9 @@
 #include "pebbledinterface.h"
 
+#include <QProcess>
+
+extern bool harbour;
+
 QString PebbledInterface::PEBBLED_SYSTEMD_UNIT("pebbled.service");
 QString PebbledInterface::PEBBLED_DBUS_SERVICE("org.pebbled");
 QString PebbledInterface::PEBBLED_DBUS_PATH("/");
@@ -110,9 +114,30 @@ bool PebbledInterface::active() const
 void PebbledInterface::setActive(bool active)
 {
     qDebug() << "setActive" << active;
-    QDBusReply<QDBusObjectPath> reply = systemd->call(active?"StartUnit":"StopUnit", PEBBLED_SYSTEMD_UNIT, "replace");
-    if (!reply.isValid()) {
-        qWarning() << reply.error().message();
+    if (harbour && not active) {
+        QString daemonPath;
+        foreach (const QString &dataPath, QStandardPaths::standardLocations(QStandardPaths::DataLocation)) {
+            const QString path = dataPath + "/pebbled";
+            qDebug() << "checking" << path;
+            if (QFile::exists(path)) daemonPath = path;
+        }
+
+        if (daemonPath.isEmpty()) {
+            qWarning() << "Cannot find daemon binary";
+            return;
+        }
+
+        qint64 pid;
+        if (!QProcess::startDetached(daemonPath, QStringList(), QString(), &pid)) {
+            qWarning() << "Failed to start daemon:" << daemonPath;
+        } else {
+            qDebug() << "Started daemon" << daemonPath << "at PID" << pid;
+        }
+    } else {
+        QDBusReply<QDBusObjectPath> reply = systemd->call(active?"StartUnit":"StopUnit", PEBBLED_SYSTEMD_UNIT, "replace");
+        if (!reply.isValid()) {
+            qWarning() << reply.error().message();
+        }
     }
 }
 
