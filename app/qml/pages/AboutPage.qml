@@ -1,5 +1,4 @@
 import QtQuick 2.0
-import QtQml 2.1
 import Sailfish.Silica 1.0
 
 Page {
@@ -90,7 +89,8 @@ Page {
                     right: parent.right
                     margins: Theme.paddingLarge
                 }
-                onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=please describe your issue&attachment=/home/nemo/.cache/pebbled/pebble.log")
+                onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=please describe your issue"+
+                                                "&attachment=$HOME/.cache/pebbled/pebble.log")
             }
         }
     }
