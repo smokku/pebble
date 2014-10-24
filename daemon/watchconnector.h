@@ -39,7 +39,9 @@
 #include <QBluetoothServiceInfo>
 #include <Log4Qt/Logger>
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 using namespace QtBluetooth;
+#endif
 
 namespace watch
 {

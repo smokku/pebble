@@ -66,8 +66,11 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     if (emit_name) emit nameChanged();
 
     logger()->debug() << "Creating socket";
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
     socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
-
+#else
+    socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+#endif
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
     connect(socket, SIGNAL(connected()), SLOT(onConnected()));
