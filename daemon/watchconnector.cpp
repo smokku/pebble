@@ -90,6 +90,16 @@ QString WatchConnector::decodeEndpoint(uint val)
 
 void WatchConnector::decodeMsg(QByteArray data)
 {
+    //Sometimes pebble sends a "00", we ignore it without future action
+    if (data.length() == 1 && data.at(0) == 0) {
+        return;
+    }
+
+    if (data.length() < 4) {
+        logger()->error() << "Can not decode message data length invalid: " << data.toHex();
+        return;
+    }
+
     unsigned int datalen = 0;
     int index = 0;
     datalen = (data.at(index) << 8) + data.at(index+1);
