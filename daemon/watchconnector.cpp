@@ -66,8 +66,11 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     if (emit_name) emit nameChanged();
 
     logger()->debug() << "Creating socket";
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
     socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
-
+#else
+    socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+#endif
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
     connect(socket, SIGNAL(connected()), SLOT(onConnected()));
@@ -87,6 +90,16 @@ QString WatchConnector::decodeEndpoint(uint val)
 
 void WatchConnector::decodeMsg(QByteArray data)
 {
+    //Sometimes pebble sends a "00", we ignore it without future action
+    if (data.length() == 1 && data.at(0) == 0) {
+        return;
+    }
+
+    if (data.length() < 4) {
+        logger()->error() << "Can not decode message data length invalid: " << data.toHex();
+        return;
+    }
+
     unsigned int datalen = 0;
     int index = 0;
     datalen = (data.at(index) << 8) + data.at(index+1);

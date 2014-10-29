@@ -74,13 +74,13 @@ protected Q_SLOTS:
     bool getProperties();
 
     void onPendingCallFinished(QDBusPendingCallWatcher *watcher);
-    void onDurationChanged();
-    void onStatusChanged();
-    void onLineIdChanged();
-    void onStartedAtChanged();
-    void onEmergencyChanged();
-    void onMultipartyChanged();
-    void onForwardedChanged();
+    void onDurationChanged(int duration);
+    void onStatusChanged(int status, QString statusText);
+    void onLineIdChanged(QString lineId);
+    void onStartedAtChanged(const QDateTime &startedAt);
+    void onEmergencyChanged(bool isEmergency);
+    void onMultipartyChanged(bool isMultiparty);
+    void onForwardedChanged(bool isForwarded);
 
 private:
     class VoiceCallHandlerPrivate *d_ptr;

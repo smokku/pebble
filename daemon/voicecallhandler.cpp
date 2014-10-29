@@ -65,92 +65,6 @@ void VoiceCallHandler::initialize(bool notifyError)
 {
     Q_D(VoiceCallHandler);
 
-/*
-method return sender=:1.13 -> dest=:1.150 reply_serial=2
-   string "<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
-"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
-<node>
-  <interface name="org.nemomobile.voicecall.VoiceCall">
-    <property name="handlerId" type="s" access="read"/>
-    <property name="providerId" type="s" access="read"/>
-    <property name="status" type="i" access="read"/>
-    <property name="statusText" type="s" access="read"/>
-    <property name="lineId" type="s" access="read"/>
-    <property name="startedAt" type="((iii)(iiii)i)" access="read">
-      <annotation name="org.qtproject.QtDBus.QtTypeName" value="QDateTime"/>
-    </property>
-    <property name="duration" type="i" access="read"/>
-    <property name="isIncoming" type="b" access="read"/>
-    <property name="isEmergency" type="b" access="read"/>
-    <property name="isMultiparty" type="b" access="read"/>
-    <property name="isForwarded" type="b" access="read"/>
-    <signal name="error">
-      <arg name="message" type="s" direction="out"/>
-    </signal>
-    <signal name="statusChanged">
-    </signal>
-    <signal name="lineIdChanged">
-    </signal>
-    <signal name="startedAtChanged">
-    </signal>
-    <signal name="durationChanged">
-    </signal>
-    <signal name="emergencyChanged">
-    </signal>
-    <signal name="multipartyChanged">
-    </signal>
-    <signal name="forwardedChanged">
-    </signal>
-    <method name="answer">
-      <arg type="b" direction="out"/>
-    </method>
-    <method name="hangup">
-      <arg type="b" direction="out"/>
-    </method>
-    <method name="hold">
-      <arg type="b" direction="out"/>
-      <arg name="on" type="b" direction="in"/>
-    </method>
-    <method name="deflect">
-      <arg type="b" direction="out"/>
-      <arg name="target" type="s" direction="in"/>
-    </method>
-    <method name="sendDtmf">
-      <arg name="tones" type="s" direction="in"/>
-    </method>
-  </interface>
-  <interface name="org.freedesktop.DBus.Properties">
-    <method name="Get">
-      <arg name="interface_name" type="s" direction="in"/>
-      <arg name="property_name" type="s" direction="in"/>
-      <arg name="value" type="v" direction="out"/>
-    </method>
-    <method name="Set">
-      <arg name="interface_name" type="s" direction="in"/>
-      <arg name="property_name" type="s" direction="in"/>
-      <arg name="value" type="v" direction="in"/>
-    </method>
-    <method name="GetAll">
-      <arg name="interface_name" type="s" direction="in"/>
-      <arg name="values" type="a{sv}" direction="out"/>
-      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
-    </method>
-  </interface>
-  <interface name="org.freedesktop.DBus.Introspectable">
-    <method name="Introspect">
-      <arg name="xml_data" type="s" direction="out"/>
-    </method>
-  </interface>
-  <interface name="org.freedesktop.DBus.Peer">
-    <method name="Ping"/>
-    <method name="GetMachineId">
-      <arg name="machine_uuid" type="s" direction="out"/>
-    </method>
-  </interface>
-</node>
-"
-*/
-
     if (d->interface->isValid()) {
         if (getProperties()) {
             emit durationChanged();
@@ -162,13 +76,13 @@ method return sender=:1.13 -> dest=:1.150 reply_serial=2
             emit forwardedChanged();
 
             connect(d->interface, SIGNAL(error(QString)), SIGNAL(error(QString)));
-            connect(d->interface, SIGNAL(statusChanged()), SLOT(onStatusChanged()));
-            connect(d->interface, SIGNAL(lineIdChanged()), SLOT(onLineIdChanged()));
-            connect(d->interface, SIGNAL(durationChanged()), SLOT(onDurationChanged()));
-            connect(d->interface, SIGNAL(startedAtChanged()), SLOT(onStartedAtChanged()));
-            connect(d->interface, SIGNAL(emergencyChanged()), SLOT(onEmergencyChanged()));
-            connect(d->interface, SIGNAL(multipartyChanged()), SLOT(onMultipartyChanged()));
-            connect(d->interface, SIGNAL(forwardedChanged()), SLOT(onForwardedChanged()));
+            connect(d->interface, SIGNAL(statusChanged(int, QString)), SLOT(onStatusChanged(int, QString)));
+            connect(d->interface, SIGNAL(lineIdChanged(QString)), SLOT(onLineIdChanged(QString)));
+            connect(d->interface, SIGNAL(durationChanged(int)), SLOT(onDurationChanged(int)));
+            connect(d->interface, SIGNAL(startedAtChanged(QDateTime)), SLOT(onStartedAtChanged(QDateTime)));
+            connect(d->interface, SIGNAL(emergencyChanged(bool)), SLOT(onEmergencyChanged(bool)));
+            connect(d->interface, SIGNAL(multipartyChanged(bool)), SLOT(onMultipartyChanged(bool)));
+            connect(d->interface, SIGNAL(forwardedChanged(bool)), SLOT(onForwardedChanged(bool)));
         }
         else {
             if (notifyError) emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
@@ -207,54 +121,62 @@ bool VoiceCallHandler::getProperties()
     }
 }
 
-void VoiceCallHandler::onDurationChanged()
+void VoiceCallHandler::onDurationChanged(int duration)
 {
     Q_D(VoiceCallHandler);
-    d->duration = d->interface->property("duration").toInt();
+    //logger()->debug() <<"onDurationChanged"<<duration;
+    d->duration = duration;
     emit durationChanged();
 }
 
-void VoiceCallHandler::onStatusChanged()
+void VoiceCallHandler::onStatusChanged(int status, QString statusText)
 {
-    // a) initialize() might returned crap with STATUS_NULL (no lineId)
-    // b) we need to fetch two properties "status" and "statusText"
-    //    so, we might aswell get them all
+    Q_D(VoiceCallHandler);
+    logger()->debug() <<"onStatusChanged" << status << statusText;
+    d->status = status;
+    d->statusText = statusText;
+    // we still fetch all properties to be sure all properties are present.
     getProperties();
     emit statusChanged();
 }
 
-void VoiceCallHandler::onLineIdChanged()
+void VoiceCallHandler::onLineIdChanged(QString lineId)
 {
     Q_D(VoiceCallHandler);
-    d->lineId = d->interface->property("lineId").toString();
+    logger()->debug() << "onLineIdChanged" << lineId;
+    d->lineId = lineId;
     emit lineIdChanged();
 }
 
-void VoiceCallHandler::onStartedAtChanged()
+void VoiceCallHandler::onStartedAtChanged(const QDateTime &startedAt)
 {
     Q_D(VoiceCallHandler);
+    logger()->debug() << "onStartedAtChanged" << startedAt;
     d->startedAt = d->interface->property("startedAt").toDateTime();
     emit startedAtChanged();
 }
 
-void VoiceCallHandler::onEmergencyChanged()
+void VoiceCallHandler::onEmergencyChanged(bool isEmergency)
 {
     Q_D(VoiceCallHandler);
-    d->emergency = d->interface->property("isEmergency").toBool();
+    logger()->debug() << "onEmergencyChanged" << isEmergency;
+    d->emergency = isEmergency;
     emit emergencyChanged();
 }
 
-void VoiceCallHandler::onMultipartyChanged()
+void VoiceCallHandler::onMultipartyChanged(bool isMultiparty)
 {
     Q_D(VoiceCallHandler);
-    d->multiparty = d->interface->property("isMultiparty").toBool();
+    logger()->debug() << "onMultipartyChanged" << isMultiparty;
+    d->multiparty = isMultiparty;
     emit multipartyChanged();
 }
 
-void VoiceCallHandler::onForwardedChanged()
+void VoiceCallHandler::onForwardedChanged(bool isForwarded)
 {
     Q_D(VoiceCallHandler);
-    d->forwarded = d->interface->property("isForwarded").toBool();
+    logger()->debug() << "onForwardedChanged" << isForwarded;
+    d->forwarded = isForwarded;
     emit forwardedChanged();
 }
 
