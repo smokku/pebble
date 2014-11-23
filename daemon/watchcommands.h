@@ -18,6 +18,7 @@ public:
 
 signals:
     void hangup();
+    void answer();
 
 public slots:
     void processMessage(uint endpoint, QByteArray data);
