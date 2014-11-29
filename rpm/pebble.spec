@@ -30,6 +30,8 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(mlite5)
 BuildRequires:  pkgconfig(sailfishapp) >= 0.0.10
+BuildRequires:  pkgconfig(icu-i18n)
+BuildRequires:  log4qt-devel
 BuildRequires:  desktop-file-utils
 
 %description

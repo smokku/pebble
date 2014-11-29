@@ -5,11 +5,10 @@ CONFIG += link_pkgconfig
 QT -= gui
 
 QT += bluetooth dbus contacts
-PKGCONFIG += mlite5
-QMAKE_CXXFLAGS += -std=c++0x
+PKGCONFIG += mlite5 icu-i18n
+CONFIG += c++11
 
 LIBS += -llog4qt
-LIBS += -licuuc -licui18n
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
