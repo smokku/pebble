@@ -5,9 +5,9 @@
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
-    settings(settings), notification(MNotification::DeviceEvent)
+Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, AppManager *apps, Settings *settings) :
+    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), apps(apps),
+    commands(new WatchCommands(watch, this)), settings(settings), notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
     connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));

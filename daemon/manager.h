@@ -5,6 +5,7 @@
 #include "dbusconnector.h"
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
+#include "appmanager.h"
 #include "watchcommands.h"
 #include "settings.h"
 
@@ -38,6 +39,7 @@ class Manager :
     DBusConnector *dbus;
     VoiceCallManager *voice;
     NotificationManager *notifications;
+    AppManager *apps;
 
     WatchCommands *commands;
 
@@ -55,7 +57,7 @@ class Manager :
     QScopedPointer<icu::Transliterator> transliterator;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings);
+    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, AppManager *apps, Settings *settings);
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE QString getCurrentProfile();

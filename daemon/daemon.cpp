@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
     DBusConnector dbus;
     VoiceCallManager voice(&settings);
     NotificationManager notifications(&settings);
-    Manager manager(&watch, &dbus, &voice, &notifications, &settings);
+    AppManager apps(&settings);
+    Manager manager(&watch, &dbus, &voice, &notifications, &apps, &settings);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);
