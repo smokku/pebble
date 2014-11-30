@@ -1,16 +1,8 @@
 #include <QFile>
-#include <QJSValueIterator>
+#include <QDir>
+
 #include "jskitmanager.h"
-#include "jskitmanager_p.h"
-
-JSKitPebble::JSKitPebble(JSKitManager *mgr)
-    : QObject(mgr)
-{
-}
-
-JSKitPebble::~JSKitPebble()
-{
-}
+#include "jskitobjects.h"
 
 JSKitManager::JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *parent) :
     QObject(parent), _apps(apps), _appmsg(appmsg), _engine(0)
@@ -58,18 +50,15 @@ void JSKitManager::startJsApp()
 
     _engine = new QJSEngine(this);
     _jspebble = new JSKitPebble(this);
+    _jsstorage = new JSKitLocalStorage(_curApp.uuid(), this);
 
     logger()->debug() << "starting JS app";
 
     QJSValue globalObj = _engine->globalObject();
 
     globalObj.setProperty("Pebble", _engine->newQObject(_jspebble));
+    globalObj.setProperty("localStorage", _engine->newQObject(_jsstorage));
 
-    QJSValueIterator it(globalObj);
-    while (it.hasNext()) {
-        it.next();
-        logger()->debug() << "JS property:" << it.name();
-    }
 
     QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
     if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -77,6 +66,15 @@ void JSKitManager::startJsApp()
         stopJsApp();
         return;
     }
+
+    QString script = QString::fromUtf8(scriptFile.readAll());
+
+    QJSValue result = _engine->evaluate(script, scriptFile.fileName());
+    if (result.isError()) {
+        logger()->warn() << "error while evaluating JSKit script:" << result.toString();
+    }
+
+    logger()->debug() << "JS script evaluated";
 }
 
 void JSKitManager::stopJsApp()
@@ -89,6 +87,8 @@ void JSKitManager::stopJsApp()
 
     delete _engine;
     _engine = 0;
+    delete _jsstorage;
+    _jsstorage = 0;
     delete _jspebble;
     _jspebble = 0;
 }

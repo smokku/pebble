@@ -6,6 +6,7 @@
 #include "appmsgmanager.h"
 
 class JSKitPebble;
+class JSKitLocalStorage;
 
 class JSKitManager : public QObject
 {
@@ -36,6 +37,8 @@ private:
     AppInfo _curApp;
     QJSEngine *_engine;
     QPointer<JSKitPebble> _jspebble;
+    QPointer<JSKitLocalStorage> _jsstorage;
+
 };
 
 #endif // JSKITMANAGER_H
