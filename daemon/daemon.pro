@@ -21,8 +21,8 @@ SOURCES += \
     watchconnector.cpp \
     dbusconnector.cpp \
     dbusadaptor.cpp \
-    watchcommands.cpp \
-    appmanager.cpp
+    appmanager.cpp \
+    musicmanager.cpp
 
 HEADERS += \
     manager.h \
@@ -32,9 +32,10 @@ HEADERS += \
     watchconnector.h \
     dbusconnector.h \
     dbusadaptor.h \
-    watchcommands.h \
     settings.h \
-    appmanager.h
+    appmanager.h \
+    musicmanager.h \
+    unpacker.h
 
 OTHER_FILES += \
     org.pebbled.xml \

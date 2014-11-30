@@ -80,6 +80,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void dial(const QString &providerId, const QString &msisdn);
+    void hangupAll();
 
     void silenceRingtone();
 

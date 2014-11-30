@@ -1,11 +1,12 @@
-#include "watchconnector.h"
-#include <QTimer>
 #include <QDateTime>
 #include <QMetaEnum>
 
-using namespace watch;
+#include "watchconnector.h"
+#include "unpacker.h"
 
-static int RECONNECT_TIMEOUT = 500; //ms
+static const int RECONNECT_TIMEOUT = 500; //ms
+
+using std::function;
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), socket(nullptr), is_connected(false)
@@ -83,49 +84,95 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
 
 QString WatchConnector::decodeEndpoint(uint val)
 {
-    QMetaEnum Endpoints = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("Endpoints"));
+    QMetaEnum Endpoints = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("Endpoint"));
     const char *endpoint = Endpoints.valueToKey(val);
     return endpoint ? QString(endpoint) : QString("watchUNKNOWN_%1").arg(val);
 }
 
-void WatchConnector::decodeMsg(QByteArray data)
+void WatchConnector::setEndpointHandler(uint endpoint, EndpointHandlerFunc func)
 {
-    //Sometimes pebble sends a "00", we ignore it without future action
-    if (data.length() == 1 && data.at(0) == 0) {
-        return;
+    if (func) {
+        handlers.insert(endpoint, func);
+    } else {
+        handlers.remove(endpoint);
+    }
+}
+
+void WatchConnector::clearEndpointHandler(uint endpoint)
+{
+    handlers.remove(endpoint);
+}
+
+bool WatchConnector::dispatchMessage(uint endpoint, const QByteArray &data)
+{
+    auto tmp_it = tmpHandlers.find(endpoint);
+    if (tmp_it != tmpHandlers.end()) {
+        QList<EndpointHandlerFunc>& funcs = tmp_it.value();
+        bool ok = false;
+        if (!funcs.empty()) {
+            if (funcs.first()(data)) {
+                ok = true;
+                funcs.removeFirst();
+            }
+        }
+        if (funcs.empty()) {
+            tmpHandlers.erase(tmp_it);
+        }
+        if (ok) {
+            return true;
+        }
     }
 
-    if (data.length() < 4) {
-        logger()->error() << "Can not decode message data length invalid: " << data.toHex();
-        return;
+    auto it = handlers.find(endpoint);
+    if (it != handlers.end()) {
+        if (it.value() && it.value()(data)) {
+            return true;
+        }
     }
 
-    unsigned int datalen = 0;
-    int index = 0;
-    datalen = (data.at(index) << 8) + data.at(index+1);
-    index += 2;
-
-    unsigned int endpoint = 0;
-    endpoint = (data.at(index) << 8) + data.at(index+1);
-    index += 2;
-
-    logger()->debug() << "Length:" << datalen << "Endpoint:" << decodeEndpoint(endpoint);
-    logger()->debug() << "Data:" << data.mid(index).toHex();
-
-    emit messageDecoded(endpoint, data.mid(index, datalen));
+    logger()->info() << "message to endpoint" << decodeEndpoint(endpoint) << "was not dispatched";
+    emit messageReceived(endpoint, data);
+    return false;
 }
 
 void WatchConnector::onReadSocket()
 {
-    logger()->debug() << "read";
+    static const int header_length = 4;
+
+    logger()->debug() << "readyRead bytesAvailable =" << socket->bytesAvailable();
 
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
-    if (!socket) return;
+    Q_ASSERT(socket && socket == this->socket);
 
-    while (socket->bytesAvailable()) {
-        QByteArray line = socket->readAll();
-        emit messageReceived(socket->peerName(), QString::fromUtf8(line.constData(), line.length()));
-        decodeMsg(line);
+    while (socket->bytesAvailable() >= header_length) {
+        // Do nothing if there is no message to read.
+        if (socket->bytesAvailable() < header_length) {
+            if (socket->bytesAvailable() > 0) {
+                logger()->debug() << "incomplete header in read buffer";
+            }
+            return;
+        }
+
+        uchar header[header_length];
+        socket->peek(reinterpret_cast<char*>(header), header_length);
+
+        quint16 message_length, endpoint;
+        message_length = qFromBigEndian<quint16>(&header[0]);
+        endpoint = qFromBigEndian<quint16>(&header[sizeof(quint16)]);
+
+        // Now wait for the entire message
+        if (socket->bytesAvailable() < header_length + message_length) {
+            logger()->debug() << "incomplete msg body in read buffer";
+            return;
+        }
+
+        socket->read(header_length); // Skip the header
+
+        QByteArray data = socket->read(message_length);
+
+        logger()->debug() << "received message of length" << message_length << "to endpoint" << decodeEndpoint(endpoint);
+
+        dispatchMessage(endpoint, data);
     }
 }
 
@@ -181,13 +228,11 @@ void WatchConnector::onError(QBluetoothSocket::SocketError error)
 
 void WatchConnector::sendData(const QByteArray &data)
 {
-    writeData = data;
+    writeData.append(data);
     if (socket == nullptr) {
         logger()->debug() << "No socket - reconnecting";
         reconnect();
-        return;
-    }
-    if (is_connected) {
+    } else if (is_connected) {
         logger()->debug() << "Writing" << data.length() << "bytes to socket";
         socket->write(data);
     }
@@ -195,13 +240,13 @@ void WatchConnector::sendData(const QByteArray &data)
 
 void WatchConnector::onBytesWritten(qint64 bytes)
 {
-    writeData = writeData.mid(bytes);
+    writeData.remove(0, bytes);
     logger()->debug() << "Socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
-void WatchConnector::sendMessage(uint endpoint, QByteArray data)
+void WatchConnector::sendMessage(uint endpoint, const QByteArray &data)
 {
-    logger()->debug() << "Sending message";
+    logger()->debug() << "sending message to endpoint" << decodeEndpoint(endpoint);
     QByteArray msg;
 
     // First send the length
@@ -389,4 +434,96 @@ void WatchConnector::startPhoneCall(uint cookie)
 void WatchConnector::endPhoneCall(uint cookie)
 {
     phoneControl(callEND, cookie, QStringList());
+}
+
+void WatchConnector::getAppbankStatus(const std::function<void(const QString &s)>& callback)
+{
+    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_STATUS));
+
+    tmpHandlers[watchAPP_MANAGER].append([this, callback](const QByteArray &data) {
+        if (data.at(0) != appmgrGET_APPBANK_STATUS) {
+            return false;
+        }
+        logger()->debug() << "getAppbankStatus response" << data.toHex();
+
+        if (data.size() < 9) {
+            logger()->warn() << "invalid getAppbankStatus response";
+            return true;
+        }
+
+        Unpacker u(data);
+
+        u.skip(sizeof(quint8));
+
+        unsigned int num_banks = u.read<quint32>();
+        unsigned int apps_installed = u.read<quint32>();
+
+        logger()->debug() << num_banks << "/" << apps_installed;
+
+        for (unsigned int i = 0; i < apps_installed; i++) {
+           unsigned int id = u.read<quint32>();
+           unsigned int index = u.read<quint32>();
+           QString name = u.readFixedString(32);
+           QString company = u.readFixedString(32);
+           unsigned int flags = u.read<quint32>();
+           unsigned short version = u.read<quint16>();
+
+           logger()->debug() << id << index << name << company << flags << version;
+
+           if (u.bad()) {
+               logger()->warn() << "short read";
+               return true;
+           }
+        }
+
+        logger()->debug() << "finished";
+
+        return true;
+    });
+}
+
+void WatchConnector::getAppbankUuids(const function<void(const QList<QUuid> &)>& callback)
+{
+    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_UUIDS));
+
+    tmpHandlers[watchAPP_MANAGER].append([this, callback](const QByteArray &data) {
+        if (data.at(0) != appmgrGET_APPBANK_UUIDS) {
+            return false;
+        }
+        logger()->debug() << "getAppbankUuids response" << data.toHex();
+
+        if (data.size() < 5) {
+            logger()->warn() << "invalid getAppbankUuids response";
+            return true;
+        }
+
+        Unpacker u(data);
+
+        u.skip(sizeof(quint8));
+
+        unsigned int apps_installed = u.read<quint32>();
+
+        logger()->debug() << apps_installed;
+
+        QList<QUuid> uuids;
+
+        for (unsigned int i = 0; i < apps_installed; i++) {
+           QUuid uuid = u.readUuid();
+
+           logger()->debug() << uuid.toString();
+
+           if (u.bad()) {
+               logger()->warn() << "short read";
+               return true;
+           }
+
+           uuids.push_back(uuid);
+        }
+
+        logger()->debug() << "finished";
+
+        callback(uuids);
+
+        return true;
+    });
 }

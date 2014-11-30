@@ -2,7 +2,7 @@
 
 QString PebbledInterface::PEBBLED_SYSTEMD_UNIT("pebbled.service");
 QString PebbledInterface::PEBBLED_DBUS_SERVICE("org.pebbled");
-QString PebbledInterface::PEBBLED_DBUS_PATH("/");
+QString PebbledInterface::PEBBLED_DBUS_PATH("/org/pebbled");
 QString PebbledInterface::PEBBLED_DBUS_IFACE("org.pebbled");
 
 #define PebbledDbusInterface QDBusInterface(PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE)

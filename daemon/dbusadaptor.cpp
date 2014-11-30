@@ -75,10 +75,13 @@ void PebbledAdaptor::time()
     QMetaObject::invokeMethod(parent(), "time");
 }
 
-
 void PebbledAdaptor::reconnect()
 {
     // handle method call org.pebbled.reconnect
     QMetaObject::invokeMethod(parent(), "reconnect");
 }
 
+void PebbledAdaptor::test()
+{
+    QMetaObject::invokeMethod(parent(), "test");
+}

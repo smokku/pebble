@@ -78,17 +78,11 @@ int main(int argc, char *argv[])
     Log4Qt::Logger::logger(QLatin1String("Main Logger"))->info() << argv[0] << APP_VERSION;
 
     Settings settings;
-    watch::WatchConnector watch;
-    DBusConnector dbus;
-    VoiceCallManager voice(&settings);
-    NotificationManager notifications(&settings);
-    AppManager apps(&settings);
-    Manager manager(&watch, &dbus, &voice, &notifications, &apps, &settings);
+    Manager manager(&settings);
+    Q_UNUSED(manager);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(endPhoneCall()));
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(disconnect()));
 
     return app.exec();
 }

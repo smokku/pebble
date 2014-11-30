@@ -5,8 +5,8 @@
 #include "dbusconnector.h"
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
+#include "musicmanager.h"
 #include "appmanager.h"
-#include "watchcommands.h"
 #include "settings.h"
 
 #include <QObject>
@@ -35,15 +35,14 @@ class Manager :
 
     QBluetoothLocalDevice btDevice;
 
-    watch::WatchConnector *watch;
+    Settings *settings;
+
+    WatchConnector *watch;
     DBusConnector *dbus;
     VoiceCallManager *voice;
     NotificationManager *notifications;
+    MusicManager *music;
     AppManager *apps;
-
-    WatchCommands *commands;
-
-    Settings *settings;
 
     MNotification notification;
 
@@ -57,13 +56,16 @@ class Manager :
     QScopedPointer<icu::Transliterator> transliterator;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, AppManager *apps, Settings *settings);
+    explicit Manager(Settings *settings, QObject *parent = 0);
+    ~Manager();
 
     Q_INVOKABLE QString findPersonByNumber(QString number);
     Q_INVOKABLE QString getCurrentProfile();
     Q_INVOKABLE QString mpris();
     QVariantMap mprisMetadata;
     QVariantMap getMprisMetadata() { return mprisMetadata; }
+
+    Q_INVOKABLE bool uploadApp(const QUuid &uuid, int slot = -1);
 
 protected:
     void transliterateMessage(const QString &text);
@@ -72,10 +74,10 @@ signals:
     void mprisMetadataChanged(QVariantMap);
 
 public slots:
-    void hangupAll();
     void applyProfile();
 
-protected slots:
+private slots:
+    void test();
     void onSettingChanged(const QString &key);
     void onSettingsChanged();
     void onPebbleChanged();
@@ -114,6 +116,7 @@ public slots:
     void time() { static_cast<Manager*>(parent())->watch->time(); }
     void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
     void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
+    void test() { static_cast<Manager*>(parent())->test(); }
 
 };
 

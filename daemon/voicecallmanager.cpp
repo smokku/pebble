@@ -148,6 +148,13 @@ void VoiceCallManager::dial(const QString &provider, const QString &msisdn)
     QObject::connect(watcher, SIGNAL(finished(QDBusPendingCallWatcher*)), SLOT(onPendingCallFinished(QDBusPendingCallWatcher*)));
 }
 
+void VoiceCallManager::hangupAll()
+{
+    foreach (VoiceCallHandler* handler, voiceCalls()) {
+        handler->hangup();
+    }
+}
+
 void VoiceCallManager::silenceRingtone()
 {
     Q_D(const VoiceCallManager);

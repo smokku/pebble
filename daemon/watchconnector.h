@@ -30,6 +30,7 @@
 #ifndef WATCHCONNECTOR_H
 #define WATCHCONNECTOR_H
 
+#include <functional>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
@@ -39,25 +40,18 @@
 #include <QBluetoothServiceInfo>
 #include <Log4Qt/Logger>
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
-using namespace QtBluetooth;
-#endif
-
-namespace watch
-{
-
 class WatchConnector : public QObject
 {
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
 
-    Q_ENUMS(Endpoints)
+    Q_ENUMS(Endpoint)
 
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString connected READ isConnected NOTIFY connectedChanged)
 
 public:
-    enum Endpoints {
+    enum Endpoint {
         watchTIME = 11,
         watchVERSION = 16,
         watchPHONE_VERSION = 17,
@@ -111,6 +105,11 @@ public:
         systemBLUETOOTH_START_DISCOVERABLE = 6,
         systemBLUETOOTH_END_DISCOVERABLE = 7
     };
+    enum AppManager {
+        appmgrGET_APPBANK_STATUS = 1,
+        appmgrGET_APPBANK_UUIDS = 5
+    };
+
     enum {
         leadEMAIL = 0,
         leadSMS = 1,
@@ -139,27 +138,41 @@ public:
          osLINUX = 4,
          osWINDOWS = 5
     };
+    enum {
+        DEFAULT_TIMEOUT_MSECS = 100
+    };
 
+    typedef std::function<bool(const QByteArray &)> EndpointHandlerFunc;
 
     explicit WatchConnector(QObject *parent = 0);
     virtual ~WatchConnector();
-    bool isConnected() const { return is_connected; }
-    QString name() const { return socket != nullptr ? socket->peerName() : ""; }
 
-    QString timeStamp();
-    QString decodeEndpoint(uint val);
+    inline bool isConnected() const { return is_connected; }
+    inline QString name() const { return socket != nullptr ? socket->peerName() : ""; }
+
+    void setEndpointHandler(uint endpoint, EndpointHandlerFunc func);
+    void clearEndpointHandler(uint endpoint);
+
+    static QString timeStamp();
+    static QString decodeEndpoint(uint val);
+
+    void getAppbankStatus(const std::function<void(const QString &s)>& callback);
+    void getAppbankUuids(const std::function<void(const QList<QUuid> &uuids)>& callback);
 
 signals:
-    void messageReceived(QString peer, QString msg);
-    void messageDecoded(uint endpoint, QByteArray data);
+    void messageReceived(uint endpoint, const QByteArray &data);
     void nameChanged();
     void connectedChanged();
 
 public slots:
-    void sendData(const QByteArray &data);
-    void sendMessage(uint endpoint, QByteArray data);
+    void deviceConnect(const QString &name, const QString &address);
+    void disconnect();
+    void reconnect();
+
+    void sendMessage(uint endpoint, const QByteArray &data);
     void ping(uint val);
     void time();
+
     void sendNotification(uint lead, QString sender, QString data, QString subject);
     void sendSMSNotification(QString sender, QString data);
     void sendEmailNotification(QString sender, QString data, QString subject);
@@ -176,8 +189,7 @@ public slots:
     void startPhoneCall(uint cookie=0);
     void endPhoneCall(uint cookie=0);
 
-    void deviceConnect(const QString &name, const QString &address);
-    void disconnect();
+private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo&);
     void handleWatch(const QString &name, const QString &address);
     void onReadSocket();
@@ -185,18 +197,19 @@ public slots:
     void onConnected();
     void onDisconnected();
     void onError(QBluetoothSocket::SocketError error);
-    void reconnect();
 
 private:
-    void decodeMsg(QByteArray data);
+    void sendData(const QByteArray &data);
+    bool dispatchMessage(uint endpoint, const QByteArray &data);
 
     QPointer<QBluetoothSocket> socket;
+    QHash<uint, QList<EndpointHandlerFunc>> tmpHandlers;
+    QHash<uint, EndpointHandlerFunc> handlers;
     bool is_connected;
     QByteArray writeData;
     QTimer reconnectTimer;
     QString _last_name;
     QString _last_address;
 };
-}
 
 #endif // WATCHCONNECTOR_H

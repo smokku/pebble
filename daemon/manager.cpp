@@ -5,9 +5,15 @@
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, AppManager *apps, Settings *settings) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), apps(apps),
-    commands(new WatchCommands(watch, this)), settings(settings), notification(MNotification::DeviceEvent)
+Manager::Manager(Settings *settings, QObject *parent) :
+    QObject(parent), settings(settings),
+    watch(new WatchConnector(this)),
+    dbus(new DBusConnector(this)),
+    voice(new VoiceCallManager(settings, this)),
+    notifications(new NotificationManager(settings, this)),
+    music(new MusicManager(watch, this)),
+    apps(new AppManager(this)),
+    notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
     connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));
@@ -22,6 +28,24 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     numberFilter.setMatchFlags(QContactFilter::MatchPhoneNumber);
 
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
+    watch->setEndpointHandler(WatchConnector::watchPHONE_VERSION,
+                              [this](const QByteArray& data) {
+        Q_UNUSED(data);
+        watch->sendPhoneVersion();
+        return true;
+    });
+    watch->setEndpointHandler(WatchConnector::watchPHONE_CONTROL,
+                              [this](const QByteArray& data) {
+        if (data.at(0) == WatchConnector::callHANGUP) {
+            voice->hangupAll();
+        }
+        return true;
+    });
+    watch->setEndpointHandler(WatchConnector::watchDATA_LOGGING,
+                              [this](const QByteArray& data) {
+        //logger()->debug() << data.toHex();
+        return true;
+    });
 
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
@@ -32,13 +56,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(notifications, SIGNAL(twitterNotify(const QString &,const QString &)), SLOT(onTwitterNotify(const QString &,const QString &)));
     connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
-    connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
-    connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
-
     PebbledProxy *proxy = new PebbledProxy(this);
     PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
     QDBusConnection session = QDBusConnection::sessionBus();
-    session.registerObject("/", proxy);
+    session.registerObject("/org/pebbled", proxy);
     session.registerService("org.pebbled");
     connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
     connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
@@ -52,7 +73,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
                 "org.freedesktop.DBus.Properties", "PropertiesChanged",
                 this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
 
-    connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), commands, SLOT(onMprisMetadataChanged(QVariantMap)));
+    connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), music, SLOT(onMprisMetadataChanged(QVariantMap)));
 
     // Set BT icon for notification
     notification.setImage("icon-system-bluetooth-device");
@@ -62,7 +83,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
+}
 
+Manager::~Manager()
+{
 }
 
 void Manager::onSettingChanged(const QString &key)
@@ -247,13 +271,6 @@ void Manager::onEmailNotify(const QString &sender, const QString &data,const QSt
     watch->sendEmailNotification(sender, data, subject);
 }
 
-void Manager::hangupAll()
-{
-    foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
-        handler->hangup();
-    }
-}
-
 void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
 {
     logger()->debug() << interface << changed << invalidated;
@@ -368,4 +385,23 @@ void Manager::transliterateMessage(const QString &text)
         const_cast<QString&>(text) = QString::fromStdString(translited);
         logger()->debug() << "String after transliteration:" << text;
     }
+}
+
+bool Manager::uploadApp(const QUuid &uuid, int slot)
+{
+    // TODO
+    return false;
+}
+
+void Manager::test()
+{
+    logger()->debug() << "Starting test";
+
+    watch->getAppbankStatus([this](const QString &s) {
+        logger()->debug() << "Callback invoked" << s;
+    });
+
+    watch->getAppbankUuids([this](const QList<QUuid> &uuids) {
+        logger()->debug() << "Callback invoked. UUIDs:" << uuids.size();
+    });
 }
