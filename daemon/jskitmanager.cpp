@@ -75,6 +75,8 @@ void JSKitManager::startJsApp()
     }
 
     logger()->debug() << "JS script evaluated";
+
+    _jspebble->invokeCallbacks("ready");
 }
 
 void JSKitManager::stopJsApp()

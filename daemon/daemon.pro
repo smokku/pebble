@@ -4,7 +4,7 @@ CONFIG += console
 CONFIG += link_pkgconfig
 QT -= gui
 
-QT += bluetooth dbus contacts qml
+QT += bluetooth dbus contacts gui qml
 PKGCONFIG += mlite5 icu-i18n
 CONFIG += c++11
 

@@ -7,12 +7,24 @@
 class JSKitPebble : public QObject
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 
 public:
     explicit JSKitPebble(JSKitManager *mgr);
 
-    Q_INVOKABLE void addEventListener(const QString &event, QJSValue callback);
+    Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
+    Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
+
+    Q_INVOKABLE void sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack);
+
+    Q_INVOKABLE void showSimpleNotificationOnPebble(const QString &title, const QString &body);
+
+    Q_INVOKABLE void openUrl(const QUrl &url);
+
+    void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());
+
 private:
+    JSKitManager *_mgr;
     QHash<QString, QList<QJSValue>> _callbacks;
 };
 

@@ -1,15 +1,67 @@
 #include <QStandardPaths>
+#include <QDesktopServices>
+#include <QUrl>
 #include <QDir>
 #include "jskitobjects.h"
 
 JSKitPebble::JSKitPebble(JSKitManager *mgr)
-    : QObject(mgr)
+    : QObject(mgr), _mgr(mgr)
 {
 }
 
-void JSKitPebble::addEventListener(const QString &value, QJSValue callback)
+void JSKitPebble::addEventListener(const QString &type, QJSValue function)
 {
-    _callbacks[value].append(callback);
+    _callbacks[type].append(function);
+}
+
+void JSKitPebble::removeEventListener(const QString &type, QJSValue function)
+{
+    if (!_callbacks.contains(type)) return;
+    QList<QJSValue> &callbacks = _callbacks[type];
+
+    for (QList<QJSValue>::iterator it = callbacks.begin(); it != callbacks.end(); ) {
+        if (it->strictlyEquals(function)) {
+            it = callbacks.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    if (callbacks.empty()) {
+        _callbacks.remove(type);
+    }
+}
+
+void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack)
+{
+    // TODO contact _mgr->appmsg->...
+    logger()->debug() << "sendAppMessage" << message.toString();
+}
+
+void JSKitPebble::showSimpleNotificationOnPebble(const QString &title, const QString &body)
+{
+    logger()->debug() << "showSimpleNotificationOnPebble" << title << body;
+}
+
+void JSKitPebble::openUrl(const QUrl &url)
+{
+    if (!QDesktopServices::openUrl(url)) {
+        logger()->warn() << "Failed to open URL:" << url;
+    }
+}
+
+void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
+{
+    if (!_callbacks.contains(type)) return;
+    QList<QJSValue> &callbacks = _callbacks[type];
+
+    for (QList<QJSValue>::iterator it = callbacks.begin(); it != callbacks.end(); ++it) {
+        QJSValue result = it->call(args);
+        if (result.isError()) {
+            logger()->warn() << "error while invoking callback" << type << it->toString() << ":"
+                             << result.toString();
+        }
+    }
 }
 
 JSKitLocalStorage::JSKitLocalStorage(const QUuid &uuid, JSKitManager *mgr)
