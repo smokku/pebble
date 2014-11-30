@@ -1,4 +1,4 @@
-#include <QQmlEngine>
+#include <QFile>
 #include <QJSValueIterator>
 #include "jskitmanager.h"
 #include "jskitmanager_p.h"
@@ -28,9 +28,9 @@ JSKitManager::~JSKitManager()
 
 void JSKitManager::handleAppStarted(const QUuid &uuid)
 {
-    const auto &info = _apps->info(uuid);
-    if (!info.uuid.isNull() && info.isJSKit) {
-        logger()->debug() << "Preparing to start JSKit app" << info.uuid << info.shortName;
+    AppInfo info = _apps->info(uuid);
+    if (!info.uuid().isNull() && info.isJSKit()) {
+        logger()->debug() << "Preparing to start JSKit app" << info.uuid() << info.shortName();
         _curApp = info;
         startJsApp();
     }
@@ -38,20 +38,28 @@ void JSKitManager::handleAppStarted(const QUuid &uuid)
 
 void JSKitManager::handleAppStopped(const QUuid &uuid)
 {
-    if (!_curApp.uuid.isNull()) {
-        if (_curApp.uuid != uuid) {
+    if (!_curApp.uuid().isNull()) {
+        if (_curApp.uuid() != uuid) {
             logger()->warn() << "Closed app with invalid UUID";
         }
 
-        _curApp = AppManager::AppInfo();
+        stopJsApp();
+        _curApp.setUuid(QUuid()); // Clear the uuid to force invalid app
     }
 }
 
 void JSKitManager::startJsApp()
 {
     if (_engine) stopJsApp();
+    if (_curApp.uuid().isNull()) {
+        logger()->warn() << "Attempting to start JS app with invalid UUID";
+        return;
+    }
+
     _engine = new QJSEngine(this);
     _jspebble = new JSKitPebble(this);
+
+    logger()->debug() << "starting JS app";
 
     QJSValue globalObj = _engine->globalObject();
 
@@ -62,11 +70,20 @@ void JSKitManager::startJsApp()
         it.next();
         logger()->debug() << "JS property:" << it.name();
     }
+
+    QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
+    if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        logger()->warn() << "Failed to open JS file at:" << scriptFile.fileName();
+        stopJsApp();
+        return;
+    }
 }
 
 void JSKitManager::stopJsApp()
 {
     if (!_engine) return; // Nothing to do!
+
+    logger()->debug() << "stopping JS app";
 
     _engine->collectGarbage();
 

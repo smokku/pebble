@@ -33,7 +33,7 @@ private:
 
     AppManager *_apps;
     AppMsgManager *_appmsg;
-    AppManager::AppInfo _curApp;
+    AppInfo _curApp;
     QJSEngine *_engine;
     QPointer<JSKitPebble> _jspebble;
 };

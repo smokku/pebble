@@ -6,6 +6,7 @@
 #include <QUuid>
 #include <QFileSystemWatcher>
 #include <Log4Qt/Logger>
+#include "appinfo.h"
 
 class AppManager : public QObject
 {
@@ -15,23 +16,10 @@ class AppManager : public QObject
 public:
     explicit AppManager(QObject *parent = 0);
 
-    struct AppInfo {
-        QUuid uuid;
-        QString shortName;
-        QString longName;
-        QString company;
-        int versionCode;
-        QString versionLabel;
-        bool isWatchface;
-        bool isJSKit;
-        QHash<QString, int> appKeys;
-        QString path;
-    };
-
     QStringList appPaths() const;
 
-    const AppInfo & info(const QUuid &uuid) const;
-    const AppInfo & info(const QString &shortName) const;
+    AppInfo info(const QUuid &uuid) const;
+    AppInfo info(const QString &shortName) const;
 
 public slots:
     void rescan();

@@ -29,12 +29,12 @@ QStringList AppManager::appPaths() const
                                      QStandardPaths::LocateDirectory);
 }
 
-const AppManager::AppInfo & AppManager::info(const QUuid &uuid) const
+AppInfo AppManager::info(const QUuid &uuid) const
 {
     return _apps.value(uuid);
 }
 
-const AppManager::AppInfo & AppManager::info(const QString &name) const
+AppInfo AppManager::info(const QString &name) const
 {
     QUuid uuid = _names.value(name);
     if (!uuid.isNull()) {
@@ -98,30 +98,32 @@ void AppManager::scanApp(const QString &path)
 
     const QJsonObject root = doc.object();
     AppInfo info;
-    info.uuid = QUuid(root["uuid"].toString());
-    info.shortName = root["shortName"].toString();
-    info.longName = root["longName"].toString();
-    info.company = root["companyName"].toString();
-    info.versionCode = root["versionCode"].toInt();
-    info.versionLabel = root["versionLabel"].toString();
+    info.setUuid(QUuid(root["uuid"].toString()));
+    info.setShortName(root["shortName"].toString());
+    info.setLongName(root["longName"].toString());
+    info.setCompanyName(root["companyName"].toString());
+    info.setVersionCode(root["versionCode"].toInt());
+    info.setVersionLabel(root["versionLabel"].toString());
 
     const QJsonObject watchapp = root["watchapp"].toObject();
-    info.isWatchface = watchapp["watchface"].toBool();
-    info.isJSKit = appDir.exists("pebble-js-app.js");
+    info.setWatchface(watchapp["watchface"].toBool());
+    info.setJSKit(appDir.exists("pebble-js-app.js"));
 
     const QJsonObject appkeys = root["appKeys"].toObject();
     for (QJsonObject::const_iterator it = appkeys.constBegin(); it != appkeys.constEnd(); ++it) {
-        info.appKeys.insert(it.key(), it.value().toInt());
+        info.addAppKey(it.key(), it.value().toInt());
     }
 
-    if (info.uuid.isNull() || info.shortName.isEmpty()) {
+    info.setPath(path);
+
+    if (info.uuid().isNull() || info.shortName().isEmpty()) {
         logger()->warn() << "invalid or empty uuid/name in" << appInfoFile.fileName();
         return;
     }
 
-    _apps.insert(info.uuid, info);
-    _names.insert(info.shortName, info.uuid);
+    _apps.insert(info.uuid(), info);
+    _names.insert(info.shortName(), info.uuid());
 
-    const char *type = info.isWatchface ? "watchface" : "app";
-    logger()->debug() << "found installed" << type << info.shortName << info.versionLabel << "with uuid" << info.uuid.toString();
+    const char *type = info.isWatchface() ? "watchface" : "app";
+    logger()->debug() << "found installed" << type << info.shortName() << info.versionLabel() << "with uuid" << info.uuid().toString();
 }

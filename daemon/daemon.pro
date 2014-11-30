@@ -26,7 +26,8 @@ SOURCES += \
     datalogmanager.cpp \
     unpacker.cpp \
     appmsgmanager.cpp \
-    jskitmanager.cpp
+    jskitmanager.cpp \
+    appinfo.cpp
 
 HEADERS += \
     manager.h \
@@ -43,7 +44,8 @@ HEADERS += \
     datalogmanager.h \
     appmsgmanager.h \
     jskitmanager.h \
-    jskitmanager_p.h
+    jskitmanager_p.h \
+    appinfo.h
 
 OTHER_FILES += \
     org.pebbled.xml \
