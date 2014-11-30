@@ -9,7 +9,6 @@ AppMsgManager::AppMsgManager(WatchConnector *watch, QObject *parent)
     watch->setEndpointHandler(WatchConnector::watchLAUNCHER,
                               [this](const QByteArray &data) {
         if (data.at(0) == WatchConnector::appmsgPUSH) {
-            logger()->debug() << "LAUNCHER is PUSHing" << data.toHex();
             Unpacker u(data);
             u.skip(1); // skip data.at(0) which we just already checked above.
             uint transaction = u.read<quint8>();
