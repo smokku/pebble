@@ -1,19 +1,21 @@
-#include "manager.h"
-#include "dbusadaptor.h"
-
 #include <QDebug>
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
+
+#include "manager.h"
+#include "dbusadaptor.h"
 
 Manager::Manager(Settings *settings, QObject *parent) :
     QObject(parent), settings(settings),
     watch(new WatchConnector(this)),
     dbus(new DBusConnector(this)),
+    apps(new AppManager(this)),
     voice(new VoiceCallManager(settings, this)),
     notifications(new NotificationManager(settings, this)),
     music(new MusicManager(watch, this)),
     datalog(new DataLogManager(watch, this)),
-    apps(new AppManager(this)),
+    appmsg(new AppMsgManager(watch, this)),
+    js(new JSKitManager(apps, appmsg, this)),
     notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
@@ -40,11 +42,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
         if (data.at(0) == WatchConnector::callHANGUP) {
             voice->hangupAll();
         }
-        return true;
-    });
-    watch->setEndpointHandler(WatchConnector::watchLAUNCHER,
-                              [this](const QByteArray &data) {
-        logger()->debug() << "LAUNCHER msg:" << data.toHex();
         return true;
     });
 

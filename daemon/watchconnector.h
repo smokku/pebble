@@ -122,6 +122,10 @@ public:
         datalogTIMEOUT = 7
     };
     enum {
+        launcherSTARTED = 1,
+        launcherSTOPPED = 0
+    };
+    enum {
         leadEMAIL = 0,
         leadSMS = 1,
         leadFACEBOOK = 2,
@@ -151,6 +155,14 @@ public:
     };
     enum {
         DEFAULT_TIMEOUT_MSECS = 100
+    };
+
+    typedef QMap<int, QVariant> Dict;
+    enum DictItemType {
+        typeBYTES,
+        typeSTRING,
+        typeUINT,
+        typeINT
     };
 
     typedef std::function<bool(const QByteArray &)> EndpointHandlerFunc;

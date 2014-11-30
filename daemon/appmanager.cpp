@@ -29,6 +29,21 @@ QStringList AppManager::appPaths() const
                                      QStandardPaths::LocateDirectory);
 }
 
+const AppManager::AppInfo & AppManager::info(const QUuid &uuid) const
+{
+    return _apps.value(uuid);
+}
+
+const AppManager::AppInfo & AppManager::info(const QString &name) const
+{
+    QUuid uuid = _names.value(name);
+    if (!uuid.isNull()) {
+        return info(uuid);
+    } else {
+        return AppInfo();
+    }
+}
+
 void AppManager::rescan()
 {
     QStringList watchedDirs = _watcher->directories();

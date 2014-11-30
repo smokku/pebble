@@ -30,7 +30,8 @@ public:
 
     QStringList appPaths() const;
 
-    bool installPebbleApp(const QString &pbwFile);
+    const AppInfo & info(const QUuid &uuid) const;
+    const AppInfo & info(const QString &shortName) const;
 
 public slots:
     void rescan();

@@ -7,6 +7,8 @@
 #include "notificationmanager.h"
 #include "musicmanager.h"
 #include "datalogmanager.h"
+#include "appmsgmanager.h"
+#include "jskitmanager.h"
 #include "appmanager.h"
 #include "settings.h"
 
@@ -40,11 +42,13 @@ class Manager :
 
     WatchConnector *watch;
     DBusConnector *dbus;
+    AppManager *apps;
     VoiceCallManager *voice;
     NotificationManager *notifications;
     MusicManager *music;
     DataLogManager *datalog;
-    AppManager *apps;
+    AppMsgManager *appmsg;
+    JSKitManager *js;
 
     MNotification notification;
 
@@ -73,7 +77,7 @@ protected:
     void transliterateMessage(const QString &text);
 
 signals:
-    void mprisMetadataChanged(QVariantMap);
+    void mprisMetadataChanged(const QVariantMap &metadata);
 
 public slots:
     void applyProfile();

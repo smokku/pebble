@@ -4,7 +4,7 @@ CONFIG += console
 CONFIG += link_pkgconfig
 QT -= gui
 
-QT += bluetooth dbus contacts
+QT += bluetooth dbus contacts qml
 PKGCONFIG += mlite5 icu-i18n
 CONFIG += c++11
 
@@ -23,7 +23,10 @@ SOURCES += \
     dbusadaptor.cpp \
     appmanager.cpp \
     musicmanager.cpp \
-    datalogmanager.cpp
+    datalogmanager.cpp \
+    unpacker.cpp \
+    appmsgmanager.cpp \
+    jskitmanager.cpp
 
 HEADERS += \
     manager.h \
@@ -37,7 +40,10 @@ HEADERS += \
     appmanager.h \
     musicmanager.h \
     unpacker.h \
-    datalogmanager.h
+    datalogmanager.h \
+    appmsgmanager.h \
+    jskitmanager.h \
+    jskitmanager_p.h
 
 OTHER_FILES += \
     org.pebbled.xml \

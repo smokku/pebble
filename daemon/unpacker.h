@@ -5,18 +5,29 @@
 #include <QByteArray>
 #include <QString>
 #include <QUuid>
+#include <QVariantMap>
+#include <Log4Qt/Logger>
 
 class Unpacker
 {
+    LOG4QT_DECLARE_STATIC_LOGGER(logger, Unpacker)
+
 public:
     Unpacker(const QByteArray &data);
 
     template <typename T>
     T read();
 
+    template <typename T>
+    T readLE();
+
+    QByteArray readBytes(int n);
+
     QString readFixedString(int n);
 
     QUuid readUuid();
+
+    QMap<int, QVariant> readDict();
 
     void skip(int n);
 
@@ -45,19 +56,13 @@ inline T Unpacker::read()
     return qFromBigEndian<T>(u);
 }
 
-inline QString Unpacker::readFixedString(int n)
+template <typename T>
+inline T Unpacker::readLE()
 {
-    if (checkBad(n)) return QString();
-    const char *u = &_buf.constData()[_offset];
-    _offset += n;
-    return QString::fromUtf8(u, strnlen(u, n));
-}
-
-inline QUuid Unpacker::readUuid()
-{
-    if (checkBad(16)) return QString();
-    _offset += 16;
-    return QUuid::fromRfc4122(_buf.mid(_offset - 16, 16));
+    if (checkBad(sizeof(T))) return 0;
+    const uchar *u = p();
+    _offset += sizeof(T);
+    return qFromLittleEndian<T>(u);
 }
 
 inline void Unpacker::skip(int n)
