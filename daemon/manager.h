@@ -6,6 +6,7 @@
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
 #include "musicmanager.h"
+#include "datalogmanager.h"
 #include "appmanager.h"
 #include "settings.h"
 
@@ -42,6 +43,7 @@ class Manager :
     VoiceCallManager *voice;
     NotificationManager *notifications;
     MusicManager *music;
+    DataLogManager *datalog;
     AppManager *apps;
 
     MNotification notification;

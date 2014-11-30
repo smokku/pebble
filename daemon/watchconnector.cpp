@@ -160,6 +160,13 @@ void WatchConnector::onReadSocket()
         message_length = qFromBigEndian<quint16>(&header[0]);
         endpoint = qFromBigEndian<quint16>(&header[sizeof(quint16)]);
 
+        if (message_length > 8 * 1024) {
+            // Protocol does not allow messages more than 8K long, seemingly.
+            logger()->warn() << "received message size too long: " << message_length;
+            socket->readAll(); // drop input buffer
+            return;
+        }
+
         // Now wait for the entire message
         if (socket->bytesAvailable() < header_length + message_length) {
             logger()->debug() << "incomplete msg body in read buffer";

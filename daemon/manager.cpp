@@ -12,6 +12,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     voice(new VoiceCallManager(settings, this)),
     notifications(new NotificationManager(settings, this)),
     music(new MusicManager(watch, this)),
+    datalog(new DataLogManager(watch, this)),
     apps(new AppManager(this)),
     notification(MNotification::DeviceEvent)
 {
@@ -35,15 +36,15 @@ Manager::Manager(Settings *settings, QObject *parent) :
         return true;
     });
     watch->setEndpointHandler(WatchConnector::watchPHONE_CONTROL,
-                              [this](const QByteArray& data) {
+                              [this](const QByteArray &data) {
         if (data.at(0) == WatchConnector::callHANGUP) {
             voice->hangupAll();
         }
         return true;
     });
-    watch->setEndpointHandler(WatchConnector::watchDATA_LOGGING,
-                              [this](const QByteArray& data) {
-        //logger()->debug() << data.toHex();
+    watch->setEndpointHandler(WatchConnector::watchLAUNCHER,
+                              [this](const QByteArray &data) {
+        logger()->debug() << "LAUNCHER msg:" << data.toHex();
         return true;
     });
 

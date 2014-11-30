@@ -22,7 +22,8 @@ SOURCES += \
     dbusconnector.cpp \
     dbusadaptor.cpp \
     appmanager.cpp \
-    musicmanager.cpp
+    musicmanager.cpp \
+    datalogmanager.cpp
 
 HEADERS += \
     manager.h \
@@ -35,7 +36,8 @@ HEADERS += \
     settings.h \
     appmanager.h \
     musicmanager.h \
-    unpacker.h
+    unpacker.h \
+    datalogmanager.h
 
 OTHER_FILES += \
     org.pebbled.xml \

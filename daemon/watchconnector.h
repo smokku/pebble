@@ -109,7 +109,18 @@ public:
         appmgrGET_APPBANK_STATUS = 1,
         appmgrGET_APPBANK_UUIDS = 5
     };
-
+    enum AppMessage {
+        appmsgPUSH = 1,
+        appmsgREQUEST = 2,
+        appmsgACK = 0xFF,
+        appmsgNACK = 0x7F
+    };
+    enum DataLogMessage {
+        datalogOPEN = 1,
+        datalogDATA = 2,
+        datalogCLOSE = 3,
+        datalogTIMEOUT = 7
+    };
     enum {
         leadEMAIL = 0,
         leadSMS = 1,
