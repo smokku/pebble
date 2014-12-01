@@ -54,12 +54,15 @@ void JSKitPebble::showSimpleNotificationOnPebble(const QString &title, const QSt
     emit _mgr->appNotification(_appInfo.uuid(), title, body);
 }
 
-void JSKitPebble::openUrl(const QUrl &url)
+void JSKitPebble::openURL(const QUrl &url)
 {
     logger()->debug() << "opening url" << url.toString();
+    emit _mgr->appOpenUrl(url.toString());
+#if 0 /* Until we figure out how to do this. Maybe signal the daemon? */
     if (!QDesktopServices::openUrl(url)) {
         logger()->warn() << "Failed to open URL:" << url;
     }
+#endif
 }
 
 QJSValue JSKitPebble::createXMLHttpRequest()
@@ -253,7 +256,10 @@ void JSKitXMLHttpRequest::handleReplyFinished()
 
     if (_onload.isCallable()) {
         logger()->debug() << "going to call onload handler:" << _onload.toString();
-        _onload.callWithInstance(_mgr->engine()->toScriptValue(this));
+        QJSValue result = _onload.callWithInstance(_mgr->engine()->newQObject(this));
+        if (result.isError()) {
+            logger()->warn() << "JS error on onload handler:" << result.toString();
+        }
     } else {
         logger()->debug() << "No onload set";
     }

@@ -47,6 +47,12 @@ class PebbledAdaptor: public QDBusAbstractAdaptor
 "    <method name=\"disconnect\"/>\n"
 "    <method name=\"reconnect\"/>\n"
 "    <method name=\"test\"/>\n"
+"    <signal name=\"openUrl\">\n"
+"      <arg type=\"s\" name=\"url\"/>\n"
+"    </signal>\n"
+"    <method name=\"webviewClosed\">\n"
+"      <arg direction=\"in\" type=\"s\" name=\"result\"/>\n"
+"    </method>\n"
 "  </interface>\n"
         "")
 public:
@@ -72,9 +78,11 @@ public Q_SLOTS: // METHODS
     void time();
     void reconnect();
     void test();
+    void webviewClosed(const QString &result);
 Q_SIGNALS: // SIGNALS
     void connectedChanged();
     void pebbleChanged();
+    void openUrl(const QString &s);
 };
 
 #endif

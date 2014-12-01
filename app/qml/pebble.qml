@@ -41,5 +41,10 @@ ApplicationWindow
 
     PebbledInterface {
         id: pebbled
+
+        onOpenUrl: {
+            console.log("got open url: " + url);
+            pageStack.push(Qt.resolvedUrl("pages/WebViewPage.qml"), {url: url});
+        }
     }
 }

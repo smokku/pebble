@@ -22,9 +22,11 @@ public:
 
 signals:
     void appNotification(const QUuid &uuid, const QString &title, const QString &body);
+    void appOpenUrl(const QString &url);
 
 public slots:
     void showConfiguration();
+    void handleWebviewClosed(const QString &result);
 
 private slots:
     void handleAppStarted(const QUuid &uuid);

@@ -45,6 +45,8 @@ signals:
     void nameChanged();
     void addressChanged();
 
+    void openUrl(const QString &url);
+
 public slots:
     void setEnabled(bool);
     void setActive(bool);
@@ -52,6 +54,8 @@ public slots:
     void time();
     void disconnect();
     void reconnect();
+    void test();
+    void webviewClosed(const QString &result);
 
 private slots:
     void getUnitProperties();

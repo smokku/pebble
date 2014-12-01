@@ -61,6 +61,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     session.registerService("org.pebbled");
     connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
     connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
+    connect(js, SIGNAL(appOpenUrl(QString)), adaptor, SIGNAL(openUrl(QString)));
 
     QString currentProfile = getCurrentProfile();
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
@@ -396,4 +397,9 @@ void Manager::test()
     logger()->debug() << "Starting test";
 
     js->showConfiguration();
+}
+
+void Manager::onWebviewClosed(const QString &result)
+{
+    js->handleWebviewClosed(result);
 }

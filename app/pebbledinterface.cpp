@@ -19,6 +19,10 @@ PebbledInterface::PebbledInterface(QObject *parent) :
                 PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
                 "pebbleChanged", this, SLOT(onPebbleChanged()));
 
+    QDBusConnection::sessionBus().connect(
+                PEBBLED_DBUS_SERVICE, PEBBLED_DBUS_PATH, PEBBLED_DBUS_IFACE,
+                "openUrl", this, SIGNAL(openUrl(QString)));
+
     // simulate connected change on active changed
     // as the daemon might not had a chance to send 'connectedChanged'
     // when going down
@@ -162,4 +166,16 @@ void PebbledInterface::reconnect()
 {
     qDebug() << __FUNCTION__;
     PebbledDbusInterface.call("reconnect");
+}
+
+void PebbledInterface::test()
+{
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("test");
+}
+
+void PebbledInterface::webviewClosed(const QString &result)
+{
+    qDebug() << __FUNCTION__;
+    PebbledDbusInterface.call("webviewClosed", QVariant::fromValue(result));
 }

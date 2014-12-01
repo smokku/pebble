@@ -21,7 +21,7 @@ public:
 
     Q_INVOKABLE void showSimpleNotificationOnPebble(const QString &title, const QString &body);
 
-    Q_INVOKABLE void openUrl(const QUrl &url);
+    Q_INVOKABLE void openURL(const QUrl &url);
 
     Q_INVOKABLE QJSValue createXMLHttpRequest();
 
@@ -88,11 +88,11 @@ public:
     ~JSKitXMLHttpRequest();
 
     enum ReadyStates {
-        UNSENT,
-        OPENED,
-        HEADERS_RECEIVED,
-        LOADING,
-        DONE
+        UNSENT = 0,
+        OPENED = 1,
+        HEADERS_RECEIVED = 2,
+        LOADING = 3,
+        DONE = 4
     };
 
     Q_INVOKABLE void open(const QString &method, const QString &url, bool async);

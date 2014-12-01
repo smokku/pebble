@@ -85,3 +85,8 @@ void PebbledAdaptor::test()
 {
     QMetaObject::invokeMethod(parent(), "test");
 }
+
+void PebbledAdaptor::webviewClosed(const QString &result)
+{
+    QMetaObject::invokeMethod(parent(), "webviewClosed", Q_ARG(QString, result));
+}

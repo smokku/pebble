@@ -84,6 +84,7 @@ public slots:
 
 private slots:
     void test();
+    void onWebviewClosed(const QString &result);
     void onSettingChanged(const QString &key);
     void onSettingsChanged();
     void onPebbleChanged();
@@ -123,7 +124,7 @@ public slots:
     void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
     void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
     void test() { static_cast<Manager*>(parent())->test(); }
-
+    void webviewClosed(const QString &result) { static_cast<Manager*>(parent())->onWebviewClosed(result); }
 };
 
 #endif // MANAGER_H

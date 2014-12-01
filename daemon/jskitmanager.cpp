@@ -31,6 +31,16 @@ void JSKitManager::showConfiguration()
     }
 }
 
+void JSKitManager::handleWebviewClosed(const QString &result)
+{
+    if (_engine) {
+        QJSValue eventObj = _engine->newObject();
+        eventObj.setProperty("response", _engine->toScriptValue(result));
+
+        _jspebble->invokeCallbacks("webviewclosed", QJSValueList({eventObj}));
+    }
+}
+
 void JSKitManager::handleAppStarted(const QUuid &uuid)
 {
     AppInfo info = _apps->info(uuid);
