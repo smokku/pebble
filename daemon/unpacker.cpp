@@ -29,7 +29,7 @@ QMap<int, QVariant> Unpacker::readDict()
     QMap<int, QVariant> d;
     if (checkBad(1)) return d;
 
-    const int n = read<quint8>();
+    const int n = readLE<quint8>();
 
     for (int i = 0; i < n; i++) {
         if (checkBad(4 + 1 + 2)) return d;

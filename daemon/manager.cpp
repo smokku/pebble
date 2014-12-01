@@ -14,7 +14,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     notifications(new NotificationManager(settings, this)),
     music(new MusicManager(watch, this)),
     datalog(new DataLogManager(watch, this)),
-    appmsg(new AppMsgManager(watch, this)),
+    appmsg(new AppMsgManager(apps, watch, this)),
     js(new JSKitManager(apps, appmsg, this)),
     notification(MNotification::DeviceEvent)
 {

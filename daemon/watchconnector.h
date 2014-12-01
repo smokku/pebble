@@ -173,7 +173,7 @@ public:
     inline bool isConnected() const { return is_connected; }
     inline QString name() const { return socket != nullptr ? socket->peerName() : ""; }
 
-    void setEndpointHandler(uint endpoint, EndpointHandlerFunc func);
+    void setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func);
     void clearEndpointHandler(uint endpoint);
 
     static QString timeStamp();
@@ -192,7 +192,7 @@ public slots:
     void disconnect();
     void reconnect();
 
-    void sendMessage(uint endpoint, const QByteArray &data);
+    void sendMessage(uint endpoint, const QByteArray &data, const EndpointHandlerFunc &callback = EndpointHandlerFunc());
     void ping(uint val);
     void time();
 

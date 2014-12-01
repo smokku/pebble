@@ -4,8 +4,8 @@
 #include <QDir>
 #include "jskitobjects.h"
 
-JSKitPebble::JSKitPebble(JSKitManager *mgr)
-    : QObject(mgr), _mgr(mgr)
+JSKitPebble::JSKitPebble(const AppInfo &info, JSKitManager *mgr)
+    : QObject(mgr), _appInfo(info), _mgr(mgr)
 {
 }
 
@@ -34,17 +34,28 @@ void JSKitPebble::removeEventListener(const QString &type, QJSValue function)
 
 void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack)
 {
-    // TODO contact _mgr->appmsg->...
-    logger()->debug() << "sendAppMessage" << message.toString();
+    QVariantMap data = message.toVariant().toMap();
+
+    logger()->debug() << "sendAppMessage" << data;
+
+    _mgr->_appmsg->send(_appInfo.uuid(), data, [this, callbackForAck]() mutable {
+        logger()->debug() << "Invoking ack callback";
+        callbackForAck.call();
+    }, [this, callbackForNack]() mutable {
+        logger()->debug() << "Invoking nack callback";
+        callbackForNack.call();
+    });
 }
 
 void JSKitPebble::showSimpleNotificationOnPebble(const QString &title, const QString &body)
 {
     logger()->debug() << "showSimpleNotificationOnPebble" << title << body;
+    emit _mgr->appNotification(_appInfo.uuid(), title, body);
 }
 
 void JSKitPebble::openUrl(const QUrl &url)
 {
+    logger()->debug() << "opening url" << url.toString();
     if (!QDesktopServices::openUrl(url)) {
         logger()->warn() << "Failed to open URL:" << url;
     }
@@ -56,12 +67,23 @@ void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
     QList<QJSValue> &callbacks = _callbacks[type];
 
     for (QList<QJSValue>::iterator it = callbacks.begin(); it != callbacks.end(); ++it) {
+        logger()->debug() << "invoking callback" << type << it->toString();
         QJSValue result = it->call(args);
         if (result.isError()) {
             logger()->warn() << "error while invoking callback" << type << it->toString() << ":"
                              << result.toString();
         }
     }
+}
+
+JSKitConsole::JSKitConsole(JSKitManager *mgr)
+    : QObject(mgr)
+{
+}
+
+void JSKitConsole::log(const QString &msg)
+{
+    logger()->info() << msg;
 }
 
 JSKitLocalStorage::JSKitLocalStorage(const QUuid &uuid, JSKitManager *mgr)
@@ -117,5 +139,8 @@ QString JSKitLocalStorage::getStorageFileFor(const QUuid &uuid)
 {
     QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     dataDir.mkdir("js-storage");
-    return dataDir.absoluteFilePath("js-storage/" + uuid.toString() + ".ini");
+    QString fileName = uuid.toString();
+    fileName.remove('{');
+    fileName.remove('}');
+    return dataDir.absoluteFilePath("js-storage/" + fileName + ".ini");
 }

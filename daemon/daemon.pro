@@ -28,7 +28,8 @@ SOURCES += \
     appmsgmanager.cpp \
     jskitmanager.cpp \
     appinfo.cpp \
-    jskitobjects.cpp
+    jskitobjects.cpp \
+    packer.cpp
 
 HEADERS += \
     manager.h \
@@ -46,7 +47,8 @@ HEADERS += \
     appmsgmanager.h \
     jskitmanager.h \
     appinfo.h \
-    jskitobjects.h
+    jskitobjects.h \
+    packer.h
 
 OTHER_FILES += \
     org.pebbled.xml \

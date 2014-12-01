@@ -9,6 +9,7 @@ JSKitManager::JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *par
 {
     connect(_appmsg, &AppMsgManager::appStarted, this, &JSKitManager::handleAppStarted);
     connect(_appmsg, &AppMsgManager::appStopped, this, &JSKitManager::handleAppStopped);
+    connect(_appmsg, &AppMsgManager::messageReceived, this, &JSKitManager::handleAppMessage);
 }
 
 JSKitManager::~JSKitManager()
@@ -40,6 +41,23 @@ void JSKitManager::handleAppStopped(const QUuid &uuid)
     }
 }
 
+void JSKitManager::handleAppMessage(const QUuid &uuid, const QVariantMap &data)
+{
+    if (_curApp.uuid() == uuid) {
+        logger()->debug() << "received a message for the current JSKit app";
+
+        if (!_engine) {
+            logger()->debug() << "but engine is stopped";
+            return;
+        }
+
+        QJSValue eventObj = _engine->newObject();
+        eventObj.setProperty("payload", _engine->toScriptValue(data));
+
+        _jspebble->invokeCallbacks("appmessage", QJSValueList({eventObj}));
+    }
+}
+
 void JSKitManager::startJsApp()
 {
     if (_engine) stopJsApp();
@@ -49,7 +67,8 @@ void JSKitManager::startJsApp()
     }
 
     _engine = new QJSEngine(this);
-    _jspebble = new JSKitPebble(this);
+    _jspebble = new JSKitPebble(_curApp, this);
+    _jsconsole = new JSKitConsole(this);
     _jsstorage = new JSKitLocalStorage(_curApp.uuid(), this);
 
     logger()->debug() << "starting JS app";
@@ -57,8 +76,12 @@ void JSKitManager::startJsApp()
     QJSValue globalObj = _engine->globalObject();
 
     globalObj.setProperty("Pebble", _engine->newQObject(_jspebble));
+    globalObj.setProperty("console", _engine->newQObject(_jsconsole));
     globalObj.setProperty("localStorage", _engine->newQObject(_jsstorage));
 
+    QJSValue windowObj = _engine->newObject();
+    windowObj.setProperty("localStorage", globalObj.property("localStorage"));
+    globalObj.setProperty("window", windowObj);
 
     QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
     if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {

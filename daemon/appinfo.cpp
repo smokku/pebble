@@ -10,7 +10,8 @@ struct AppInfoData : public QSharedData {
     QString versionLabel;
     bool watchface;
     bool jskit;
-    QHash<QString, int> appKeys;
+    QHash<QString, int> keyInts;
+    QHash<int, QString> keyNames;
     QString path;
 };
 
@@ -116,19 +117,30 @@ void AppInfo::setJSKit(bool b)
     d->jskit = b;
 }
 
-QHash<QString, int> AppInfo::appKeys() const
-{
-    return d->appKeys;
-}
-
-void AppInfo::setAppKeys(const QHash<QString, int> &appKeys)
-{
-    d->appKeys = appKeys;
-}
-
 void AppInfo::addAppKey(const QString &key, int value)
 {
-    d->appKeys.insert(key, value);
+    d->keyInts.insert(key, value);
+    d->keyNames.insert(value, key);
+}
+
+bool AppInfo::hasAppKeyValue(int value) const
+{
+    return d->keyNames.contains(value);
+}
+
+QString AppInfo::appKeyForValue(int value) const
+{
+    return d->keyNames.value(value);
+}
+
+bool AppInfo::hasAppKey(const QString &key) const
+{
+    return d->keyInts.contains(key);
+}
+
+int AppInfo::valueForAppKey(const QString &key) const
+{
+    return d->keyInts.value(key, -1);
 }
 
 QString AppInfo::path() const

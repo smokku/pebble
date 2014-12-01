@@ -89,7 +89,7 @@ QString WatchConnector::decodeEndpoint(uint val)
     return endpoint ? QString(endpoint) : QString("watchUNKNOWN_%1").arg(val);
 }
 
-void WatchConnector::setEndpointHandler(uint endpoint, EndpointHandlerFunc func)
+void WatchConnector::setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func)
 {
     if (func) {
         handlers.insert(endpoint, func);
@@ -241,6 +241,7 @@ void WatchConnector::sendData(const QByteArray &data)
         reconnect();
     } else if (is_connected) {
         logger()->debug() << "Writing" << data.length() << "bytes to socket";
+        logger()->debug() << data.toHex();
         socket->write(data);
     }
 }
@@ -251,7 +252,7 @@ void WatchConnector::onBytesWritten(qint64 bytes)
     logger()->debug() << "Socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
-void WatchConnector::sendMessage(uint endpoint, const QByteArray &data)
+void WatchConnector::sendMessage(uint endpoint, const QByteArray &data, const EndpointHandlerFunc &callback)
 {
     logger()->debug() << "sending message to endpoint" << decodeEndpoint(endpoint);
     QByteArray msg;
@@ -268,6 +269,10 @@ void WatchConnector::sendMessage(uint endpoint, const QByteArray &data)
     msg.append(data);
 
     sendData(msg);
+
+    if (callback) {
+        tmpHandlers[endpoint].append(callback);
+    }
 }
 
 void WatchConnector::buildData(QByteArray &res, QStringList data)
@@ -445,9 +450,8 @@ void WatchConnector::endPhoneCall(uint cookie)
 
 void WatchConnector::getAppbankStatus(const std::function<void(const QString &s)>& callback)
 {
-    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_STATUS));
-
-    tmpHandlers[watchAPP_MANAGER].append([this, callback](const QByteArray &data) {
+    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_STATUS),
+                [this, callback](const QByteArray &data) {
         if (data.at(0) != appmgrGET_APPBANK_STATUS) {
             return false;
         }
@@ -491,9 +495,8 @@ void WatchConnector::getAppbankStatus(const std::function<void(const QString &s)
 
 void WatchConnector::getAppbankUuids(const function<void(const QList<QUuid> &)>& callback)
 {
-    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_UUIDS));
-
-    tmpHandlers[watchAPP_MANAGER].append([this, callback](const QByteArray &data) {
+    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_UUIDS),
+                [this, callback](const QByteArray &data) {
         if (data.at(0) != appmgrGET_APPBANK_UUIDS) {
             return false;
         }

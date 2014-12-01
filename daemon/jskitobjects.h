@@ -10,7 +10,7 @@ class JSKitPebble : public QObject
     LOG4QT_DECLARE_QCLASS_LOGGER
 
 public:
-    explicit JSKitPebble(JSKitManager *mgr);
+    explicit JSKitPebble(const AppInfo &appInfo, JSKitManager *mgr);
 
     Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
     Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
@@ -24,8 +24,20 @@ public:
     void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());
 
 private:
+    AppInfo _appInfo;
     JSKitManager *_mgr;
     QHash<QString, QList<QJSValue>> _callbacks;
+};
+
+class JSKitConsole : public QObject
+{
+    Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
+
+public:
+    explicit JSKitConsole(JSKitManager *mgr);
+
+    Q_INVOKABLE void log(const QString &msg);
 };
 
 class JSKitLocalStorage : public QObject

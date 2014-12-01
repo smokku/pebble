@@ -52,9 +52,13 @@ public:
     bool isJSKit() const;
     void setJSKit(bool b);
 
-    QHash<QString, int> appKeys() const;
-    void setAppKeys(const QHash<QString, int> &string);
     void addAppKey(const QString &key, int value);
+
+    bool hasAppKeyValue(int value) const;
+    QString appKeyForValue(int value) const;
+
+    bool hasAppKey(const QString &key) const;
+    int valueForAppKey(const QString &key) const;
 
     QString path() const;
     void setPath(const QString &string);
