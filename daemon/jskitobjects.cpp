@@ -1,6 +1,7 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QBuffer>
 #include <QDir>
 #include "jskitobjects.h"
 
@@ -59,6 +60,13 @@ void JSKitPebble::openUrl(const QUrl &url)
     if (!QDesktopServices::openUrl(url)) {
         logger()->warn() << "Failed to open URL:" << url;
     }
+}
+
+QJSValue JSKitPebble::createXMLHttpRequest()
+{
+    JSKitXMLHttpRequest *xhr = new JSKitXMLHttpRequest(_mgr, 0);
+    // Should be deleted by JS engine.
+    return _mgr->engine()->newQObject(xhr);
 }
 
 void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
@@ -143,4 +151,110 @@ QString JSKitLocalStorage::getStorageFileFor(const QUuid &uuid)
     fileName.remove('{');
     fileName.remove('}');
     return dataDir.absoluteFilePath("js-storage/" + fileName + ".ini");
+}
+
+JSKitXMLHttpRequest::JSKitXMLHttpRequest(JSKitManager *mgr, QObject *parent)
+    : QObject(parent), _mgr(mgr),
+      _net(new QNetworkAccessManager(this)), _reply(0)
+{
+    logger()->debug() << "constructed";
+}
+
+JSKitXMLHttpRequest::~JSKitXMLHttpRequest()
+{
+    logger()->debug() << "destructed";
+}
+
+void JSKitXMLHttpRequest::open(const QString &method, const QString &url, bool async)
+{
+    if (_reply) {
+        _reply->deleteLater();
+        _reply = 0;
+    }
+
+    _request = QNetworkRequest(QUrl(url));
+    _verb = method;
+    Q_UNUSED(async);
+}
+
+void JSKitXMLHttpRequest::setRequestHeader(const QString &header, const QString &value)
+{
+    logger()->debug() << "setRequestHeader" << header << value;
+    _request.setRawHeader(header.toLatin1(), value.toLatin1());
+}
+
+void JSKitXMLHttpRequest::send(const QString &body)
+{
+    QBuffer *buffer = new QBuffer;
+    buffer->setData(body.toUtf8());
+    logger()->debug() << "sending" << _verb << "to" << _request.url() << "with" << body;
+    _reply = _net->sendCustomRequest(_request, _verb.toLatin1(), buffer);
+    connect(_reply, &QNetworkReply::finished, this, &JSKitXMLHttpRequest::handleReplyFinished);
+    buffer->setParent(_reply); // So that it gets deleted alongside the reply object.
+}
+
+void JSKitXMLHttpRequest::abort()
+{
+    if (_reply) {
+        _reply->deleteLater();
+        _reply = 0;
+    }
+}
+
+QJSValue JSKitXMLHttpRequest::onload() const
+{
+    return _onload;
+}
+
+void JSKitXMLHttpRequest::setOnload(const QJSValue &value)
+{
+    _onload = value;
+}
+
+unsigned short JSKitXMLHttpRequest::readyState() const
+{
+    if (!_reply) {
+        return UNSENT;
+    } else if (_reply->isFinished()) {
+        return DONE;
+    } else {
+        return LOADING;
+    }
+}
+
+unsigned short JSKitXMLHttpRequest::status() const
+{
+    if (!_reply || !_reply->isFinished()) {
+        return 0;
+    } else {
+        return _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt();
+    }
+}
+
+QString JSKitXMLHttpRequest::responseText() const
+{
+    return QString::fromUtf8(_response);
+}
+
+void JSKitXMLHttpRequest::handleReplyFinished()
+{
+    if (!_reply) {
+        logger()->info() << "reply finished too late";
+        return;
+    }
+
+    _response = _reply->readAll();
+    logger()->debug() << "reply finished, reply text:" << QString::fromUtf8(_response);
+
+    emit readyStateChanged();
+    emit statusChanged();
+    emit responseTextChanged();
+
+
+    if (_onload.isCallable()) {
+        logger()->debug() << "going to call onload handler:" << _onload.toString();
+        _onload.callWithInstance(_mgr->engine()->toScriptValue(this));
+    } else {
+        logger()->debug() << "No onload set";
+    }
 }

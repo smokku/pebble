@@ -19,6 +19,18 @@ JSKitManager::~JSKitManager()
     }
 }
 
+QJSEngine * JSKitManager::engine()
+{
+    return _engine;
+}
+
+void JSKitManager::showConfiguration()
+{
+    if (_engine) {
+        _jspebble->invokeCallbacks("showConfiguration");
+    }
+}
+
 void JSKitManager::handleAppStarted(const QUuid &uuid)
 {
     AppInfo info = _apps->info(uuid);
@@ -82,6 +94,8 @@ void JSKitManager::startJsApp()
     QJSValue windowObj = _engine->newObject();
     windowObj.setProperty("localStorage", globalObj.property("localStorage"));
     globalObj.setProperty("window", windowObj);
+
+    _engine->evaluate("function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }");
 
     QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
     if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {

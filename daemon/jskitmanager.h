@@ -18,10 +18,13 @@ public:
     explicit JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *parent = 0);
     ~JSKitManager();
 
+    QJSEngine * engine();
+
 signals:
     void appNotification(const QUuid &uuid, const QString &title, const QString &body);
 
 public slots:
+    void showConfiguration();
 
 private slots:
     void handleAppStarted(const QUuid &uuid);

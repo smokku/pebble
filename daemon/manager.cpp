@@ -395,11 +395,5 @@ void Manager::test()
 {
     logger()->debug() << "Starting test";
 
-    watch->getAppbankStatus([this](const QString &s) {
-        logger()->debug() << "Callback invoked" << s;
-    });
-
-    watch->getAppbankUuids([this](const QList<QUuid> &uuids) {
-        logger()->debug() << "Callback invoked. UUIDs:" << uuids.size();
-    });
+    js->showConfiguration();
 }
