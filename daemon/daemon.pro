@@ -20,7 +20,6 @@ SOURCES += \
     notificationmanager.cpp \
     watchconnector.cpp \
     dbusconnector.cpp \
-    dbusadaptor.cpp \
     appmanager.cpp \
     musicmanager.cpp \
     datalogmanager.cpp \
@@ -38,7 +37,6 @@ HEADERS += \
     notificationmanager.h \
     watchconnector.h \
     dbusconnector.h \
-    dbusadaptor.h \
     settings.h \
     appmanager.h \
     musicmanager.h \
@@ -51,9 +49,10 @@ HEADERS += \
     packer.h
 
 OTHER_FILES += \
-    org.pebbled.xml \
     ../log4qt-debug.conf \
     ../log4qt-release.conf
+
+DBUS_ADAPTORS += ../org.pebbled.Watch.xml
 
 INSTALLS += target pebbled confile
 

@@ -24,9 +24,9 @@
 
 using namespace QtContacts;
 
-class Manager :
-        public QObject,
-        protected QDBusContext
+class PebbledProxy;
+
+class Manager : public QObject, protected QDBusContext
 {
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
@@ -39,6 +39,8 @@ class Manager :
     QBluetoothLocalDevice btDevice;
 
     Settings *settings;
+
+    PebbledProxy *proxy;
 
     WatchConnector *watch;
     DBusConnector *dbus;
@@ -58,6 +60,7 @@ class Manager :
     QString defaultProfile;
 
     QString lastSeenMpris;
+    QVariantMap mprisMetadata;
 
     QScopedPointer<icu::Transliterator> transliterator;
 
@@ -65,13 +68,11 @@ public:
     explicit Manager(Settings *settings, QObject *parent = 0);
     ~Manager();
 
-    Q_INVOKABLE QString findPersonByNumber(QString number);
-    Q_INVOKABLE QString getCurrentProfile();
-    Q_INVOKABLE QString mpris();
-    QVariantMap mprisMetadata;
-    QVariantMap getMprisMetadata() { return mprisMetadata; }
+    QString findPersonByNumber(QString number);
+    QString getCurrentProfile() const;
+    QString mpris() const;
 
-    Q_INVOKABLE bool uploadApp(const QUuid &uuid, int slot = -1);
+    inline QVariantMap getMprisMetadata() const { return mprisMetadata; }
 
 protected:
     void transliterateMessage(const QString &text);
@@ -100,31 +101,71 @@ private slots:
     void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
     void setMprisMetadata(QDBusArgument metadata);
     void setMprisMetadata(QVariantMap metadata);
+
+    void onAppMessage(const QUuid &uuid, const QVariantMap &data);
 };
 
-class PebbledProxy : public QObject
+/** This class is what's actually exported over D-Bus,
+ *  so the names of the slots and properties must match with org.pebbled.Watch D-Bus interface.
+ *  Case sensitive. Otherwise, _runtime_ failures will occur. */
+// The methods are marked inline so that they may be inlined inside qt_metacall
+class PebbledProxy : public QObject, protected QDBusContext
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap pebble READ pebble)
-    Q_PROPERTY(QString name READ pebbleName)
-    Q_PROPERTY(QString address READ pebbleAddress)
-    Q_PROPERTY(bool connected READ pebbleConnected)
+    Q_PROPERTY(QString Name READ Name NOTIFY NameChanged)
+    Q_PROPERTY(QString Address READ Address NOTIFY AddressChanged)
+    Q_PROPERTY(bool Connected READ Connected NOTIFY ConnectedChanged)
 
-    QVariantMap pebble() { return static_cast<Manager*>(parent())->dbus->pebble(); }
-    QString pebbleName() { return static_cast<Manager*>(parent())->dbus->pebble()["Name"].toString(); }
-    QString pebbleAddress() { return static_cast<Manager*>(parent())->dbus->pebble()["Address"].toString(); }
-    bool pebbleConnected() { return static_cast<Manager*>(parent())->watch->isConnected(); }
+    inline Manager* manager() const { return static_cast<Manager*>(parent()); }
+    inline QVariantMap pebble() const { return manager()->dbus->pebble(); }
 
 public:
-    explicit PebbledProxy(QObject *parent) : QObject(parent) {}
+    inline explicit PebbledProxy(QObject *parent) : QObject(parent) {}
+
+    inline QString Name() const { return pebble()["Name"].toString(); }
+    inline QString Address() const { return pebble()["Address"].toString(); }
+    inline bool Connected() const { return manager()->watch->isConnected(); }
 
 public slots:
-    void ping(int val) { static_cast<Manager*>(parent())->watch->ping((unsigned int)val); }
-    void time() { static_cast<Manager*>(parent())->watch->time(); }
-    void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
-    void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
-    void test() { static_cast<Manager*>(parent())->test(); }
-    void webviewClosed(const QString &result) { static_cast<Manager*>(parent())->onWebviewClosed(result); }
+    inline void Disconnected() { manager()->watch->disconnect(); }
+    inline void Reconnect() { manager()->watch->reconnect(); }
+    inline void Ping(uint val) { manager()->watch->ping(val); }
+    inline void SyncTime() { manager()->watch->time(); }
+
+    inline void LaunchApp(const QString &uuid) { /* TODO */ }
+    inline void CloseApp(const QString &uuid) { /* TODO */ }
+
+    bool SendAppMessage(const QString &uuid, const QVariantMap &data) {
+        Q_ASSERT(calledFromDBus());
+        const QDBusMessage msg = message();
+        setDelayedReply(true);
+        manager()->appmsg->send(uuid, data, [this, msg]() {
+            QDBusMessage reply = msg.createReply(QVariant::fromValue(true));
+            this->connection().send(reply);
+        }, [this, msg]() {
+            QDBusMessage reply = msg.createReply(QVariant::fromValue(false));
+            this->connection().send(reply);
+        });
+        return false; // D-Bus clients should never see this reply.
+    }
+
+    QString StartAppConfiguration(const QString &uuid) {
+        Q_ASSERT(calledFromDBus());
+        const QDBusMessage msg = message();
+        setDelayedReply(true);
+
+        // TODO
+    }
+
+    inline void SendAppConfiguration(const QString &uuid, const QString &data) {
+        // TODO
+    }
+
+signals:
+    void NameChanged();
+    void AddressChanged();
+    void ConnectedChanged();
+    void AppMessage(const QString &uuid, const QVariantMap &data);
 };
 
 #endif // MANAGER_H

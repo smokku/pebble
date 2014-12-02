@@ -3,10 +3,11 @@
 #include <QtContacts/QContactPhoneNumber>
 
 #include "manager.h"
-#include "dbusadaptor.h"
+#include "watch_adaptor.h"
 
 Manager::Manager(Settings *settings, QObject *parent) :
     QObject(parent), settings(settings),
+    proxy(new PebbledProxy(this)),
     watch(new WatchConnector(this)),
     dbus(new DBusConnector(this)),
     apps(new AppManager(this)),
@@ -54,14 +55,16 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(notifications, SIGNAL(twitterNotify(const QString &,const QString &)), SLOT(onTwitterNotify(const QString &,const QString &)));
     connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
-    PebbledProxy *proxy = new PebbledProxy(this);
-    PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
+    connect(appmsg, &AppMsgManager::messageReceived, this, &Manager::onAppMessage);
+
     QDBusConnection session = QDBusConnection::sessionBus();
-    session.registerObject("/org/pebbled", proxy);
+    new WatchAdaptor(proxy);
+    session.registerObject("/org/pebbled/watch", proxy);
     session.registerService("org.pebbled");
-    connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
-    connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
-    connect(js, SIGNAL(appOpenUrl(QString)), adaptor, SIGNAL(openUrl(QString)));
+
+    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
+    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
+    connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
 
     QString currentProfile = getCurrentProfile();
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
@@ -289,7 +292,7 @@ void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant>
     logger()->debug() << "lastSeenMpris:" << lastSeenMpris;
 }
 
-QString Manager::mpris()
+QString Manager::mpris() const
 {
     const QStringList &services = dbus->services();
     if (not lastSeenMpris.isEmpty() && services.contains(lastSeenMpris))
@@ -316,7 +319,7 @@ void Manager::setMprisMetadata(QVariantMap metadata)
     emit mprisMetadataChanged(mprisMetadata);
 }
 
-QString Manager::getCurrentProfile()
+QString Manager::getCurrentProfile() const
 {
     QDBusReply<QString> profile = QDBusConnection::sessionBus().call(
                 QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "get_profile"));
@@ -386,17 +389,16 @@ void Manager::transliterateMessage(const QString &text)
     }
 }
 
-bool Manager::uploadApp(const QUuid &uuid, int slot)
-{
-    // TODO
-    return false;
-}
-
 void Manager::test()
 {
     logger()->debug() << "Starting test";
 
     js->showConfiguration();
+}
+
+void Manager::onAppMessage(const QUuid &uuid, const QVariantMap &data)
+{
+    emit proxy->AppMessage(uuid.toString(), data);
 }
 
 void Manager::onWebviewClosed(const QString &result)

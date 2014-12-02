@@ -14,6 +14,8 @@ SOURCES += \
 HEADERS += \
     pebbledinterface.h
 
+DBUS_INTERFACES += ../org.pebbled.Watch.xml
+
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
     qml/pages/ManagerPage.qml \

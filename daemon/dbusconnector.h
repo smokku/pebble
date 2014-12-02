@@ -20,8 +20,8 @@ class DBusConnector : public QObject
 public:
     explicit DBusConnector(QObject *parent = 0);
 
-    QVariantMap pebble() { return pebbleProps; }
-    QStringList services() { return dbusServices; }
+    QVariantMap pebble() const { return pebbleProps; }
+    QStringList services() const { return dbusServices; }
 
 signals:
     void pebbleChanged();
