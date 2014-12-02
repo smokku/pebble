@@ -62,6 +62,8 @@ class Manager : public QObject, protected QDBusContext
     QString lastSeenMpris;
     QVariantMap mprisMetadata;
 
+    QUuid currentAppUuid;
+
     QScopedPointer<icu::Transliterator> transliterator;
 
 public:
@@ -84,8 +86,6 @@ public slots:
     void applyProfile();
 
 private slots:
-    void test();
-    void onWebviewClosed(const QString &result);
     void onSettingChanged(const QString &key);
     void onSettingsChanged();
     void onPebbleChanged();
@@ -103,6 +103,8 @@ private slots:
     void setMprisMetadata(QVariantMap metadata);
 
     void onAppMessage(const QUuid &uuid, const QVariantMap &data);
+    void onAppOpened(const QUuid &uuid);
+    void onAppClosed(const QUuid &uuid);
 };
 
 /** This class is what's actually exported over D-Bus,
@@ -132,32 +134,13 @@ public slots:
     inline void Ping(uint val) { manager()->watch->ping(val); }
     inline void SyncTime() { manager()->watch->time(); }
 
-    inline void LaunchApp(const QString &uuid) { /* TODO */ }
-    inline void CloseApp(const QString &uuid) { /* TODO */ }
+    inline void LaunchApp(const QString &uuid) { manager()->appmsg->launchApp(uuid); }
+    inline void CloseApp(const QString &uuid) { manager()->appmsg->closeApp(uuid); }
 
-    bool SendAppMessage(const QString &uuid, const QVariantMap &data) {
-        Q_ASSERT(calledFromDBus());
-        const QDBusMessage msg = message();
-        setDelayedReply(true);
-        manager()->appmsg->send(uuid, data, [this, msg]() {
-            QDBusMessage reply = msg.createReply(QVariant::fromValue(true));
-            this->connection().send(reply);
-        }, [this, msg]() {
-            QDBusMessage reply = msg.createReply(QVariant::fromValue(false));
-            this->connection().send(reply);
-        });
-        return false; // D-Bus clients should never see this reply.
-    }
+    bool SendAppMessage(const QString &uuid, const QVariantMap &data);
+    QString StartAppConfiguration(const QString &uuid);
 
-    QString StartAppConfiguration(const QString &uuid) {
-        Q_ASSERT(calledFromDBus());
-        const QDBusMessage msg = message();
-        setDelayedReply(true);
-
-        // TODO
-    }
-
-    inline void SendAppConfiguration(const QString &uuid, const QString &data) {
+    void SendAppConfiguration(const QString &uuid, const QString &data) {
         // TODO
     }
 
@@ -166,6 +149,8 @@ signals:
     void AddressChanged();
     void ConnectedChanged();
     void AppMessage(const QString &uuid, const QVariantMap &data);
+    void AppOpened(const QString &uuid);
+    void AppClosed(const QString &uuid);
 };
 
 #endif // MANAGER_H

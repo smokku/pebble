@@ -57,12 +57,7 @@ void JSKitPebble::showSimpleNotificationOnPebble(const QString &title, const QSt
 void JSKitPebble::openURL(const QUrl &url)
 {
     logger()->debug() << "opening url" << url.toString();
-    emit _mgr->appOpenUrl(url.toString());
-#if 0 /* Until we figure out how to do this. Maybe signal the daemon? */
-    if (!QDesktopServices::openUrl(url)) {
-        logger()->warn() << "Failed to open URL:" << url;
-    }
-#endif
+    emit _mgr->appOpenUrl(url);
 }
 
 QJSValue JSKitPebble::createXMLHttpRequest()

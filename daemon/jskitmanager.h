@@ -19,10 +19,11 @@ public:
     ~JSKitManager();
 
     QJSEngine * engine();
+    bool isJSKitAppRunning() const;
 
 signals:
     void appNotification(const QUuid &uuid, const QString &title, const QString &body);
-    void appOpenUrl(const QString &url);
+    void appOpenUrl(const QUrl &url);
 
 public slots:
     void showConfiguration();

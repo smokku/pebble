@@ -5,6 +5,7 @@
     <property name="Name" type="s" access="read"/>
     <property name="Address" type="s" access="read"/>
     <property name="Connected" type="b" access="read"/>
+
     <!-- Qt does not yet support property changed signals, so we fake them. -->
     <signal name="NameChanged"/>
     <signal name="AddressChanged"/>
@@ -15,6 +16,7 @@
       <arg name="val" type="u" direction="in"/>
     </method>
     <method name="SyncTime"/>
+
     <!-- The following methods resemble the official PebbleKit API -->
     <method name="LaunchApp">
       <arg name="uuid" type="s" direction="in"/>
@@ -33,6 +35,13 @@
       <arg name="message" type="a{sv}"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
     </signal>
+    <signal name="AppOpened">
+      <arg name="uuid" type="s"/>
+    </signal>
+    <signal name="AppClosed">
+      <arg name="uuid" type="s"/>
+    </signal>
+
     <!-- The following method are used for configuration of JSKit applications by the client app -->
     <method name="StartAppConfiguration">
       <arg name="uuid" type="s" direction="in"/>

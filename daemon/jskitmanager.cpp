@@ -24,6 +24,11 @@ QJSEngine * JSKitManager::engine()
     return _engine;
 }
 
+bool JSKitManager::isJSKitAppRunning() const
+{
+    return _engine != 0;
+}
+
 void JSKitManager::showConfiguration()
 {
     if (_engine) {

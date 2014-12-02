@@ -18,6 +18,8 @@ public:
 
 public slots:
     void send(const QUuid &uuid, const QVariantMap &data);
+    void launchApp(const QUuid &uuid);
+    void closeApp(const QUuid &uuid);
 
 signals:
     void appStarted(const QUuid &uuid);

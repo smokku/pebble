@@ -56,6 +56,8 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
     connect(appmsg, &AppMsgManager::messageReceived, this, &Manager::onAppMessage);
+    connect(appmsg, &AppMsgManager::appStarted, this, &Manager::onAppOpened);
+    connect(appmsg, &AppMsgManager::appStopped, this, &Manager::onAppClosed);
 
     QDBusConnection session = QDBusConnection::sessionBus();
     new WatchAdaptor(proxy);
@@ -389,19 +391,82 @@ void Manager::transliterateMessage(const QString &text)
     }
 }
 
-void Manager::test()
-{
-    logger()->debug() << "Starting test";
-
-    js->showConfiguration();
-}
-
 void Manager::onAppMessage(const QUuid &uuid, const QVariantMap &data)
 {
     emit proxy->AppMessage(uuid.toString(), data);
 }
 
-void Manager::onWebviewClosed(const QString &result)
+void Manager::onAppOpened(const QUuid &uuid)
 {
-    js->handleWebviewClosed(result);
+    currentAppUuid = uuid;
+    emit proxy->AppOpened(uuid.toString());
+}
+
+void Manager::onAppClosed(const QUuid &uuid)
+{
+    currentAppUuid = QUuid();
+    emit proxy->AppClosed(uuid.toString());
+}
+
+bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data) {
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+    setDelayedReply(true);
+    manager()->appmsg->send(uuid, data, [this, msg]() {
+        QDBusMessage reply = msg.createReply(QVariant::fromValue(true));
+        this->connection().send(reply);
+    }, [this, msg]() {
+        QDBusMessage reply = msg.createReply(QVariant::fromValue(false));
+        this->connection().send(reply);
+    });
+    return false; // D-Bus clients should never see this reply.
+}
+
+QString PebbledProxy::StartAppConfiguration(const QString &uuid) {
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (manager()->currentAppUuid != uuid) {
+        sendErrorReply(msg.interface() + ".Error.AppNotRunning",
+                       "The requested app is not currently opened in the watch");
+        return QString();
+    }
+
+    if (!manager()->js->isJSKitAppRunning()) {
+        sendErrorReply(msg.interface() + ".Error.JSNotActive",
+                       "The requested app is not a PebbleKit JS application");
+        return QString();
+    }
+
+    // After calling showConfiguration() on the script,
+    // it will (eventually!) return a URL to us via the appOpenUrl signal.
+
+    // So we can't send the D-Bus reply right now.
+    setDelayedReply(true);
+
+    // Set up a signal handler to catch the appOpenUrl signal.
+    QMetaObject::Connection c = connect(manager()->js, &JSKitManager::appOpenUrl,
+                                        [this,msg,c](const QUrl &url) {
+        // Workaround: due to a GCC bug we can't capture the uuid parameter, but we can extract
+        // it again from the original message arguments.
+        QString uuid = msg.arguments().at(0).toString();
+        if (manager()->currentAppUuid != uuid) {
+            // App was changed while we were waiting for the script..
+            QDBusMessage reply = msg.createErrorReply(msg.interface() + ".Error.AppNotRunning",
+                                                      "The requested app is not currently opened in the watch");
+            connection().send(reply);
+        } else {
+            QDBusMessage reply = msg.createReply(QVariant::fromValue(url.toString()));
+            connection().send(reply);
+        }
+
+        disconnect(c);
+    });
+    // TODO: JS script may fail, never call OpenURL, or something like that
+    // In those cases we may leak the above connection
+    // So we need to also set a timeout or similar.
+
+    manager()->js->showConfiguration();
+
+    return QString(); // This return value should never be used.
 }

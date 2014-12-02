@@ -130,6 +130,16 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data)
     send(uuid, data, nullCallback, nullCallback);
 }
 
+void AppMsgManager::launchApp(const QUuid &uuid)
+{
+    // TODO
+}
+
+void AppMsgManager::closeApp(const QUuid &uuid)
+{
+    // TODO
+}
+
 WatchConnector::Dict AppMsgManager::mapAppKeys(const QUuid &uuid, const QVariantMap &data)
 {
     AppInfo info = apps->info(uuid);
