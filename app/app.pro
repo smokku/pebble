@@ -25,4 +25,4 @@ OTHER_FILES += \
     qml/images/* \
     pebble.desktop \
     pebble.png \
-    qml/pages/WebViewPage.qml
+    qml/pages/AppConfigPage.qml

@@ -3,7 +3,7 @@
 
 static const QString PEBBLED_SYSTEMD_UNIT("pebbled.service");
 static const QString PEBBLED_DBUS_SERVICE("org.pebbled");
-static const QString PEBBLED_DBUS_PATH("/org/pebbled/watch");
+static const QString PEBBLED_DBUS_PATH("/org/pebbled/Watch");
 static const QString PEBBLED_DBUS_IFACE("org.pebbled.Watch");
 
 PebbledInterface::PebbledInterface(QObject *parent) :
@@ -22,6 +22,8 @@ PebbledInterface::PebbledInterface(QObject *parent) :
             this, &PebbledInterface::addressChanged);
     connect(watch, &OrgPebbledWatchInterface::ConnectedChanged,
             this, &PebbledInterface::connectedChanged);
+    connect(watch, &OrgPebbledWatchInterface::AppUuidChanged,
+            this, &PebbledInterface::appUuidChanged);
 
     // simulate connected change on active changed
     // as the daemon might not had a chance to send 'connectedChanged'
@@ -67,7 +69,7 @@ void PebbledInterface::getUnitProperties()
 
 void PebbledInterface::onPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
 {
-    qDebug() << __FUNCTION__ << interface << changed << invalidated;
+    qDebug() << Q_FUNC_INFO << interface << changed << invalidated;
     if (interface != "org.freedesktop.systemd1.Unit") return;
     if (invalidated.contains("UnitFileState") || invalidated.contains("ActiveState"))
         getUnitProperties();
@@ -75,7 +77,7 @@ void PebbledInterface::onPropertiesChanged(QString interface, QMap<QString,QVari
 
 bool PebbledInterface::enabled() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return unitProperties["UnitFileState"].toString() == "enabled";
 }
 
@@ -95,7 +97,7 @@ void PebbledInterface::setEnabled(bool enabled)
 
 bool PebbledInterface::active() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return unitProperties["ActiveState"].toString() == "active";
 }
 
@@ -110,54 +112,61 @@ void PebbledInterface::setActive(bool active)
 
 bool PebbledInterface::connected() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return watch->connected();
 }
 
 QString PebbledInterface::name() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return watch->name();
 }
 
 QString PebbledInterface::address() const
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return watch->address();
+}
+
+QString PebbledInterface::appUuid() const
+{
+    qDebug() << Q_FUNC_INFO;
+    return watch->appUuid();
 }
 
 void PebbledInterface::ping()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     watch->Ping(66);
 }
 
 void PebbledInterface::time()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     watch->SyncTime();
 }
 
 void PebbledInterface::disconnect()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     watch->Disconnect();
 }
 
 void PebbledInterface::reconnect()
 {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     watch->Reconnect();
 }
 
-QUrl PebbledInterface::configureApp(const QUuid &uuid)
+QUrl PebbledInterface::configureApp(const QString &uuid)
 {
-    qDebug() << __FUNCTION__ << uuid;
-    QString url = watch->StartAppConfiguration(uuid.toString());
+    qDebug() << Q_FUNC_INFO << uuid;
+    QString url = watch->StartAppConfiguration(uuid);
     return QUrl(url);
 }
 
-void PebbledInterface::setAppConfiguration(const QUuid &uuid, const QString &data)
+void PebbledInterface::setAppConfiguration(const QString &uuid, const QString &data)
 {
-    watch->SendAppConfigurationData(uuid.toString(), data);
+    qDebug() << Q_FUNC_INFO << uuid << data;
+    watch->SendAppConfigurationData(uuid, data);
 }

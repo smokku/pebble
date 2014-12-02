@@ -77,6 +77,36 @@ Page {
                 }
             }
 
+
+            Label {
+                text: qsTr("App configuration")
+                font.family: Theme.fontFamilyHeading
+                color: Theme.highlightColor
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.paddingMedium
+            }
+
+            Button {
+                text: "Configure current app"
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge
+                }
+                onClicked: {
+                    var uuid = pebbled.appUuid;
+                    console.log("going to configureApp " + uuid);
+                    var url = pebbled.configureApp(uuid);
+                    console.log("obtained configure URL " + url);
+                    if (url) {
+                        pageStack.push(Qt.resolvedUrl("AppConfigPage.qml"), {
+                                           url: url,
+                                           uuid: uuid
+                                       });
+                    }
+                }
+            }
+
         }
     }
 }

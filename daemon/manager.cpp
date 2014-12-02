@@ -61,7 +61,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
 
     QDBusConnection session = QDBusConnection::sessionBus();
     new WatchAdaptor(proxy);
-    session.registerObject("/org/pebbled/watch", proxy);
+    session.registerObject("/org/pebbled/Watch", proxy);
     session.registerService("org.pebbled");
 
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
@@ -399,6 +399,7 @@ void Manager::onAppMessage(const QUuid &uuid, const QVariantMap &data)
 void Manager::onAppOpened(const QUuid &uuid)
 {
     currentAppUuid = uuid;
+    emit proxy->AppUuidChanged();
     emit proxy->AppOpened(uuid.toString());
 }
 
@@ -406,6 +407,7 @@ void Manager::onAppClosed(const QUuid &uuid)
 {
     currentAppUuid = QUuid();
     emit proxy->AppClosed(uuid.toString());
+    emit proxy->AppUuidChanged();
 }
 
 bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data) {
@@ -467,6 +469,8 @@ QString PebbledProxy::StartAppConfiguration(const QString &uuid) {
     // So we need to also set a timeout or similar.
 
     manager()->js->showConfiguration();
+
+    // Note that the above signal handler _might_ have been already called by this point.
 
     return QString(); // This return value should never be used.
 }

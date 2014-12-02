@@ -1,15 +1,18 @@
 <?xml version="1.0"?>
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
-<node name="/org/pebbled/watch">
+<node name="/org/pebbled/Watch">
   <interface name="org.pebbled.Watch">
     <property name="Name" type="s" access="read"/>
     <property name="Address" type="s" access="read"/>
     <property name="Connected" type="b" access="read"/>
+    <property name="AppUuid" type="s" access="read"/>
 
     <!-- Qt does not yet support property changed signals, so we fake them. -->
     <signal name="NameChanged"/>
     <signal name="AddressChanged"/>
     <signal name="ConnectedChanged"/>
+    <signal name="AppUuidChanged"/>
+
     <method name="Disconnect"/>
     <method name="Reconnect"/>
     <method name="Ping">

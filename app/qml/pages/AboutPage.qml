@@ -40,7 +40,7 @@ Page {
                 anchors {
                     left: parent.left
                     right: parent.right
-                    margins: Theme.paddingSmall
+                    margins: Theme.paddingMedium
                 }
                 font.pixelSize: Theme.fontSizeTiny
                 horizontalAlignment: Text.AlignJustify

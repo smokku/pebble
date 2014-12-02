@@ -33,6 +33,8 @@ void JSKitManager::showConfiguration()
 {
     if (_engine) {
         _jspebble->invokeCallbacks("showConfiguration");
+    } else {
+        logger()->warn() << "requested to show configuration, but JS engine is not running";
     }
 }
 
@@ -43,6 +45,8 @@ void JSKitManager::handleWebviewClosed(const QString &result)
         eventObj.setProperty("response", _engine->toScriptValue(result));
 
         _jspebble->invokeCallbacks("webviewclosed", QJSValueList({eventObj}));
+    } else {
+        logger()->warn() << "webview closed event, but JS engine is not running";
     }
 }
 
