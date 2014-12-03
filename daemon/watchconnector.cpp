@@ -109,13 +109,17 @@ bool WatchConnector::dispatchMessage(uint endpoint, const QByteArray &data)
     if (tmp_it != tmpHandlers.end()) {
         QList<EndpointHandlerFunc>& funcs = tmp_it.value();
         bool ok = false;
-        if (!funcs.empty()) {
-            if (funcs.first()(data)) {
+        for (int i = 0; i < funcs.size(); i++) {
+            if (funcs[i](data)) {
+                // This handler accepted this message
                 ok = true;
-                funcs.removeFirst();
+                // Since it is a temporary handler, remove it.
+                funcs.removeAt(i);
+                break;
             }
         }
         if (funcs.empty()) {
+            // "Garbage collect" the tmpHandlers entry.
             tmpHandlers.erase(tmp_it);
         }
         if (ok) {

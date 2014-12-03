@@ -71,8 +71,12 @@ AppMsgManager::AppMsgManager(AppManager *apps, WatchConnector *watch, QObject *p
             emit messageReceived(uuid, data);
             break;
         }
+        case WatchConnector::appmsgACK:
+        case WatchConnector::appmsgNACK:
+            logger()->info() << "appmsg endpoint handler received an unwanted ack/nack";
+            break;
         default:
-            logger()->warn() << "Unknown application message type:" << data.at(0);
+            logger()->warn() << "Unknown application message type:" << int(data.at(0));
             break;
         }
 
@@ -88,15 +92,16 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data, const std::
 
     logger()->debug() << "Sending appmsg" << transaction << "to" << uuid << "with" << dict;
 
+#if 0 /* Try to unpack what we just packed. */
     WatchConnector::Dict t_dict;
     QUuid t_uuid;
     uint t_trans;
     if (unpackPushMessage(msg, &t_trans, &t_uuid, &t_dict)) {
         logger()->debug() << t_trans << t_uuid << t_dict;
     } else {
-        logger()->warn() << "not unpack my own";
+        logger()->error() << "not able to unpack my own dict";
     }
-
+#endif
 
     watch->sendMessage(WatchConnector::watchAPPLICATION_MESSAGE, msg,
                        [this, ackCallback, nackCallback, transaction](const QByteArray &reply) {
@@ -105,9 +110,9 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data, const std::
         quint8 type = reply[0];
         quint8 recv_transaction = reply[1];
 
-        logger()->debug() << "Got response to transaction" << transaction;
-
         if (recv_transaction != transaction) return false;
+
+        logger()->debug() << "Got response to transaction" << transaction;
 
         switch (type) {
         case WatchConnector::appmsgACK:
