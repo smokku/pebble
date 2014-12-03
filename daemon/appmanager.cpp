@@ -1,6 +1,7 @@
 #include <QStandardPaths>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QDir>
 #include "appmanager.h"
 
@@ -108,6 +109,15 @@ void AppManager::scanApp(const QString &path)
     const QJsonObject watchapp = root["watchapp"].toObject();
     info.setWatchface(watchapp["watchface"].toBool());
     info.setJSKit(appDir.exists("pebble-js-app.js"));
+
+    const QJsonArray capabilities = root["capabilities"].toArray();
+    AppInfo::Capabilities caps = 0;
+    for (QJsonArray::const_iterator it = capabilities.constBegin(); it != capabilities.constEnd(); ++it) {
+        QString cap = (*it).toString();
+        if (cap == "location") caps |= AppInfo::Location;
+        if (cap == "configurable") caps |= AppInfo::Configurable;
+    }
+    info.setCapabilities(caps);
 
     const QJsonObject appkeys = root["appKeys"].toObject();
     for (QJsonObject::const_iterator it = appkeys.constBegin(); it != appkeys.constEnd(); ++it) {

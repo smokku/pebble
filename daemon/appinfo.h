@@ -12,6 +12,13 @@ class AppInfo
 {
     Q_GADGET
 
+public:
+    enum Capability {
+        Location = 1 << 0,
+        Configurable = 1 << 2
+    };
+    Q_DECLARE_FLAGS(Capabilities, Capability)
+
     Q_PROPERTY(QUuid uuid READ uuid WRITE setUuid)
     Q_PROPERTY(QString shortName READ shortName WRITE setShortName)
     Q_PROPERTY(QString longName READ longName WRITE setLongName)
@@ -20,6 +27,7 @@ class AppInfo
     Q_PROPERTY(QString versionLabel READ versionLabel WRITE setVersionLabel)
     Q_PROPERTY(bool watchface READ isWatchface WRITE setWatchface)
     Q_PROPERTY(bool jskit READ isJSKit WRITE setJSKit)
+    Q_PROPERTY(Capabilities capabilities READ capabilities WRITE setCapabilities)
     Q_PROPERTY(QString path READ path WRITE setPath)
 
 public:
@@ -51,6 +59,9 @@ public:
 
     bool isJSKit() const;
     void setJSKit(bool b);
+
+    Capabilities capabilities() const;
+    void setCapabilities(Capabilities caps);
 
     void addAppKey(const QString &key, int value);
 

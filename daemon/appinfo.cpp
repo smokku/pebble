@@ -10,6 +10,7 @@ struct AppInfoData : public QSharedData {
     QString versionLabel;
     bool watchface;
     bool jskit;
+    AppInfo::Capabilities capabilities;
     QHash<QString, int> keyInts;
     QHash<int, QString> keyNames;
     QString path;
@@ -115,6 +116,16 @@ bool AppInfo::isJSKit() const
 void AppInfo::setJSKit(bool b)
 {
     d->jskit = b;
+}
+
+AppInfo::Capabilities AppInfo::capabilities() const
+{
+    return d->capabilities;
+}
+
+void AppInfo::setCapabilities(Capabilities caps)
+{
+    d->capabilities = caps;
 }
 
 void AppInfo::addAppKey(const QString &key, int value)
