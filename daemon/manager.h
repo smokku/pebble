@@ -131,7 +131,7 @@ public:
     inline QString AppUuid() const { return manager()->currentAppUuid.toString(); }
 
 public slots:
-    inline void Disconnected() { manager()->watch->disconnect(); }
+    inline void Disconnect() { manager()->watch->disconnect(); }
     inline void Reconnect() { manager()->watch->reconnect(); }
     inline void Ping(uint val) { manager()->watch->ping(val); }
     inline void SyncTime() { manager()->watch->time(); }
