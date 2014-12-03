@@ -1,6 +1,10 @@
 #ifndef APPMSGMANAGER_H
 #define APPMSGMANAGER_H
 
+#include <functional>
+#include <QUuid>
+#include <QQueue>
+
 #include "watchconnector.h"
 #include "appmanager.h"
 
@@ -30,16 +34,37 @@ private:
     WatchConnector::Dict mapAppKeys(const QUuid &uuid, const QVariantMap &data);
     QVariantMap mapAppKeys(const QUuid &uuid, const WatchConnector::Dict &dict);
 
-    static bool unpackPushMessage(const QByteArray &msg, uint *transaction, QUuid *uuid, WatchConnector::Dict *dict);
+    static bool unpackPushMessage(const QByteArray &msg, quint8 *transaction, QUuid *uuid, WatchConnector::Dict *dict);
 
-    static QByteArray buildPushMessage(uint transaction, const QUuid &uuid, const WatchConnector::Dict &dict);
-    static QByteArray buildAckMessage(uint transaction);
-    static QByteArray buildNackMessage(uint transaction);
+    static QByteArray buildPushMessage(quint8 transaction, const QUuid &uuid, const WatchConnector::Dict &dict);
+    static QByteArray buildAckMessage(quint8 transaction);
+    static QByteArray buildNackMessage(quint8 transaction);
+
+    void handleLauncherPushMessage(const QByteArray &data);
+    void handlePushMessage(const QByteArray &data);
+    void handleAckMessage(const QByteArray &data, bool ack);
+
+    void transmitNextPendingTransaction();
+    void abortPendingTransactions();
+
+private slots:
+    void handleWatchConnectedChanged();
+    void handleTimeout();
 
 private:
     AppManager *apps;
     WatchConnector *watch;
     quint8 lastTransactionId;
+
+    struct PendingTransaction {
+        quint8 transactionId;
+        QUuid uuid;
+        WatchConnector::Dict dict;
+        std::function<void()> ackCallback;
+        std::function<void()> nackCallback;
+    };
+    QQueue<PendingTransaction> pending;
+    QTimer *timeout;
 };
 
 #endif // APPMSGMANAGER_H
