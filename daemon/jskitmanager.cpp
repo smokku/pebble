@@ -44,6 +44,8 @@ void JSKitManager::handleWebviewClosed(const QString &result)
         QJSValue eventObj = _engine->newObject();
         eventObj.setProperty("response", _engine->toScriptValue(result));
 
+        logger()->debug() << "webview closed with the following result: " << result;
+
         _jspebble->invokeCallbacks("webviewclosed", QJSValueList({eventObj}));
     } else {
         logger()->warn() << "webview closed event, but JS engine is not running";

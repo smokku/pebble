@@ -17,7 +17,7 @@ public:
     Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
     Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
 
-    Q_INVOKABLE void sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack);
+    Q_INVOKABLE void sendAppMessage(QJSValue message, QJSValue callbackForAck = QJSValue(), QJSValue callbackForNack = QJSValue());
 
     Q_INVOKABLE void showSimpleNotificationOnPebble(const QString &title, const QString &body);
 
@@ -79,6 +79,8 @@ class JSKitXMLHttpRequest : public QObject
     LOG4QT_DECLARE_QCLASS_LOGGER
 
     Q_PROPERTY(QJSValue onload READ onload WRITE setOnload)
+    Q_PROPERTY(QJSValue ontimeout READ ontimeout WRITE setOntimeout)
+    Q_PROPERTY(QJSValue onerror READ onerror WRITE setOnerror)
     Q_PROPERTY(unsigned short readyState READ readyState NOTIFY readyStateChanged)
     Q_PROPERTY(unsigned short status READ status NOTIFY statusChanged)
     Q_PROPERTY(QString responseText READ responseText NOTIFY responseTextChanged)
@@ -102,6 +104,10 @@ public:
 
     QJSValue onload() const;
     void setOnload(const QJSValue &value);
+    QJSValue ontimeout() const;
+    void setOntimeout(const QJSValue &value);
+    QJSValue onerror() const;
+    void setOnerror(const QJSValue &value);
 
     unsigned short readyState() const;
     unsigned short status() const;
@@ -114,6 +120,7 @@ signals:
 
 private slots:
     void handleReplyFinished();
+    void handleReplyError(QNetworkReply::NetworkError code);
 
 private:
     JSKitManager *_mgr;
@@ -123,6 +130,8 @@ private:
     QNetworkReply *_reply;
     QByteArray _response;
     QJSValue _onload;
+    QJSValue _ontimeout;
+    QJSValue _onerror;
 };
 
 #endif // JSKITMANAGER_P_H

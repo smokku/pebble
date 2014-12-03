@@ -141,10 +141,7 @@ public slots:
 
     bool SendAppMessage(const QString &uuid, const QVariantMap &data);
     QString StartAppConfiguration(const QString &uuid);
-
-    void SendAppConfiguration(const QString &uuid, const QString &data) {
-        // TODO
-    }
+    void SendAppConfigurationData(const QString &uuid, const QString &data);
 
 signals:
     void NameChanged();

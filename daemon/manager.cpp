@@ -410,7 +410,8 @@ void Manager::onAppClosed(const QUuid &uuid)
     emit proxy->AppUuidChanged();
 }
 
-bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data) {
+bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data)
+{
     Q_ASSERT(calledFromDBus());
     const QDBusMessage msg = message();
     setDelayedReply(true);
@@ -424,7 +425,8 @@ bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data) 
     return false; // D-Bus clients should never see this reply.
 }
 
-QString PebbledProxy::StartAppConfiguration(const QString &uuid) {
+QString PebbledProxy::StartAppConfiguration(const QString &uuid)
+{
     Q_ASSERT(calledFromDBus());
     const QDBusMessage msg = message();
 
@@ -473,4 +475,24 @@ QString PebbledProxy::StartAppConfiguration(const QString &uuid) {
     // Note that the above signal handler _might_ have been already called by this point.
 
     return QString(); // This return value should never be used.
+}
+
+void PebbledProxy::SendAppConfigurationData(const QString &uuid, const QString &data)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (manager()->currentAppUuid != uuid) {
+        sendErrorReply(msg.interface() + ".Error.AppNotRunning",
+                       "The requested app is not currently opened in the watch");
+        return;
+    }
+
+    if (!manager()->js->isJSKitAppRunning()) {
+        sendErrorReply(msg.interface() + ".Error.JSNotActive",
+                       "The requested app is not a PebbleKit JS application");
+        return;
+    }
+
+    manager()->js->handleWebviewClosed(data);
 }

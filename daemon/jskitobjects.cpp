@@ -40,11 +40,27 @@ void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSV
     logger()->debug() << "sendAppMessage" << data;
 
     _mgr->_appmsg->send(_appInfo.uuid(), data, [this, callbackForAck]() mutable {
-        logger()->debug() << "Invoking ack callback";
-        callbackForAck.call();
+        if (callbackForAck.isCallable()) {
+            logger()->debug() << "Invoking ack callback";
+            QJSValue result = callbackForAck.call();
+            if (result.isError()) {
+                logger()->warn() << "error while invoking ACK callback" << callbackForAck.toString() << ":"
+                                 << result.toString();
+            }
+        } else {
+            logger()->debug() << "Ack callback not callable";
+        }
     }, [this, callbackForNack]() mutable {
-        logger()->debug() << "Invoking nack callback";
-        callbackForNack.call();
+        if (callbackForNack.isCallable()) {
+            logger()->debug() << "Invoking nack callback";
+            QJSValue result = callbackForNack.call();
+            if (result.isError()) {
+                logger()->warn() << "error while invoking NACK callback" << callbackForNack.toString() << ":"
+                                 << result.toString();
+            }
+        } else {
+            logger()->debug() << "Nack callback not callable";
+        }
     });
 }
 
@@ -187,7 +203,10 @@ void JSKitXMLHttpRequest::send(const QString &body)
     buffer->setData(body.toUtf8());
     logger()->debug() << "sending" << _verb << "to" << _request.url() << "with" << body;
     _reply = _net->sendCustomRequest(_request, _verb.toLatin1(), buffer);
-    connect(_reply, &QNetworkReply::finished, this, &JSKitXMLHttpRequest::handleReplyFinished);
+    connect(_reply, &QNetworkReply::finished,
+            this, &JSKitXMLHttpRequest::handleReplyFinished);
+    connect(_reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+            this, &JSKitXMLHttpRequest::handleReplyError);
     buffer->setParent(_reply); // So that it gets deleted alongside the reply object.
 }
 
@@ -207,6 +226,26 @@ QJSValue JSKitXMLHttpRequest::onload() const
 void JSKitXMLHttpRequest::setOnload(const QJSValue &value)
 {
     _onload = value;
+}
+
+QJSValue JSKitXMLHttpRequest::ontimeout() const
+{
+    return _ontimeout;
+}
+
+void JSKitXMLHttpRequest::setOntimeout(const QJSValue &value)
+{
+    _ontimeout = value;
+}
+
+QJSValue JSKitXMLHttpRequest::onerror() const
+{
+    return _onerror;
+}
+
+void JSKitXMLHttpRequest::setOnerror(const QJSValue &value)
+{
+    _onerror = value;
 }
 
 unsigned short JSKitXMLHttpRequest::readyState() const
@@ -257,5 +296,23 @@ void JSKitXMLHttpRequest::handleReplyFinished()
         }
     } else {
         logger()->debug() << "No onload set";
+    }
+}
+
+void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
+{
+    if (!_reply) {
+        logger()->info() << "reply error too late";
+        return;
+    }
+
+    logger()->info() << "reply error" << code;
+
+    if (_onerror.isCallable()) {
+        logger()->debug() << "going to call onerror handler:" << _onload.toString();
+        QJSValue result = _onerror.callWithInstance(_mgr->engine()->newQObject(this));
+        if (result.isError()) {
+            logger()->warn() << "JS error on onerror handler:" << result.toString();
+        }
     }
 }

@@ -21,7 +21,7 @@ Page {
             console.log("appconfig navigation requested to " + request.url);
             var url = request.url.toString();
             if (/^pebblejs:\/\/close/.exec(url)) {
-                var data = decodeURI(url.substring(17));
+                var data = decodeURIComponent(url.substring(17));
                 console.log("appconfig requesting close; data: " + data);
                 pebbled.setAppConfiguration(uuid, data);
                 pageStack.pop();
