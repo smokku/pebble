@@ -316,3 +316,96 @@ void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
         }
     }
 }
+
+JSKitGeolocation::JSKitGeolocation(JSKitManager *mgr)
+    : QObject(mgr), _mgr(mgr), _source(0), _lastWatchId(0)
+{
+
+}
+
+void JSKitGeolocation::getCurrentPosition(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options)
+{
+    logger()->debug() << Q_FUNC_INFO;
+    setupWatcher(successCallback, errorCallback, options, true);
+}
+
+int JSKitGeolocation::watchPosition(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options)
+{
+    logger()->debug() << Q_FUNC_INFO;
+    return setupWatcher(successCallback, errorCallback, options, false);
+}
+
+void JSKitGeolocation::clearWatch(int watchId)
+{
+    logger()->debug() << Q_FUNC_INFO;
+}
+
+void JSKitGeolocation::handleError(QGeoPositionInfoSource::Error error)
+{
+    logger()->debug() << Q_FUNC_INFO;
+}
+
+void JSKitGeolocation::handlePosition(const QGeoPositionInfo &pos)
+{
+    logger()->debug() << Q_FUNC_INFO;
+}
+
+void JSKitGeolocation::handleTimeout()
+{
+    logger()->debug() << Q_FUNC_INFO;
+}
+
+int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once)
+{
+    Watcher watcher;
+    watcher.successCallback = successCallback;
+    watcher.errorCallback = errorCallback;
+    watcher.highAccuracy = options.value("enableHighAccuracy").toBool();
+    watcher.timeout = options.value("timeout", 0xFFFFFFFFU).toUInt();
+    watcher.maximumAge = options.value("maximumAge", 0).toUInt();
+    watcher.once = once;
+    watcher.watchId = ++_lastWatchId;
+
+    if (!_source) {
+        _source = QGeoPositionInfoSource::createDefaultSource(this);
+        connect(_source, static_cast<void (QGeoPositionInfoSource::*)(QGeoPositionInfoSource::Error)>(&QGeoPositionInfoSource::error),
+                this, &JSKitGeolocation::handleError);
+        connect(_source, &QGeoPositionInfoSource::positionUpdated,
+                this, &JSKitGeolocation::handlePosition);
+        connect(_source, &QGeoPositionInfoSource::updateTimeout,
+                this, &JSKitGeolocation::handleTimeout);
+    }
+
+    if (once && watcher.maximumAge > 0) {
+        QDateTime threshold = QDateTime::currentDateTime().addMSecs(-watcher.maximumAge);
+        QGeoPositionInfo pos = _source->lastKnownPosition(watcher.highAccuracy);
+        if (pos.isValid() && pos.timestamp() >= threshold) {
+            invokeSuccessCallback(watcher, pos);
+            return -1;
+        } else if (watcher.timeout == 0) {
+            invokeErrorCallback(watcher);
+            return -1;
+        }
+    }
+
+    if (once) {
+        _source->requestUpdate(watcher.timeout);
+    } else {
+        // TODO _source->setInterval to the minimum of all watches
+        _source->startUpdates();
+    }
+
+    return watcher.watchId;
+}
+
+void JSKitGeolocation::invokeSuccessCallback(Watcher &watcher, const QGeoPositionInfo &pos)
+{
+    // TODO
+}
+
+void JSKitGeolocation::invokeErrorCallback(Watcher &watcher)
+{
+    if (watcher.errorCallback.isCallable()) {
+        watcher.errorCallback.call(); // TODO this, eventArgs
+    }
+}

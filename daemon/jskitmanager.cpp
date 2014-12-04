@@ -103,6 +103,7 @@ void JSKitManager::startJsApp()
     _jspebble = new JSKitPebble(_curApp, this);
     _jsconsole = new JSKitConsole(this);
     _jsstorage = new JSKitLocalStorage(_curApp.uuid(), this);
+    _jsgeo = new JSKitGeolocation(this);
 
     logger()->debug() << "starting JS app";
 
@@ -115,6 +116,10 @@ void JSKitManager::startJsApp()
     QJSValue windowObj = _engine->newObject();
     windowObj.setProperty("localStorage", globalObj.property("localStorage"));
     globalObj.setProperty("window", windowObj);
+
+    QJSValue navigatorObj = _engine->newObject();
+    navigatorObj.setProperty("geolocation", _engine->newQObject(_jsgeo));
+    globalObj.setProperty("navigator", navigatorObj);
 
     _engine->evaluate("function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }");
 
@@ -151,4 +156,6 @@ void JSKitManager::stopJsApp()
     _jsstorage = 0;
     delete _jspebble;
     _jspebble = 0;
+    delete _jsgeo;
+    _jsgeo = 0;
 }

@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QGeoPositionInfoSource>
 #include "jskitmanager.h"
 
 class JSKitPebble : public QObject
@@ -132,6 +133,48 @@ private:
     QJSValue _onload;
     QJSValue _ontimeout;
     QJSValue _onerror;
+};
+
+class JSKitGeolocation : public QObject
+{
+    Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
+
+    struct Watcher;
+
+public:
+    explicit JSKitGeolocation(JSKitManager *mgr);
+
+    Q_INVOKABLE void getCurrentPosition(const QJSValue &successCallback, const QJSValue &errorCallback = QJSValue(), const QVariantMap &options = QVariantMap());
+    Q_INVOKABLE int watchPosition(const QJSValue &successCallback, const QJSValue &errorCallback = QJSValue(), const QVariantMap &options = QVariantMap());
+    Q_INVOKABLE void clearWatch(int watchId);
+
+private slots:
+    void handleError(const QGeoPositionInfoSource::Error error);
+    void handlePosition(const QGeoPositionInfo &pos);
+    void handleTimeout();
+
+private:
+    int setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once);
+    void invokeSuccessCallback(Watcher &watcher, const QGeoPositionInfo &pos);
+    void invokeErrorCallback(Watcher &watcher);
+
+private:
+    JSKitManager *_mgr;
+    QGeoPositionInfoSource *_source;
+
+    struct Watcher {
+        QJSValue successCallback;
+        QJSValue errorCallback;
+        int watchId;
+        bool once;
+        bool highAccuracy;
+        uint timeout;
+        uint maximumAge;
+    };
+
+    QList<Watcher> _watches;
+    int _lastWatchId;
 };
 
 #endif // JSKITMANAGER_P_H

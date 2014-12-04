@@ -8,6 +8,7 @@
 class JSKitPebble;
 class JSKitConsole;
 class JSKitLocalStorage;
+class JSKitGeolocation;
 
 class JSKitManager : public QObject
 {
@@ -48,6 +49,7 @@ private:
     QPointer<JSKitPebble> _jspebble;
     QPointer<JSKitConsole> _jsconsole;
     QPointer<JSKitLocalStorage> _jsstorage;
+    QPointer<JSKitGeolocation> _jsgeo;
 };
 
 #endif // JSKITMANAGER_H
