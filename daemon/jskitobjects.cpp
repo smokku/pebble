@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QBuffer>
 #include <QDir>
+#include <limits>
 #include "jskitobjects.h"
 
 JSKitPebble::JSKitPebble(const AppInfo &info, JSKitManager *mgr)
@@ -45,7 +46,7 @@ void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSV
             QJSValue result = callbackForAck.call();
             if (result.isError()) {
                 logger()->warn() << "error while invoking ACK callback" << callbackForAck.toString() << ":"
-                                 << result.toString();
+                                 << JSKitManager::describeError(result);
             }
         } else {
             logger()->debug() << "Ack callback not callable";
@@ -56,7 +57,7 @@ void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSV
             QJSValue result = callbackForNack.call();
             if (result.isError()) {
                 logger()->warn() << "error while invoking NACK callback" << callbackForNack.toString() << ":"
-                                 << result.toString();
+                                 << JSKitManager::describeError(result);
             }
         } else {
             logger()->debug() << "Nack callback not callable";
@@ -93,7 +94,7 @@ void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
         QJSValue result = it->call(args);
         if (result.isError()) {
             logger()->warn() << "error while invoking callback" << type << it->toString() << ":"
-                             << result.toString();
+                             << JSKitManager::describeError(result);
         }
     }
 }
@@ -287,12 +288,11 @@ void JSKitXMLHttpRequest::handleReplyFinished()
     emit statusChanged();
     emit responseTextChanged();
 
-
     if (_onload.isCallable()) {
         logger()->debug() << "going to call onload handler:" << _onload.toString();
         QJSValue result = _onload.callWithInstance(_mgr->engine()->newQObject(this));
         if (result.isError()) {
-            logger()->warn() << "JS error on onload handler:" << result.toString();
+            logger()->warn() << "JS error on onload handler:" << JSKitManager::describeError(result);
         }
     } else {
         logger()->debug() << "No onload set";
@@ -312,7 +312,7 @@ void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
         logger()->debug() << "going to call onerror handler:" << _onload.toString();
         QJSValue result = _onerror.callWithInstance(_mgr->engine()->newQObject(this));
         if (result.isError()) {
-            logger()->warn() << "JS error on onerror handler:" << result.toString();
+            logger()->warn() << "JS error on onerror handler:" << JSKitManager::describeError(result);
         }
     }
 }
@@ -320,7 +320,6 @@ void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
 JSKitGeolocation::JSKitGeolocation(JSKitManager *mgr)
     : QObject(mgr), _mgr(mgr), _source(0), _lastWatchId(0)
 {
-
 }
 
 void JSKitGeolocation::getCurrentPosition(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options)
@@ -331,28 +330,59 @@ void JSKitGeolocation::getCurrentPosition(const QJSValue &successCallback, const
 
 int JSKitGeolocation::watchPosition(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options)
 {
-    logger()->debug() << Q_FUNC_INFO;
     return setupWatcher(successCallback, errorCallback, options, false);
 }
 
 void JSKitGeolocation::clearWatch(int watchId)
 {
-    logger()->debug() << Q_FUNC_INFO;
+    removeWatcher(watchId);
 }
 
 void JSKitGeolocation::handleError(QGeoPositionInfoSource::Error error)
 {
-    logger()->debug() << Q_FUNC_INFO;
+    logger()->warn() << "positioning error: " << error;
+    // TODO
 }
 
 void JSKitGeolocation::handlePosition(const QGeoPositionInfo &pos)
 {
     logger()->debug() << Q_FUNC_INFO;
+    if (_watches.empty()) {
+        logger()->warn() << "got position update but no one is watching";
+    }
+
+    QJSValue obj = buildPositionObject(pos);
+
+    for (auto it = _watches.begin(); it != _watches.end(); /*no adv*/) {
+        invokeCallback(it->successCallback, obj);
+
+        if (it->once) {
+            it = _watches.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    if (_watches.empty()) {
+        _source->stopUpdates();
+    }
 }
 
 void JSKitGeolocation::handleTimeout()
 {
     logger()->debug() << Q_FUNC_INFO;
+    // TODO
+}
+
+uint JSKitGeolocation::minimumTimeout() const
+{
+    uint minimum = std::numeric_limits<uint>::max();
+    Q_FOREACH(const Watcher &watcher, _watches) {
+        if (!watcher.once) {
+            minimum = qMin<uint>(watcher.timeout, minimum);
+        }
+    }
+    return minimum;
 }
 
 int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once)
@@ -362,9 +392,12 @@ int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSVal
     watcher.errorCallback = errorCallback;
     watcher.highAccuracy = options.value("enableHighAccuracy").toBool();
     watcher.timeout = options.value("timeout", 0xFFFFFFFFU).toUInt();
-    watcher.maximumAge = options.value("maximumAge", 0).toUInt();
     watcher.once = once;
     watcher.watchId = ++_lastWatchId;
+
+    uint maximumAge = options.value("maximumAge", 0).toUInt();
+
+    logger()->debug() << "setting up watcher, gps=" << watcher.highAccuracy << "timeout=" << watcher.timeout << "maximumAge=" << maximumAge << "once=" << once;
 
     if (!_source) {
         _source = QGeoPositionInfoSource::createDefaultSource(this);
@@ -376,14 +409,17 @@ int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSVal
                 this, &JSKitGeolocation::handleTimeout);
     }
 
-    if (once && watcher.maximumAge > 0) {
-        QDateTime threshold = QDateTime::currentDateTime().addMSecs(-watcher.maximumAge);
+    if (maximumAge > 0) {
+        QDateTime threshold = QDateTime::currentDateTime().addMSecs(-qint64(maximumAge));
         QGeoPositionInfo pos = _source->lastKnownPosition(watcher.highAccuracy);
+        logger()->debug() << "got pos timestamp" << pos.timestamp() << " but we want" << threshold;
         if (pos.isValid() && pos.timestamp() >= threshold) {
-            invokeSuccessCallback(watcher, pos);
-            return -1;
-        } else if (watcher.timeout == 0) {
-            invokeErrorCallback(watcher);
+            invokeCallback(watcher.successCallback, buildPositionObject(pos));
+            if (once) {
+                return -1;
+            }
+        } else if (watcher.timeout == 0 && once) {
+            invokeCallback(watcher.errorCallback, buildPositionErrorObject(TIMEOUT, "no cached position"));
             return -1;
         }
     }
@@ -391,21 +427,111 @@ int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSVal
     if (once) {
         _source->requestUpdate(watcher.timeout);
     } else {
-        // TODO _source->setInterval to the minimum of all watches
+        uint timeout = minimumTimeout();
+        logger()->debug() << "setting location update interval to" << timeout;
+        _source->setUpdateInterval(timeout);
+        logger()->debug() << "starting location updates";
         _source->startUpdates();
     }
+
+    _watches.append(watcher);
+
+    logger()->debug() << "added new watch" << watcher.watchId;
 
     return watcher.watchId;
 }
 
-void JSKitGeolocation::invokeSuccessCallback(Watcher &watcher, const QGeoPositionInfo &pos)
+void JSKitGeolocation::removeWatcher(int watchId)
 {
-    // TODO
+    Watcher watcher;
+
+    logger()->debug() << "removing watchId" << watcher.watchId;
+
+    for (int i = 0; i < _watches.size(); i++) {
+        if (_watches[i].watchId == watchId) {
+            watcher = _watches.takeAt(i);
+            break;
+        }
+    }
+
+    if (watcher.watchId != watchId) {
+        logger()->warn() << "watchId not found";
+        return;
+    }
+
+    if (_watches.empty()) {
+        logger()->debug() << "stopping updates";
+        _source->stopUpdates();
+    } else {
+        uint timeout = minimumTimeout();
+        logger()->debug() << "setting location update interval to" << timeout;
+        _source->setUpdateInterval(timeout);
+    }
 }
 
-void JSKitGeolocation::invokeErrorCallback(Watcher &watcher)
+QJSValue JSKitGeolocation::buildPositionObject(const QGeoPositionInfo &pos)
 {
-    if (watcher.errorCallback.isCallable()) {
-        watcher.errorCallback.call(); // TODO this, eventArgs
+    QJSEngine *engine = _mgr->engine();
+    QJSValue obj = engine->newObject();
+    QJSValue coords = engine->newObject();
+    QJSValue timestamp = engine->toScriptValue<quint64>(pos.timestamp().toMSecsSinceEpoch());
+
+    coords.setProperty("latitude", engine->toScriptValue(pos.coordinate().latitude()));
+    coords.setProperty("longitude", engine->toScriptValue(pos.coordinate().longitude()));
+    if (pos.coordinate().type() == QGeoCoordinate::Coordinate3D) {
+        coords.setProperty("altitude", engine->toScriptValue(pos.coordinate().altitude()));
+    } else {
+        coords.setProperty("altitude", engine->toScriptValue<void*>(0));
+    }
+
+    coords.setProperty("accuracy", engine->toScriptValue(pos.attribute(QGeoPositionInfo::HorizontalAccuracy)));
+
+    if (pos.hasAttribute(QGeoPositionInfo::VerticalAccuracy)) {
+        coords.setProperty("altitudeAccuracy", engine->toScriptValue(pos.attribute(QGeoPositionInfo::VerticalAccuracy)));
+    } else {
+        coords.setProperty("altitudeAccuracy", engine->toScriptValue<void*>(0));
+    }
+
+    if (pos.hasAttribute(QGeoPositionInfo::Direction)) {
+        coords.setProperty("heading", engine->toScriptValue(pos.attribute(QGeoPositionInfo::Direction)));
+    } else {
+        coords.setProperty("heading", engine->toScriptValue<void*>(0));
+    }
+
+    if (pos.hasAttribute(QGeoPositionInfo::GroundSpeed)) {
+        coords.setProperty("speed", engine->toScriptValue(pos.attribute(QGeoPositionInfo::GroundSpeed)));
+    } else {
+        coords.setProperty("speed", engine->toScriptValue<void*>(0));
+    }
+
+    obj.setProperty("coords", coords);
+    obj.setProperty("timestamp", timestamp);
+
+    logger()->debug() << obj.toString();
+
+    return obj;
+}
+
+QJSValue JSKitGeolocation::buildPositionErrorObject(PositionError error, const QString &message)
+{
+    QJSEngine *engine = _mgr->engine();
+    QJSValue obj = engine->newObject();
+
+    obj.setProperty("code", engine->toScriptValue<unsigned short>(error));
+    obj.setProperty("message", engine->toScriptValue(message));
+
+    return obj;
+}
+
+void JSKitGeolocation::invokeCallback(QJSValue callback, QJSValue event)
+{
+    if (callback.isCallable()) {
+        logger()->debug() << "invoking callback" << callback.toString();
+        QJSValue result = callback.call(QJSValueList({event}));
+        if (result.isError()) {
+            logger()->warn() << "while invoking callback: " << JSKitManager::describeError(result);
+        }
+    } else {
+        logger()->warn() << "callback is not callable";
     }
 }

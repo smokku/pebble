@@ -29,6 +29,14 @@ bool JSKitManager::isJSKitAppRunning() const
     return _engine != 0;
 }
 
+QString JSKitManager::describeError(QJSValue error)
+{
+    return QString("%1:%2: %3")
+            .arg(error.property("fileName").toString())
+            .arg(error.property("lineNumber").toInt())
+            .arg(error.toString());
+}
+
 void JSKitManager::showConfiguration()
 {
     if (_engine) {
@@ -134,7 +142,7 @@ void JSKitManager::startJsApp()
 
     QJSValue result = _engine->evaluate(script, scriptFile.fileName());
     if (result.isError()) {
-        logger()->warn() << "error while evaluating JSKit script:" << result.toString();
+        logger()->warn() << "error while evaluating JSKit script:" << describeError(result);
     }
 
     logger()->debug() << "JS script evaluated";

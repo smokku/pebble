@@ -22,6 +22,8 @@ public:
     QJSEngine * engine();
     bool isJSKitAppRunning() const;
 
+    static QString describeError(QJSValue error);
+
 signals:
     void appNotification(const QUuid &uuid, const QString &title, const QString &body);
     void appOpenUrl(const QUrl &url);

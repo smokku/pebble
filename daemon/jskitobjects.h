@@ -98,9 +98,9 @@ public:
         DONE = 4
     };
 
-    Q_INVOKABLE void open(const QString &method, const QString &url, bool async);
+    Q_INVOKABLE void open(const QString &method, const QString &url, bool async = false);
     Q_INVOKABLE void setRequestHeader(const QString &header, const QString &value);
-    Q_INVOKABLE void send(const QString &body);
+    Q_INVOKABLE void send(const QString &body = QString());
     Q_INVOKABLE void abort();
 
     QJSValue onload() const;
@@ -138,12 +138,19 @@ private:
 class JSKitGeolocation : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(PositionError)
     LOG4QT_DECLARE_QCLASS_LOGGER
 
     struct Watcher;
 
 public:
     explicit JSKitGeolocation(JSKitManager *mgr);
+
+    enum PositionError {
+        PERMISSION_DENIED = 1,
+        POSITION_UNAVAILABLE = 2,
+        TIMEOUT = 3
+    };
 
     Q_INVOKABLE void getCurrentPosition(const QJSValue &successCallback, const QJSValue &errorCallback = QJSValue(), const QVariantMap &options = QVariantMap());
     Q_INVOKABLE int watchPosition(const QJSValue &successCallback, const QJSValue &errorCallback = QJSValue(), const QVariantMap &options = QVariantMap());
@@ -155,9 +162,13 @@ private slots:
     void handleTimeout();
 
 private:
+    uint minimumTimeout() const;
     int setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once);
-    void invokeSuccessCallback(Watcher &watcher, const QGeoPositionInfo &pos);
-    void invokeErrorCallback(Watcher &watcher);
+    void removeWatcher(int watchId);
+    QJSValue buildPositionObject(const QGeoPositionInfo &pos);
+    QJSValue buildPositionErrorObject(PositionError error, const QString &message = QString());
+    QJSValue buildPositionErrorObject(const QGeoPositionInfoSource::Error error);
+    void invokeCallback(QJSValue callback, QJSValue event);
 
 private:
     JSKitManager *_mgr;
@@ -170,7 +181,6 @@ private:
         bool once;
         bool highAccuracy;
         uint timeout;
-        uint maximumAge;
     };
 
     QList<Watcher> _watches;
