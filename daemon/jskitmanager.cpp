@@ -145,6 +145,8 @@ void JSKitManager::startJsApp()
 
     QString script = QString::fromUtf8(scriptFile.readAll());
 
+    logger()->debug() << "now parsing" << scriptFile.fileName();
+
     result = _engine->evaluate(script, scriptFile.fileName());
     if (result.isError()) {
         logger()->warn() << "error while evaluating JSKit script:" << describeError(result);
