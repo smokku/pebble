@@ -43,7 +43,7 @@ void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSV
     _mgr->_appmsg->send(_appInfo.uuid(), data, [this, callbackForAck]() mutable {
         if (callbackForAck.isCallable()) {
             logger()->debug() << "Invoking ack callback";
-            QJSValue result = callbackForAck.call();
+            QJSValue result = callbackForAck.call(QJSValueList({buildAckEventObject()}));
             if (result.isError()) {
                 logger()->warn() << "error while invoking ACK callback" << callbackForAck.toString() << ":"
                                  << JSKitManager::describeError(result);
@@ -54,7 +54,7 @@ void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSV
     }, [this, callbackForNack]() mutable {
         if (callbackForNack.isCallable()) {
             logger()->debug() << "Invoking nack callback";
-            QJSValue result = callbackForNack.call();
+            QJSValue result = callbackForNack.call(QJSValueList({buildAckEventObject()}));
             if (result.isError()) {
                 logger()->warn() << "error while invoking NACK callback" << callbackForNack.toString() << ":"
                                  << JSKitManager::describeError(result);
@@ -82,6 +82,20 @@ QJSValue JSKitPebble::createXMLHttpRequest()
     JSKitXMLHttpRequest *xhr = new JSKitXMLHttpRequest(_mgr, 0);
     // Should be deleted by JS engine.
     return _mgr->engine()->newQObject(xhr);
+}
+
+QJSValue JSKitPebble::buildAckEventObject() const
+{
+    QJSEngine *engine = _mgr->engine();
+    QJSValue eventObj = engine->newObject();
+    QJSValue dataObj = engine->newObject();
+
+    // Why do scripts need the real transactionId?
+    // No idea. Just fake it.
+    dataObj.setProperty("transactionId", engine->toScriptValue(0));
+    eventObj.setProperty("data", dataObj);
+
+    return eventObj;
 }
 
 void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
@@ -346,10 +360,11 @@ void JSKitGeolocation::handleError(QGeoPositionInfoSource::Error error)
 
 void JSKitGeolocation::handlePosition(const QGeoPositionInfo &pos)
 {
-    logger()->debug() << Q_FUNC_INFO;
     if (_watches.empty()) {
         logger()->warn() << "got position update but no one is watching";
     }
+
+    logger()->debug() << "got position at" << pos.timestamp() << "type" << pos.coordinate().type();
 
     QJSValue obj = buildPositionObject(pos);
 
@@ -506,8 +521,6 @@ QJSValue JSKitGeolocation::buildPositionObject(const QGeoPositionInfo &pos)
 
     obj.setProperty("coords", coords);
     obj.setProperty("timestamp", timestamp);
-
-    logger()->debug() << obj.toString();
 
     return obj;
 }

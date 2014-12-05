@@ -29,6 +29,9 @@ public:
     void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());
 
 private:
+    QJSValue buildAckEventObject() const;
+
+private:
     AppInfo _appInfo;
     JSKitManager *_mgr;
     QHash<QString, QList<QJSValue>> _callbacks;

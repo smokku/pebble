@@ -40,6 +40,7 @@ QString JSKitManager::describeError(QJSValue error)
 void JSKitManager::showConfiguration()
 {
     if (_engine) {
+        logger()->debug() << "requesting configuration";
         _jspebble->invokeCallbacks("showConfiguration");
     } else {
         logger()->warn() << "requested to show configuration, but JS engine is not running";
@@ -129,7 +130,11 @@ void JSKitManager::startJsApp()
     navigatorObj.setProperty("geolocation", _engine->newQObject(_jsgeo));
     globalObj.setProperty("navigator", navigatorObj);
 
-    _engine->evaluate("function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }");
+    // Shims for compatibility...
+    QJSValue result = _engine->evaluate(
+                "function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }\n"
+                );
+    Q_ASSERT(!result.isError());
 
     QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
     if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -140,7 +145,7 @@ void JSKitManager::startJsApp()
 
     QString script = QString::fromUtf8(scriptFile.readAll());
 
-    QJSValue result = _engine->evaluate(script, scriptFile.fileName());
+    result = _engine->evaluate(script, scriptFile.fileName());
     if (result.isError()) {
         logger()->warn() << "error while evaluating JSKit script:" << describeError(result);
     }
@@ -158,12 +163,13 @@ void JSKitManager::stopJsApp()
 
     _engine->collectGarbage();
 
-    delete _engine;
+    _engine->deleteLater();
     _engine = 0;
-    delete _jsstorage;
+    _jsstorage->deleteLater();
     _jsstorage = 0;
-    delete _jspebble;
-    _jspebble = 0;
-    delete _jsgeo;
+    _jsgeo->deleteLater();
     _jsgeo = 0;
+    _jspebble->deleteLater();
+    _jspebble = 0;
+
 }
