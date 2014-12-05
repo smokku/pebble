@@ -22,6 +22,8 @@ Features
 * Transliterate strings to plain ASCII
 * daemon management app
 * "org.pebbled" DBus interface
+* PebbleKit JS application partial support
+ (including Pebble object, XMLHTTPRequest, localStorage, geolocation)
 
 
 
