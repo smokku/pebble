@@ -145,13 +145,12 @@ void JSKitManager::startJsApp()
     globalObj.setProperty("console", _engine->newQObject(_jsconsole));
     globalObj.setProperty("localStorage", _engine->newQObject(_jsstorage));
 
-    QJSValue windowObj = _engine->newObject();
-    windowObj.setProperty("localStorage", globalObj.property("localStorage"));
-    globalObj.setProperty("window", windowObj);
-
     QJSValue navigatorObj = _engine->newObject();
     navigatorObj.setProperty("geolocation", _engine->newQObject(_jsgeo));
     globalObj.setProperty("navigator", navigatorObj);
+
+    // Set this.window = this
+    globalObj.setProperty("window", globalObj);
 
     // Shims for compatibility...
     QJSValue result = _engine->evaluate(
