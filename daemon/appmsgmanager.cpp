@@ -23,6 +23,10 @@ AppMsgManager::AppMsgManager(AppManager *apps, WatchConnector *watch, QObject *p
         case WatchConnector::appmsgPUSH:
             handleLauncherPushMessage(data);
             break;
+        case WatchConnector::appmsgACK:
+        case WatchConnector::appmsgNACK:
+            // TODO we ignore those for now.
+            break;
         }
 
         return true;
@@ -97,12 +101,24 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data)
 
 void AppMsgManager::launchApp(const QUuid &uuid)
 {
-    // TODO
+    WatchConnector::Dict dict;
+    dict.insert(1, WatchConnector::launcherSTARTED);
+
+    logger()->debug() << "Sending message to launcher" << uuid << dict;
+
+    QByteArray msg = buildPushMessage(++_lastTransactionId, uuid, dict);
+    watch->sendMessage(WatchConnector::watchLAUNCHER, msg);
 }
 
 void AppMsgManager::closeApp(const QUuid &uuid)
 {
-    // TODO
+    WatchConnector::Dict dict;
+    dict.insert(1, WatchConnector::launcherSTOPPED);
+
+    logger()->debug() << "Sending message to launcher" << uuid << dict;
+
+    QByteArray msg = buildPushMessage(++_lastTransactionId, uuid, dict);
+    watch->sendMessage(WatchConnector::watchLAUNCHER, msg);
 }
 
 WatchConnector::Dict AppMsgManager::mapAppKeys(const QUuid &uuid, const QVariantMap &data)
