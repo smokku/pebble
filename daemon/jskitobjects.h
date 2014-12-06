@@ -1,6 +1,7 @@
 #ifndef JSKITMANAGER_P_H
 #define JSKITMANAGER_P_H
 
+#include <QElapsedTimer>
 #include <QSettings>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -18,7 +19,7 @@ public:
     Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
     Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
 
-    Q_INVOKABLE void sendAppMessage(QJSValue message, QJSValue callbackForAck = QJSValue(), QJSValue callbackForNack = QJSValue());
+    Q_INVOKABLE uint sendAppMessage(QJSValue message, QJSValue callbackForAck = QJSValue(), QJSValue callbackForNack = QJSValue());
 
     Q_INVOKABLE void showSimpleNotificationOnPebble(const QString &title, const QString &body);
 
@@ -29,7 +30,7 @@ public:
     void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());
 
 private:
-    QJSValue buildAckEventObject() const;
+    QJSValue buildAckEventObject(uint transaction, const QString &message = QString()) const;
 
 private:
     AppInfo _appInfo;
@@ -81,12 +82,17 @@ class JSKitXMLHttpRequest : public QObject
 {
     Q_OBJECT
     LOG4QT_DECLARE_QCLASS_LOGGER
+    Q_ENUMS(ReadyStates)
 
     Q_PROPERTY(QJSValue onload READ onload WRITE setOnload)
     Q_PROPERTY(QJSValue ontimeout READ ontimeout WRITE setOntimeout)
     Q_PROPERTY(QJSValue onerror READ onerror WRITE setOnerror)
-    Q_PROPERTY(unsigned short readyState READ readyState NOTIFY readyStateChanged)
-    Q_PROPERTY(unsigned short status READ status NOTIFY statusChanged)
+    Q_PROPERTY(uint readyState READ readyState NOTIFY readyStateChanged)
+    Q_PROPERTY(uint timeout READ timeout WRITE setTimeout)
+    Q_PROPERTY(uint status READ status NOTIFY statusChanged)
+    Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
+    Q_PROPERTY(QString responseType READ responseType WRITE setResponseType)
+    Q_PROPERTY(QJSValue response READ response NOTIFY responseChanged)
     Q_PROPERTY(QString responseText READ responseText NOTIFY responseTextChanged)
 
 public:
@@ -101,9 +107,9 @@ public:
         DONE = 4
     };
 
-    Q_INVOKABLE void open(const QString &method, const QString &url, bool async = false);
+    Q_INVOKABLE void open(const QString &method, const QString &url, bool async = false, const QString &username = QString(), const QString &password = QString());
     Q_INVOKABLE void setRequestHeader(const QString &header, const QString &value);
-    Q_INVOKABLE void send(const QString &body = QString());
+    Q_INVOKABLE void send(const QJSValue &data = QJSValue(QJSValue::NullValue));
     Q_INVOKABLE void abort();
 
     QJSValue onload() const;
@@ -113,13 +119,25 @@ public:
     QJSValue onerror() const;
     void setOnerror(const QJSValue &value);
 
-    unsigned short readyState() const;
-    unsigned short status() const;
+    uint readyState() const;
+
+    uint timeout() const;
+    void setTimeout(uint value);
+
+    uint status() const;
+    QString statusText() const;
+
+    QString responseType() const;
+    void setResponseType(const QString& type);
+
+    QJSValue response() const;
     QString responseText() const;
 
 signals:
     void readyStateChanged();
     void statusChanged();
+    void statusTextChanged();
+    void responseChanged();
     void responseTextChanged();
 
 private slots:
@@ -130,8 +148,10 @@ private:
     JSKitManager *_mgr;
     QNetworkAccessManager *_net;
     QString _verb;
+    uint _timeout;
     QNetworkRequest _request;
     QNetworkReply *_reply;
+    QString _responseType;
     QByteArray _response;
     QJSValue _onload;
     QJSValue _ontimeout;
@@ -163,11 +183,12 @@ private slots:
     void handleError(const QGeoPositionInfoSource::Error error);
     void handlePosition(const QGeoPositionInfo &pos);
     void handleTimeout();
+    void updateTimeouts();
 
 private:
-    uint minimumTimeout() const;
     int setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once);
     void removeWatcher(int watchId);
+
     QJSValue buildPositionObject(const QGeoPositionInfo &pos);
     QJSValue buildPositionErrorObject(PositionError error, const QString &message = QString());
     QJSValue buildPositionErrorObject(const QGeoPositionInfoSource::Error error);
@@ -183,7 +204,8 @@ private:
         int watchId;
         bool once;
         bool highAccuracy;
-        uint timeout;
+        int timeout;
+        QElapsedTimer timer;
     };
 
     QList<Watcher> _watches;

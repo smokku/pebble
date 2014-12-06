@@ -74,6 +74,22 @@ void Packer::writeDict(const QMap<int, QVariant> &d)
             break;
         }
 
+        case QMetaType::QVariantList: {
+            // Generally a JS array, which we marshal as a byte array.
+            QVariantList list = it.value().toList();
+            QByteArray ba;
+            ba.reserve(list.size());
+
+            Q_FOREACH (const QVariant &v, list) {
+                ba.append(v.toInt());
+            }
+
+            writeLE<quint8>(WatchConnector::typeBYTES);
+            writeLE<quint16>(ba.size());
+            _buf->append(ba);
+            break;
+        }
+
         default:
             logger()->warn() << "Unknown dict item type:" << it.value().typeName();
             /* Fallthrough */

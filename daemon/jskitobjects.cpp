@@ -34,35 +34,45 @@ void JSKitPebble::removeEventListener(const QString &type, QJSValue function)
     }
 }
 
-void JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack)
+uint JSKitPebble::sendAppMessage(QJSValue message, QJSValue callbackForAck, QJSValue callbackForNack)
 {
     QVariantMap data = message.toVariant().toMap();
+    QPointer<JSKitPebble> pebbObj = this;
+    uint transactionId = _mgr->_appmsg->nextTransactionId();
 
     logger()->debug() << "sendAppMessage" << data;
 
-    _mgr->_appmsg->send(_appInfo.uuid(), data, [this, callbackForAck]() mutable {
+    _mgr->_appmsg->send(_appInfo.uuid(), data,
+    [pebbObj, transactionId, callbackForAck]() mutable {
+        if (pebbObj.isNull()) return;
         if (callbackForAck.isCallable()) {
-            logger()->debug() << "Invoking ack callback";
-            QJSValue result = callbackForAck.call(QJSValueList({buildAckEventObject()}));
+            pebbObj->logger()->debug() << "Invoking ack callback";
+            QJSValue event = pebbObj->buildAckEventObject(transactionId);
+            QJSValue result = callbackForAck.call(QJSValueList({event}));
             if (result.isError()) {
-                logger()->warn() << "error while invoking ACK callback" << callbackForAck.toString() << ":"
-                                 << JSKitManager::describeError(result);
+                pebbObj->logger()->warn() << "error while invoking ACK callback" << callbackForAck.toString() << ":"
+                                          << JSKitManager::describeError(result);
             }
         } else {
-            logger()->debug() << "Ack callback not callable";
+            pebbObj->logger()->debug() << "Ack callback not callable";
         }
-    }, [this, callbackForNack]() mutable {
+    },
+    [pebbObj, transactionId, callbackForNack]() mutable {
+        if (pebbObj.isNull()) return;
         if (callbackForNack.isCallable()) {
-            logger()->debug() << "Invoking nack callback";
-            QJSValue result = callbackForNack.call(QJSValueList({buildAckEventObject()}));
+            pebbObj->logger()->debug() << "Invoking nack callback";
+            QJSValue event = pebbObj->buildAckEventObject(transactionId, "NACK from watch");
+            QJSValue result = callbackForNack.call(QJSValueList({event}));
             if (result.isError()) {
-                logger()->warn() << "error while invoking NACK callback" << callbackForNack.toString() << ":"
-                                 << JSKitManager::describeError(result);
+                pebbObj->logger()->warn() << "error while invoking NACK callback" << callbackForNack.toString() << ":"
+                                          << JSKitManager::describeError(result);
             }
         } else {
-            logger()->debug() << "Nack callback not callable";
+            pebbObj->logger()->debug() << "Nack callback not callable";
         }
     });
+
+    return transactionId;
 }
 
 void JSKitPebble::showSimpleNotificationOnPebble(const QString &title, const QString &body)
@@ -84,16 +94,20 @@ QJSValue JSKitPebble::createXMLHttpRequest()
     return _mgr->engine()->newQObject(xhr);
 }
 
-QJSValue JSKitPebble::buildAckEventObject() const
+QJSValue JSKitPebble::buildAckEventObject(uint transaction, const QString &message) const
 {
     QJSEngine *engine = _mgr->engine();
     QJSValue eventObj = engine->newObject();
     QJSValue dataObj = engine->newObject();
 
-    // Why do scripts need the real transactionId?
-    // No idea. Just fake it.
-    dataObj.setProperty("transactionId", engine->toScriptValue(0));
+    dataObj.setProperty("transactionId", engine->toScriptValue(transaction));
     eventObj.setProperty("data", dataObj);
+
+    if (!message.isEmpty()) {
+        QJSValue errorObj = engine->newObject();
+        errorObj.setProperty("message", engine->toScriptValue(message));
+        eventObj.setProperty("error", errorObj);
+    }
 
     return eventObj;
 }
@@ -184,7 +198,7 @@ QString JSKitLocalStorage::getStorageFileFor(const QUuid &uuid)
 
 JSKitXMLHttpRequest::JSKitXMLHttpRequest(JSKitManager *mgr, QObject *parent)
     : QObject(parent), _mgr(mgr),
-      _net(new QNetworkAccessManager(this)), _reply(0)
+      _net(new QNetworkAccessManager(this)), _timeout(0), _reply(0)
 {
     logger()->debug() << "constructed";
 }
@@ -194,7 +208,7 @@ JSKitXMLHttpRequest::~JSKitXMLHttpRequest()
     logger()->debug() << "destructed";
 }
 
-void JSKitXMLHttpRequest::open(const QString &method, const QString &url, bool async)
+void JSKitXMLHttpRequest::open(const QString &method, const QString &url, bool async, const QString &username, const QString &password)
 {
     if (_reply) {
         _reply->deleteLater();
@@ -212,17 +226,63 @@ void JSKitXMLHttpRequest::setRequestHeader(const QString &header, const QString 
     _request.setRawHeader(header.toLatin1(), value.toLatin1());
 }
 
-void JSKitXMLHttpRequest::send(const QString &body)
+void JSKitXMLHttpRequest::send(const QJSValue &data)
 {
-    QBuffer *buffer = new QBuffer;
-    buffer->setData(body.toUtf8());
-    logger()->debug() << "sending" << _verb << "to" << _request.url() << "with" << body;
+    QByteArray byteData;
+
+    if (data.isUndefined() || data.isNull()) {
+        // Do nothing, byteData is empty.
+    } else if (data.isString()) {
+        byteData == data.toString().toUtf8();
+    } else if (data.isObject()) {
+        if (data.hasProperty("byteLength")) {
+            // Looks like an ArrayView or an ArrayBufferView!
+            QJSValue buffer = data.property("buffer");
+            if (buffer.isUndefined()) {
+                // We must assume we've been passed an ArrayBuffer directly
+                buffer = data;
+            }
+
+            QJSValue array = data.property("_bytes");
+            int byteLength = data.property("byteLength").toInt();
+
+            if (array.isArray()) {
+                byteData.reserve(byteLength);
+
+                for (int i = 0; i < byteLength; i++) {
+                    byteData.append(array.property(i).toInt());
+                }
+
+                logger()->debug() << "passed an ArrayBufferView of" << byteData.length() << "bytes";
+            } else {
+                logger()->warn() << "passed an unknown/invalid ArrayBuffer" << data.toString();
+            }
+        } else {
+            logger()->warn() << "passed an unknown object" << data.toString();
+        }
+
+    }
+
+    QBuffer *buffer;
+    if (!byteData.isEmpty()) {
+        buffer = new QBuffer;
+        buffer->setData(byteData);
+    } else {
+        buffer = 0;
+    }
+
+    logger()->debug() << "sending" << _verb << "to" << _request.url() << "with" << QString::fromUtf8(byteData);
     _reply = _net->sendCustomRequest(_request, _verb.toLatin1(), buffer);
+
     connect(_reply, &QNetworkReply::finished,
             this, &JSKitXMLHttpRequest::handleReplyFinished);
     connect(_reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
             this, &JSKitXMLHttpRequest::handleReplyError);
-    buffer->setParent(_reply); // So that it gets deleted alongside the reply object.
+
+    if (buffer) {
+        // So that it gets deleted alongside the reply object.
+        buffer->setParent(_reply);
+    }
 }
 
 void JSKitXMLHttpRequest::abort()
@@ -263,7 +323,7 @@ void JSKitXMLHttpRequest::setOnerror(const QJSValue &value)
     _onerror = value;
 }
 
-unsigned short JSKitXMLHttpRequest::readyState() const
+uint JSKitXMLHttpRequest::readyState() const
 {
     if (!_reply) {
         return UNSENT;
@@ -274,12 +334,70 @@ unsigned short JSKitXMLHttpRequest::readyState() const
     }
 }
 
-unsigned short JSKitXMLHttpRequest::status() const
+uint JSKitXMLHttpRequest::timeout() const
+{
+    return _timeout;
+}
+
+void JSKitXMLHttpRequest::setTimeout(uint value)
+{
+    _timeout = value;
+    // TODO Handle fetch in-progress.
+}
+
+uint JSKitXMLHttpRequest::status() const
 {
     if (!_reply || !_reply->isFinished()) {
         return 0;
     } else {
         return _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toUInt();
+    }
+}
+
+QString JSKitXMLHttpRequest::statusText() const
+{
+    if (!_reply || !_reply->isFinished()) {
+        return QString();
+    } else {
+        return _reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    }
+}
+
+QString JSKitXMLHttpRequest::responseType() const
+{
+    return _responseType;
+}
+
+void JSKitXMLHttpRequest::setResponseType(const QString &type)
+{
+    logger()->debug() << "response type set to" << type;
+    _responseType = type;
+}
+
+QJSValue JSKitXMLHttpRequest::response() const
+{
+    QJSEngine *engine = _mgr->engine();
+    if (_responseType.isEmpty() || _responseType == "text") {
+        return engine->toScriptValue(QString::fromUtf8(_response));
+    } else if (_responseType == "arraybuffer") {
+        QJSValue arrayBufferProto = engine->globalObject().property("ArrayBuffer").property("prototype");
+        QJSValue arrayBuf = engine->newObject();
+        if (!arrayBufferProto.isUndefined()) {
+            arrayBuf.setPrototype(arrayBufferProto);
+            arrayBuf.setProperty("byteLength", engine->toScriptValue<uint>(_response.size()));
+            QJSValue array = engine->newArray(_response.size());
+            for (int i = 0; i < _response.size(); i++) {
+                array.setProperty(i, engine->toScriptValue<int>(_response[i]));
+            }
+            arrayBuf.setProperty("_bytes", array);
+            logger()->debug() << "returning ArrayBuffer of" << _response.size() << "bytes";
+        } else {
+            logger()->warn() << "Cannot find proto of ArrayBuffer";
+        }
+        return arrayBuf;
+    } else {
+        logger()->warn() << "unsupported responseType:" << _responseType;
+        return engine->toScriptValue<void*>(0);
     }
 }
 
@@ -300,6 +418,8 @@ void JSKitXMLHttpRequest::handleReplyFinished()
 
     emit readyStateChanged();
     emit statusChanged();
+    emit statusTextChanged();
+    emit responseChanged();
     emit responseTextChanged();
 
     if (_onload.isCallable()) {
@@ -322,6 +442,10 @@ void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
 
     logger()->info() << "reply error" << code;
 
+    emit readyStateChanged();
+    emit statusChanged();
+    emit statusTextChanged();
+
     if (_onerror.isCallable()) {
         logger()->debug() << "going to call onerror handler:" << _onload.toString();
         QJSValue result = _onerror.callWithInstance(_mgr->engine()->newQObject(this));
@@ -338,7 +462,6 @@ JSKitGeolocation::JSKitGeolocation(JSKitManager *mgr)
 
 void JSKitGeolocation::getCurrentPosition(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options)
 {
-    logger()->debug() << Q_FUNC_INFO;
     setupWatcher(successCallback, errorCallback, options, true);
 }
 
@@ -360,11 +483,13 @@ void JSKitGeolocation::handleError(QGeoPositionInfoSource::Error error)
 
 void JSKitGeolocation::handlePosition(const QGeoPositionInfo &pos)
 {
+    logger()->debug() << "got position at" << pos.timestamp() << "type" << pos.coordinate().type();
+
     if (_watches.empty()) {
         logger()->warn() << "got position update but no one is watching";
+        _source->stopUpdates(); // Just in case.
+        return;
     }
-
-    logger()->debug() << "got position at" << pos.timestamp() << "type" << pos.coordinate().type();
 
     QJSValue obj = buildPositionObject(pos);
 
@@ -374,30 +499,76 @@ void JSKitGeolocation::handlePosition(const QGeoPositionInfo &pos)
         if (it->once) {
             it = _watches.erase(it);
         } else {
+            it->timer.restart();
             ++it;
         }
-    }
-
-    if (_watches.empty()) {
-        _source->stopUpdates();
     }
 }
 
 void JSKitGeolocation::handleTimeout()
 {
-    logger()->debug() << Q_FUNC_INFO;
-    // TODO
-}
+    logger()->info() << "positioning timeout";
 
-uint JSKitGeolocation::minimumTimeout() const
-{
-    uint minimum = std::numeric_limits<uint>::max();
-    Q_FOREACH(const Watcher &watcher, _watches) {
-        if (!watcher.once) {
-            minimum = qMin<uint>(watcher.timeout, minimum);
+    if (_watches.empty()) {
+        logger()->warn() << "got position timeout but no one is watching";
+        _source->stopUpdates();
+        return;
+    }
+
+    QJSValue obj = buildPositionErrorObject(TIMEOUT, "timeout");
+
+    for (auto it = _watches.begin(); it != _watches.end(); /*no adv*/) {
+        if (it->timer.hasExpired(it->timeout)) {
+            logger()->info() << "positioning timeout for watch" << it->watchId;
+            invokeCallback(it->errorCallback, obj);
+
+            if (it->once) {
+                it = _watches.erase(it);
+            } else {
+                it->timer.restart();
+                ++it;
+            }
+        } else {
+            ++it;
         }
     }
-    return minimum;
+
+    QMetaObject::invokeMethod(this, "updateTimeouts", Qt::QueuedConnection);
+}
+
+void JSKitGeolocation::updateTimeouts()
+{
+    int once_timeout = -1, updates_timeout = -1;
+
+    logger()->debug() << Q_FUNC_INFO;
+
+    Q_FOREACH(const Watcher &watcher, _watches) {
+        qint64 rem_timeout = watcher.timeout - watcher.timer.elapsed();
+        logger()->debug() << "watch" << watcher.watchId << "rem timeout" << rem_timeout;
+        if (rem_timeout >= 0) {
+            // In case it is too large...
+            rem_timeout = qMin<qint64>(rem_timeout, std::numeric_limits<int>::max());
+            if (watcher.once) {
+                once_timeout = once_timeout >= 0 ? qMin<int>(once_timeout, rem_timeout) : rem_timeout;
+            } else {
+                updates_timeout = updates_timeout >= 0 ? qMin<int>(updates_timeout, rem_timeout) : rem_timeout;
+            }
+        }
+    }
+
+    if (updates_timeout >= 0) {
+        logger()->debug() << "setting location update interval to" << updates_timeout;
+        _source->setUpdateInterval(updates_timeout);
+        _source->startUpdates();
+    } else {
+        logger()->debug() << "stopping updates";
+        _source->stopUpdates();
+    }
+
+    if (once_timeout >= 0) {
+        logger()->debug() << "requesting single location update with timeout" << once_timeout;
+        _source->requestUpdate(once_timeout);
+    }
 }
 
 int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSValue &errorCallback, const QVariantMap &options, bool once)
@@ -406,11 +577,11 @@ int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSVal
     watcher.successCallback = successCallback;
     watcher.errorCallback = errorCallback;
     watcher.highAccuracy = options.value("enableHighAccuracy").toBool();
-    watcher.timeout = options.value("timeout", 0xFFFFFFFFU).toUInt();
+    watcher.timeout = options.value("timeout", std::numeric_limits<int>::max() - 1).toInt();
     watcher.once = once;
     watcher.watchId = ++_lastWatchId;
 
-    uint maximumAge = options.value("maximumAge", 0).toUInt();
+    qlonglong maximumAge = options.value("maximumAge", 0).toLongLong();
 
     logger()->debug() << "setting up watcher, gps=" << watcher.highAccuracy << "timeout=" << watcher.timeout << "maximumAge=" << maximumAge << "once=" << once;
 
@@ -434,24 +605,19 @@ int JSKitGeolocation::setupWatcher(const QJSValue &successCallback, const QJSVal
                 return -1;
             }
         } else if (watcher.timeout == 0 && once) {
+            // If the timeout has already expired, and we have no cached data
+            // Do not even bother to turn on the GPS; return error object now.
             invokeCallback(watcher.errorCallback, buildPositionErrorObject(TIMEOUT, "no cached position"));
             return -1;
         }
     }
 
-    if (once) {
-        _source->requestUpdate(watcher.timeout);
-    } else {
-        uint timeout = minimumTimeout();
-        logger()->debug() << "setting location update interval to" << timeout;
-        _source->setUpdateInterval(timeout);
-        logger()->debug() << "starting location updates";
-        _source->startUpdates();
-    }
-
+    watcher.timer.start();
     _watches.append(watcher);
 
     logger()->debug() << "added new watch" << watcher.watchId;
+
+    QMetaObject::invokeMethod(this, "updateTimeouts", Qt::QueuedConnection);
 
     return watcher.watchId;
 }
@@ -474,14 +640,7 @@ void JSKitGeolocation::removeWatcher(int watchId)
         return;
     }
 
-    if (_watches.empty()) {
-        logger()->debug() << "stopping updates";
-        _source->stopUpdates();
-    } else {
-        uint timeout = minimumTimeout();
-        logger()->debug() << "setting location update interval to" << timeout;
-        _source->setUpdateInterval(timeout);
-    }
+    QMetaObject::invokeMethod(this, "updateTimeouts", Qt::QueuedConnection);
 }
 
 QJSValue JSKitGeolocation::buildPositionObject(const QGeoPositionInfo &pos)

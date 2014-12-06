@@ -50,23 +50,24 @@ HEADERS += \
 
 OTHER_FILES += \
     ../log4qt-debug.conf \
-    ../log4qt-release.conf
+    ../log4qt-release.conf \
+    js/typedarray.js
 
 DBUS_ADAPTORS += ../org.pebbled.Watch.xml
 
-INSTALLS += target pebbled confile
+INSTALLS += target systemd confile js
 
 target.path = /usr/bin
 
-pebbled.files = $${TARGET}.service
-pebbled.path = /usr/lib/systemd/user
+systemd.files = $${TARGET}.service
+systemd.path = /usr/lib/systemd/user
+
+js.files = js/*
+js.path = /usr/share/pebble/js
 
 CONFIG(debug, debug|release) {
-    message(Debug build)
     confile.extra = cp $$PWD/../log4qt-debug.conf $$OUT_PWD/../log4qt.conf
-}
-else {
-    message(Release build)
+} else {
     confile.extra = cp $$PWD/../log4qt-release.conf $$OUT_PWD/../log4qt.conf
 }
 

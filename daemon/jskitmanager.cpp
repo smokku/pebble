@@ -100,6 +100,29 @@ void JSKitManager::handleAppMessage(const QUuid &uuid, const QVariantMap &data)
     }
 }
 
+bool JSKitManager::loadJsFile(const QString &filename)
+{
+    Q_ASSERT(_engine);
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        logger()->warn() << "Failed to load JS file:" << file.fileName();
+        return false;
+    }
+
+    logger()->debug() << "now parsing" << file.fileName();
+
+    QJSValue result = _engine->evaluate(QString::fromUtf8(file.readAll()), file.fileName());
+    if (result.isError()) {
+        logger()->warn() << "error while evaluating JS script:" << describeError(result);
+        return false;
+    }
+
+    logger()->debug() << "JS script evaluated";
+
+    return true;
+}
+
 void JSKitManager::startJsApp()
 {
     if (_engine) stopJsApp();
@@ -136,24 +159,13 @@ void JSKitManager::startJsApp()
                 );
     Q_ASSERT(!result.isError());
 
-    QFile scriptFile(_curApp.path() + "/pebble-js-app.js");
-    if (!scriptFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        logger()->warn() << "Failed to open JS file at:" << scriptFile.fileName();
-        stopJsApp();
-        return;
-    }
+    // Polyfills...
+    loadJsFile("/usr/share/pebble/js/typedarray.js");
 
-    QString script = QString::fromUtf8(scriptFile.readAll());
+    // Now load the actual script
+    loadJsFile(_curApp.path() + "/pebble-js-app.js");
 
-    logger()->debug() << "now parsing" << scriptFile.fileName();
-
-    result = _engine->evaluate(script, scriptFile.fileName());
-    if (result.isError()) {
-        logger()->warn() << "error while evaluating JSKit script:" << describeError(result);
-    }
-
-    logger()->debug() << "JS script evaluated";
-
+    // We try to invoke the callbacks even if script parsing resulted in error...
     _jspebble->invokeCallbacks("ready");
 }
 
@@ -173,5 +185,4 @@ void JSKitManager::stopJsApp()
     _jsgeo = 0;
     _jspebble->deleteLater();
     _jspebble = 0;
-
 }

@@ -19,6 +19,8 @@ public:
     void send(const QUuid &uuid, const QVariantMap &data,
               const std::function<void()> &ackCallback,
               const std::function<void()> &nackCallback);
+    uint lastTransactionId() const;
+    uint nextTransactionId() const;
 
 public slots:
     void send(const QUuid &uuid, const QVariantMap &data);
@@ -54,7 +56,7 @@ private slots:
 private:
     AppManager *apps;
     WatchConnector *watch;
-    quint8 lastTransactionId;
+    quint8 _lastTransactionId;
 
     struct PendingTransaction {
         quint8 transactionId;
@@ -63,8 +65,8 @@ private:
         std::function<void()> ackCallback;
         std::function<void()> nackCallback;
     };
-    QQueue<PendingTransaction> pending;
-    QTimer *timeout;
+    QQueue<PendingTransaction> _pending;
+    QTimer *_timeout;
 };
 
 #endif // APPMSGMANAGER_H

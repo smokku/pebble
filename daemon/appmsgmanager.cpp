@@ -7,14 +7,14 @@
 // TODO D-Bus server for non JS kit apps!!!!
 
 AppMsgManager::AppMsgManager(AppManager *apps, WatchConnector *watch, QObject *parent)
-    : QObject(parent), apps(apps), watch(watch), lastTransactionId(0), timeout(new QTimer(this))
+    : QObject(parent), apps(apps), watch(watch), _lastTransactionId(0), _timeout(new QTimer(this))
 {
     connect(watch, &WatchConnector::connectedChanged,
             this, &AppMsgManager::handleWatchConnectedChanged);
 
-    timeout->setSingleShot(true);
-    timeout->setInterval(3000);
-    connect(timeout, &QTimer::timeout,
+    _timeout->setSingleShot(true);
+    _timeout->setInterval(3000);
+    connect(_timeout, &QTimer::timeout,
             this, &AppMsgManager::handleTimeout);
 
     watch->setEndpointHandler(WatchConnector::watchLAUNCHER,
@@ -53,7 +53,7 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data, const std::
 {
     PendingTransaction trans;
     trans.uuid = uuid;
-    trans.transactionId = ++lastTransactionId;
+    trans.transactionId = ++_lastTransactionId;
     trans.dict = mapAppKeys(uuid, data);
     trans.ackCallback = ackCallback;
     trans.nackCallback = nackCallback;
@@ -61,12 +61,22 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data, const std::
     logger()->debug() << "Queueing appmsg" << trans.transactionId << "to" << trans.uuid
                       << "with dict" << trans.dict;
 
-    pending.enqueue(trans);
-    if (pending.size() == 1) {
+    _pending.enqueue(trans);
+    if (_pending.size() == 1) {
         // This is the only transaction on the queue
         // Therefore, we were idle before: we can submit this transaction right now.
         transmitNextPendingTransaction();
     }
+}
+
+uint AppMsgManager::lastTransactionId() const
+{
+    return _lastTransactionId;
+}
+
+uint AppMsgManager::nextTransactionId() const
+{
+    return _lastTransactionId + 1;
 }
 
 void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data)
@@ -244,23 +254,24 @@ void AppMsgManager::handleAckMessage(const QByteArray &data, bool ack)
         return;
     }
 
-    if (pending.empty()) {
-        logger()->warn() << "received an ack/nack but no active transaction";
-    }
-
     const quint8 type = data[0];
     const quint8 recv_transaction = data[1];
 
     Q_ASSERT(type == WatchConnector::appmsgACK || type == WatchConnector::appmsgNACK);
 
-    PendingTransaction &trans = pending.head();
+    if (_pending.empty()) {
+        logger()->warn() << "received an ack/nack for transaction" << recv_transaction << "but no transaction is pending";
+        return;
+    }
+
+    PendingTransaction &trans = _pending.head();
     if (trans.transactionId != recv_transaction) {
         logger()->warn() << "received an ack/nack but for the wrong transaction";
     }
 
     logger()->debug() << "Got " << (ack ? "ACK" : "NACK") << " to transaction" << trans.transactionId;
 
-    timeout->stop();
+    _timeout->stop();
 
     if (ack) {
         if (trans.ackCallback) {
@@ -272,9 +283,9 @@ void AppMsgManager::handleAckMessage(const QByteArray &data, bool ack)
         }
     }
 
-    pending.dequeue();
+    _pending.dequeue();
 
-    if (!pending.empty()) {
+    if (!_pending.empty()) {
         transmitNextPendingTransaction();
     }
 }
@@ -291,8 +302,8 @@ void AppMsgManager::handleWatchConnectedChanged()
 void AppMsgManager::handleTimeout()
 {
     // Abort the first transaction
-    Q_ASSERT(!pending.empty());
-    PendingTransaction trans = pending.dequeue();
+    Q_ASSERT(!_pending.empty());
+    PendingTransaction trans = _pending.dequeue();
 
     logger()->warn() << "timeout on appmsg transaction" << trans.transactionId;
 
@@ -300,31 +311,31 @@ void AppMsgManager::handleTimeout()
         trans.nackCallback();
     }
 
-    if (!pending.empty()) {
+    if (!_pending.empty()) {
         transmitNextPendingTransaction();
     }
 }
 
 void AppMsgManager::transmitNextPendingTransaction()
 {
-    Q_ASSERT(!pending.empty());
-    PendingTransaction &trans = pending.head();
+    Q_ASSERT(!_pending.empty());
+    PendingTransaction &trans = _pending.head();
 
     QByteArray msg = buildPushMessage(trans.transactionId, trans.uuid, trans.dict);
 
     watch->sendMessage(WatchConnector::watchAPPLICATION_MESSAGE, msg);
 
-    timeout->start();
+    _timeout->start();
 }
 
 void AppMsgManager::abortPendingTransactions()
 {
     // Invoke all the NACK callbacks in the pending queue, then drop them.
-    Q_FOREACH(const PendingTransaction &trans, pending) {
+    Q_FOREACH(const PendingTransaction &trans, _pending) {
         if (trans.nackCallback) {
             trans.nackCallback();
         }
     }
 
-    pending.clear();
+    _pending.clear();
 }
