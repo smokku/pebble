@@ -33,11 +33,6 @@
       <arg name="msg_ack" type="b" direction="out"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
     </method>
-    <signal name="AppMessage">
-      <arg name="uuid" type="s"/>
-      <arg name="message" type="a{sv}"/>
-      <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
-    </signal>
     <signal name="AppOpened">
       <arg name="uuid" type="s"/>
     </signal>

@@ -148,7 +148,6 @@ signals:
     void AddressChanged();
     void ConnectedChanged();
     void AppUuidChanged();
-    void AppMessage(const QString &uuid, const QVariantMap &data);
     void AppOpened(const QString &uuid);
     void AppClosed(const QString &uuid);
 };
