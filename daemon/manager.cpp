@@ -59,6 +59,8 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(appmsg, &AppMsgManager::appStarted, this, &Manager::onAppOpened);
     connect(appmsg, &AppMsgManager::appStopped, this, &Manager::onAppClosed);
 
+    connect(js, &JSKitManager::appNotification, this, &Manager::onAppNotification);
+
     QDBusConnection session = QDBusConnection::sessionBus();
     new WatchAdaptor(proxy);
     session.registerObject("/org/pebbled/Watch", proxy);
@@ -389,6 +391,11 @@ void Manager::transliterateMessage(const QString &text)
         const_cast<QString&>(text) = QString::fromStdString(translited);
         logger()->debug() << "String after transliteration:" << text;
     }
+}
+
+void Manager::onAppNotification(const QUuid &uuid, const QString &title, const QString &body)
+{
+    watch->sendSMSNotification(title, body);
 }
 
 void Manager::onAppMessage(const QUuid &uuid, const QVariantMap &data)

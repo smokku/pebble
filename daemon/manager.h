@@ -102,6 +102,7 @@ private slots:
     void setMprisMetadata(QDBusArgument metadata);
     void setMprisMetadata(QVariantMap metadata);
 
+    void onAppNotification(const QUuid &uuid, const QString &title, const QString &body);
     void onAppMessage(const QUuid &uuid, const QVariantMap &data);
     void onAppOpened(const QUuid &uuid);
     void onAppClosed(const QUuid &uuid);
