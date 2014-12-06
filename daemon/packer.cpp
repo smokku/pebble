@@ -97,6 +97,10 @@ void Packer::writeDict(const QMap<int, QVariant> &d)
         case QMetaType::QUrl:
         {
             QByteArray s = it.value().toString().toUtf8();
+            if (s.isEmpty() || s[s.size() - 1] != '\0') {
+                // Add null terminator if it doesn't have one
+                s.append('\0');
+            }
             writeLE<quint8>(WatchConnector::typeSTRING);
             writeLE<quint16>(s.size());
             _buf->append(s);
