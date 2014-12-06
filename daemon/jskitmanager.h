@@ -35,7 +35,7 @@ public slots:
 private slots:
     void handleAppStarted(const QUuid &uuid);
     void handleAppStopped(const QUuid &uuid);
-    void handleAppMessage(const QUuid &uuid, const QVariantMap &data);
+    void handleAppMessage(const QUuid &uuid, const QVariantMap &msg);
 
 private:
     bool loadJsFile(const QString &filename);

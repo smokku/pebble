@@ -519,7 +519,8 @@ void JSKitGeolocation::handleTimeout()
 
     for (auto it = _watches.begin(); it != _watches.end(); /*no adv*/) {
         if (it->timer.hasExpired(it->timeout)) {
-            logger()->info() << "positioning timeout for watch" << it->watchId;
+            logger()->info() << "positioning timeout for watch" << it->watchId
+                             << ", watch is" << it->timer.elapsed() << "ms old, timeout is" << it->timeout;
             invokeCallback(it->errorCallback, obj);
 
             if (it->once) {

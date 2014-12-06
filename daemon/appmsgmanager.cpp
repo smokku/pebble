@@ -69,6 +69,16 @@ void AppMsgManager::send(const QUuid &uuid, const QVariantMap &data, const std::
     }
 }
 
+void AppMsgManager::setMessageHandler(const QUuid &uuid, MessageHandlerFunc func)
+{
+    _handlers.insert(uuid, func);
+}
+
+void AppMsgManager::clearMessageHandler(const QUuid &uuid)
+{
+    _handlers.remove(uuid);
+}
+
 uint AppMsgManager::lastTransactionId() const
 {
     return _lastTransactionId;
@@ -236,6 +246,8 @@ void AppMsgManager::handlePushMessage(const QByteArray &data)
 
     if (!unpackPushMessage(data, &transaction, &uuid, &dict)) {
         logger()->warn() << "Failed to parse APP_MSG PUSH";
+        watch->sendMessage(WatchConnector::watchAPPLICATION_MESSAGE,
+                           buildNackMessage(transaction));
         return;
     }
 
@@ -244,7 +256,25 @@ void AppMsgManager::handlePushMessage(const QByteArray &data)
     QVariantMap msg = mapAppKeys(uuid, dict);
     logger()->debug() << "Mapped dict" << msg;
 
-    emit messageReceived(uuid, msg);
+    bool result;
+
+    MessageHandlerFunc handler = _handlers.value(uuid);
+    if (handler) {
+        result = handler(msg);
+    } else {
+        // No handler? Let's just send an ACK.
+        result = false;
+    }
+
+    if (result) {
+        logger()->debug() << "ACKing transaction" << transaction;
+        watch->sendMessage(WatchConnector::watchAPPLICATION_MESSAGE,
+                           buildAckMessage(transaction));
+    } else {
+        logger()->info() << "NACKing transaction" << transaction;
+        watch->sendMessage(WatchConnector::watchAPPLICATION_MESSAGE,
+                           buildNackMessage(transaction));
+    }
 }
 
 void AppMsgManager::handleAckMessage(const QByteArray &data, bool ack)

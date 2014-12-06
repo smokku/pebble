@@ -9,7 +9,6 @@ JSKitManager::JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *par
 {
     connect(_appmsg, &AppMsgManager::appStarted, this, &JSKitManager::handleAppStarted);
     connect(_appmsg, &AppMsgManager::appStopped, this, &JSKitManager::handleAppStopped);
-    connect(_appmsg, &AppMsgManager::messageReceived, this, &JSKitManager::handleAppMessage);
 }
 
 JSKitManager::~JSKitManager()
@@ -83,7 +82,7 @@ void JSKitManager::handleAppStopped(const QUuid &uuid)
     }
 }
 
-void JSKitManager::handleAppMessage(const QUuid &uuid, const QVariantMap &data)
+void JSKitManager::handleAppMessage(const QUuid &uuid, const QVariantMap &msg)
 {
     if (_curApp.uuid() == uuid) {
         logger()->debug() << "received a message for the current JSKit app";
@@ -94,7 +93,7 @@ void JSKitManager::handleAppMessage(const QUuid &uuid, const QVariantMap &data)
         }
 
         QJSValue eventObj = _engine->newObject();
-        eventObj.setProperty("payload", _engine->toScriptValue(data));
+        eventObj.setProperty("payload", _engine->toScriptValue(msg));
 
         _jspebble->invokeCallbacks("appmessage", QJSValueList({eventObj}));
     }
@@ -164,6 +163,19 @@ void JSKitManager::startJsApp()
     // Now load the actual script
     loadJsFile(_curApp.path() + "/pebble-js-app.js");
 
+    // Setup the message callback
+    QUuid uuid = _curApp.uuid();
+    _appmsg->setMessageHandler(uuid, [this, uuid](const QVariantMap &msg) {
+        QMetaObject::invokeMethod(this, "handleAppMessage", Qt::QueuedConnection,
+                                  Q_ARG(QUuid, uuid),
+                                  Q_ARG(QVariantMap, msg));
+
+        // Invoke the slot as a queued connection to give time for the ACK message
+        // to go through first.
+
+        return true;
+    });
+
     // We try to invoke the callbacks even if script parsing resulted in error...
     _jspebble->invokeCallbacks("ready");
 }
@@ -173,6 +185,10 @@ void JSKitManager::stopJsApp()
     if (!_engine) return; // Nothing to do!
 
     logger()->debug() << "stopping JS app";
+
+    if (!_curApp.uuid().isNull()) {
+        _appmsg->clearMessageHandler(_curApp.uuid());
+    }
 
     _engine->collectGarbage();
 

@@ -55,7 +55,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(notifications, SIGNAL(twitterNotify(const QString &,const QString &)), SLOT(onTwitterNotify(const QString &,const QString &)));
     connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
-    connect(appmsg, &AppMsgManager::messageReceived, this, &Manager::onAppMessage);
     connect(appmsg, &AppMsgManager::appStarted, this, &Manager::onAppOpened);
     connect(appmsg, &AppMsgManager::appStopped, this, &Manager::onAppClosed);
 
@@ -395,12 +394,8 @@ void Manager::transliterateMessage(const QString &text)
 
 void Manager::onAppNotification(const QUuid &uuid, const QString &title, const QString &body)
 {
+    Q_UNUSED(uuid);
     watch->sendSMSNotification(title, body);
-}
-
-void Manager::onAppMessage(const QUuid &uuid, const QVariantMap &data)
-{
-    emit proxy->AppMessage(uuid.toString(), data);
 }
 
 void Manager::onAppOpened(const QUuid &uuid)

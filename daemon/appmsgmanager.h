@@ -19,6 +19,11 @@ public:
     void send(const QUuid &uuid, const QVariantMap &data,
               const std::function<void()> &ackCallback,
               const std::function<void()> &nackCallback);
+
+    typedef std::function<bool(const QVariantMap &)> MessageHandlerFunc;
+    void setMessageHandler(const QUuid &uuid, MessageHandlerFunc func);
+    void clearMessageHandler(const QUuid &uuid);
+
     uint lastTransactionId() const;
     uint nextTransactionId() const;
 
@@ -30,7 +35,6 @@ public slots:
 signals:
     void appStarted(const QUuid &uuid);
     void appStopped(const QUuid &uuid);
-    void messageReceived(const QUuid &uuid, const QVariantMap &data);
 
 private:
     WatchConnector::Dict mapAppKeys(const QUuid &uuid, const QVariantMap &data);
@@ -56,6 +60,7 @@ private slots:
 private:
     AppManager *apps;
     WatchConnector *watch;
+    QHash<QUuid, MessageHandlerFunc> _handlers;
     quint8 _lastTransactionId;
 
     struct PendingTransaction {
