@@ -108,6 +108,7 @@ public:
     enum AppManager {
         appmgrGET_APPBANK_STATUS = 1,
         appmgrREMOVE_APP = 2,
+        appmgrREFRESH_APP = 3,
         appmgrGET_APPBANK_UUIDS = 5
     };
     enum AppMessage {
@@ -154,8 +155,19 @@ public:
          osLINUX = 4,
          osWINDOWS = 5
     };
-    enum {
-        DEFAULT_TIMEOUT_MSECS = 100
+    enum UploadType {
+        uploadFIRMWARE = 1,
+        uploadRECOVERY = 2,
+        uploadSYS_RESOURCES = 3,
+        uploadRESOURCES = 4,
+        uploadBINARY = 5
+    };
+    enum PutBytesCommand {
+        putbytesINIT = 1,
+        putbytesSEND = 2,
+        putbytesCOMMIT = 3,
+        putbytesABORT = 4,
+        putbytesCOMPLETE = 5
     };
 
     typedef QMap<int, QVariant> Dict;

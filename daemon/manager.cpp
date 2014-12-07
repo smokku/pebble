@@ -10,8 +10,9 @@ Manager::Manager(Settings *settings, QObject *parent) :
     proxy(new PebbledProxy(this)),
     watch(new WatchConnector(this)),
     dbus(new DBusConnector(this)),
+    upload(new UploadManager(watch, this)),
     apps(new AppManager(this)),
-    bank(new BankManager(watch, apps, this)),
+    bank(new BankManager(watch, upload, apps, this)),
     voice(new VoiceCallManager(settings, this)),
     notifications(new NotificationManager(settings, this)),
     music(new MusicManager(watch, this)),
@@ -508,5 +509,16 @@ void PebbledProxy::UnloadApp(uint slot)
     if (!manager()->bank->unloadApp(slot)) {
         sendErrorReply(msg.interface() + ".Error.CannotUnload",
                        "Cannot unload application");
+    }
+}
+
+void PebbledProxy::UploadApp(const QString &uuid, uint slot)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (!manager()->bank->uploadApp(QUuid(uuid), slot)) {
+        sendErrorReply(msg.interface() + ".Error.CannotUpload",
+                       "Cannot upload application");
     }
 }

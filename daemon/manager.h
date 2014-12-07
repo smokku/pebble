@@ -3,6 +3,7 @@
 
 #include "watchconnector.h"
 #include "dbusconnector.h"
+#include "uploadmanager.h"
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
 #include "musicmanager.h"
@@ -45,6 +46,7 @@ class Manager : public QObject, protected QDBusContext
 
     WatchConnector *watch;
     DBusConnector *dbus;
+    UploadManager *upload;
     AppManager *apps;
     BankManager *bank;
     VoiceCallManager *voice;
@@ -146,6 +148,7 @@ public slots:
     void SendAppConfigurationData(const QString &uuid, const QString &data);
 
     void UnloadApp(uint slot);
+    void UploadApp(const QString &uuid, uint slot);
 
 signals:
     void NameChanged();

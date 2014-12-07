@@ -2,6 +2,7 @@
 #define BANKMANAGER_H
 
 #include "watchconnector.h"
+#include "uploadmanager.h"
 #include "appmanager.h"
 
 class BankManager : public QObject
@@ -10,10 +11,9 @@ class BankManager : public QObject
     LOG4QT_DECLARE_QCLASS_LOGGER
 
 public:
-    explicit BankManager(WatchConnector *watch, AppManager *apps, QObject *parent = 0);
+    explicit BankManager(WatchConnector *watch, UploadManager *upload, AppManager *apps, QObject *parent = 0);
 
     int numSlots() const;
-
 
 signals:
     void slotsChanged();
@@ -26,6 +26,7 @@ public slots:
 
 private:
     int findUnusedSlot() const;
+    void refreshWatchApp(int slot, std::function<void()> successCallback, std::function<void(int)> errorCallback);
 
 
 private slots:
@@ -33,7 +34,15 @@ private slots:
 
 private:
     WatchConnector *watch;
+    UploadManager *upload;
     AppManager *apps;
+
+    enum ResultCodes {
+        Success = 1,
+        BankInUse = 2,
+        InvalidCommand = 3,
+        GeneralFailure = 4
+    };
 
     struct SlotInfo {
         bool used;
@@ -46,6 +55,7 @@ private:
     };
 
     QVector<SlotInfo> _slots;
+    QTimer *_refresh;
 };
 
 #endif // BANKMANAGER_H

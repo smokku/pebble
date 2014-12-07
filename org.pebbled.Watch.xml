@@ -54,5 +54,9 @@
     <method name="UnloadApp">
       <arg name="slot" type="u" direction="in"/>
     </method>
+    <method name="UploadApp">
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="slot" type="u" direction="in"/>
+    </method>
   </interface>
 </node>

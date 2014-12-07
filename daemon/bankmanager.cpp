@@ -1,11 +1,19 @@
+#include <QFile>
+#include <QDir>
 #include "unpacker.h"
 #include "packer.h"
 #include "bankmanager.h"
 
-BankManager::BankManager(WatchConnector *watch, AppManager *apps, QObject *parent) :
-    QObject(parent), watch(watch), apps(apps)
+BankManager::BankManager(WatchConnector *watch, UploadManager *upload, AppManager *apps, QObject *parent) :
+    QObject(parent), watch(watch), upload(upload), apps(apps), _refresh(new QTimer(this))
 {
-    connect(watch, &WatchConnector::connectedChanged, this, &BankManager::handleWatchConnected);
+    connect(watch, &WatchConnector::connectedChanged,
+            this, &BankManager::handleWatchConnected);
+
+    _refresh->setInterval(0);
+    _refresh->setSingleShot(true);
+    connect(_refresh, &QTimer::timeout,
+            this, &BankManager::refresh);
 }
 
 int BankManager::numSlots() const
@@ -32,9 +40,82 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
         return false;
     }
 
-    // TODO
+    QDir appDir(info.path());
 
-    return false;
+    logger()->debug() << "about to install app from" << appDir.absolutePath() << "into slot" << slot;
+
+    QFile *binaryFile = new QFile(appDir.absoluteFilePath("pebble-app.bin"), this);
+    if (!binaryFile->open(QIODevice::ReadOnly)) {
+        logger()->warn() << "failed to open" << binaryFile->fileName() << ":" << binaryFile->errorString();
+        delete binaryFile;
+        return false;
+    }
+
+    logger()->debug() << "binary file size is" << binaryFile->size();
+
+    QFile *resourceFile = 0;
+    if (appDir.exists("app_resources.pbpack")) {
+        resourceFile = new QFile(appDir.absoluteFilePath("app_resources.pbpack"), this);
+        if (!resourceFile->open(QIODevice::ReadOnly)) {
+            logger()->warn() << "failed to open" << resourceFile->fileName() << ":" << resourceFile->errorString();
+            delete resourceFile;
+            return false;
+        }
+    }
+
+    // Mark the slot as used, but without any app, just in case.
+    _slots[slot].used = true;
+    _slots[slot].name.clear();
+    _slots[slot].uuid = QUuid();
+
+    upload->upload(WatchConnector::uploadBINARY, slot, binaryFile, -1,
+    [this, binaryFile, resourceFile, slot]() {
+        logger()->debug() << "app binary upload succesful";
+        delete binaryFile;
+
+        // Proceed to upload the resource file
+        if (resourceFile) {
+            upload->upload(WatchConnector::uploadRESOURCES, slot, resourceFile, -1,
+            [this, resourceFile, slot]() {
+                logger()->debug() << "app resources upload succesful";
+                delete resourceFile;
+
+                // Upload succesful
+                // Tell the watch to reload the slot
+                refreshWatchApp(slot, [this]() {
+                    logger()->debug() << "app refresh succesful";
+                    _refresh->start();
+                }, [this](int code) {
+                    logger()->warn() << "app refresh failed" << code;
+                    _refresh->start();
+                });
+            }, [this, resourceFile](int code) {
+                logger()->warn() << "app resources upload failed" << code;
+                delete resourceFile;
+
+                _refresh->start();
+            });
+
+        } else {
+            // No resource file
+            // Tell the watch to reload the slot
+            refreshWatchApp(slot, [this]() {
+                logger()->debug() << "app refresh succesful";
+                _refresh->start();
+            }, [this](int code) {
+                logger()->warn() << "app refresh failed" << code;
+                _refresh->start();
+            });
+        }
+    }, [this, binaryFile, resourceFile](int code) {
+        logger()->warn() << "app binary upload failed" << code;
+        delete binaryFile;
+        delete resourceFile;
+
+        _refresh->start();
+    });
+
+    return true;
 }
 
 bool BankManager::unloadApp(int slot)
@@ -76,7 +157,7 @@ bool BankManager::unloadApp(int slot)
             break;
         }
 
-        QMetaObject::invokeMethod(this, "refresh", Qt::QueuedConnection);
+        _refresh->start();
 
         return true;
     });
@@ -169,24 +250,43 @@ int BankManager::findUnusedSlot() const
     return -1;
 }
 
+void BankManager::refreshWatchApp(int slot, std::function<void ()> successCallback, std::function<void (int)> errorCallback)
+{
+    QByteArray msg;
+    Packer p(&msg);
+    p.write<quint8>(WatchConnector::appmgrREFRESH_APP);
+    p.write<quint32>(slot);
+
+    watch->sendMessage(WatchConnector::watchAPP_MANAGER, msg,
+                       [this, successCallback, errorCallback](const QByteArray &data) {
+        Unpacker u(data);
+        if (u.read<quint8>() != WatchConnector::appmgrREFRESH_APP) {
+            return false;
+        }
+        int code = u.read<quint32>();
+        if (code == Success) {
+            if (successCallback) {
+                successCallback();
+            }
+        } else {
+            if (errorCallback) {
+                errorCallback(code);
+            }
+        }
+
+        return true;
+    });
+}
+
 void BankManager::handleWatchConnected()
 {
     if (watch->isConnected()) {
-        refresh();
+        _refresh->start();
     }
 }
 
 #if 0
-
-void WatchConnector::getAppbankStatus(const std::function<void(const QString &s)>& callback)
-{
-    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_STATUS),
-                [this, callback](const QByteArray &data) {
-
-    });
-}
-
-void WatchConnector::getAppbankUuids(const function<void(const QList<QUuid> &)>& callback)
+void BankManager::getAppbankUuids(const function<void(const QList<QUuid> &)>& callback)
 {
     sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_UUIDS),
                 [this, callback](const QByteArray &data) {

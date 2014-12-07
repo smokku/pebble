@@ -29,7 +29,9 @@ SOURCES += \
     appinfo.cpp \
     jskitobjects.cpp \
     packer.cpp \
-    bankmanager.cpp
+    bankmanager.cpp \
+    uploadmanager.cpp \
+    stm32crc.cpp
 
 HEADERS += \
     manager.h \
@@ -48,7 +50,9 @@ HEADERS += \
     appinfo.h \
     jskitobjects.h \
     packer.h \
-    bankmanager.h
+    bankmanager.h \
+    uploadmanager.h \
+    stm32crc.h
 
 OTHER_FILES += \
     ../log4qt-debug.conf \
