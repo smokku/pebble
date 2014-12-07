@@ -49,5 +49,10 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="data" type="s" direction="in"/>
     </method>
+
+    <!-- Bank management methods -->
+    <method name="UnloadApp">
+      <arg name="slot" type="u" direction="in"/>
+    </method>
   </interface>
 </node>

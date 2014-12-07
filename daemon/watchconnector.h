@@ -107,6 +107,7 @@ public:
     };
     enum AppManager {
         appmgrGET_APPBANK_STATUS = 1,
+        appmgrREMOVE_APP = 2,
         appmgrGET_APPBANK_UUIDS = 5
     };
     enum AppMessage {
@@ -178,9 +179,6 @@ public:
 
     static QString timeStamp();
     static QString decodeEndpoint(uint val);
-
-    void getAppbankStatus(const std::function<void(const QString &s)>& callback);
-    void getAppbankUuids(const std::function<void(const QList<QUuid> &uuids)>& callback);
 
 signals:
     void messageReceived(uint endpoint, const QByteArray &data);

@@ -10,6 +10,7 @@
 #include "appmsgmanager.h"
 #include "jskitmanager.h"
 #include "appmanager.h"
+#include "bankmanager.h"
 #include "settings.h"
 
 #include <QObject>
@@ -45,6 +46,7 @@ class Manager : public QObject, protected QDBusContext
     WatchConnector *watch;
     DBusConnector *dbus;
     AppManager *apps;
+    BankManager *bank;
     VoiceCallManager *voice;
     NotificationManager *notifications;
     MusicManager *music;
@@ -142,6 +144,8 @@ public slots:
     bool SendAppMessage(const QString &uuid, const QVariantMap &data);
     QString StartAppConfiguration(const QString &uuid);
     void SendAppConfigurationData(const QString &uuid, const QString &data);
+
+    void UnloadApp(uint slot);
 
 signals:
     void NameChanged();

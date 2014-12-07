@@ -11,6 +11,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     watch(new WatchConnector(this)),
     dbus(new DBusConnector(this)),
     apps(new AppManager(this)),
+    bank(new BankManager(watch, apps, this)),
     voice(new VoiceCallManager(settings, this)),
     notifications(new NotificationManager(settings, this)),
     music(new MusicManager(watch, this)),
@@ -497,4 +498,15 @@ void PebbledProxy::SendAppConfigurationData(const QString &uuid, const QString &
     }
 
     manager()->js->handleWebviewClosed(data);
+}
+
+void PebbledProxy::UnloadApp(uint slot)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (!manager()->bank->unloadApp(slot)) {
+        sendErrorReply(msg.interface() + ".Error.CannotUnload",
+                       "Cannot unload application");
+    }
 }
