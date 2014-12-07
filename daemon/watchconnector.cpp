@@ -5,6 +5,7 @@
 #include "unpacker.h"
 
 static const int RECONNECT_TIMEOUT = 500; //ms
+static const bool PROTOCOL_DEBUG = false;
 
 using std::function;
 
@@ -135,7 +136,7 @@ bool WatchConnector::dispatchMessage(uint endpoint, const QByteArray &data)
     }
 
     logger()->info() << "message to endpoint" << decodeEndpoint(endpoint) << "was not dispatched";
-    emit messageReceived(endpoint, data);
+    logger()->debug() << data.toHex();
     return false;
 }
 
@@ -182,6 +183,7 @@ void WatchConnector::onReadSocket()
         QByteArray data = socket->read(message_length);
 
         logger()->debug() << "received message of length" << message_length << "to endpoint" << decodeEndpoint(endpoint);
+        if (PROTOCOL_DEBUG) logger()->debug() << data.toHex();
 
         dispatchMessage(endpoint, data);
     }
@@ -225,7 +227,7 @@ void WatchConnector::onDisconnected()
         reconnectTimer.setInterval(reconnectTimer.interval() + RECONNECT_TIMEOUT);
     }
     reconnectTimer.start();
-    logger()->debug() << "Will reconnect in" << reconnectTimer.interval() << "ms";
+    logger()->debug() << "will reconnect in" << reconnectTimer.interval() << "ms";
 }
 
 void WatchConnector::onError(QBluetoothSocket::SocketError error)
@@ -233,7 +235,7 @@ void WatchConnector::onError(QBluetoothSocket::SocketError error)
     if (error == QBluetoothSocket::UnknownSocketError) {
         logger()->info() << error << socket->errorString();
     } else {
-        logger()->error() << "Error connecting Pebble:" << error << socket->errorString();
+        logger()->error() << "error connecting Pebble:" << error << socket->errorString();
     }
 }
 
@@ -241,11 +243,11 @@ void WatchConnector::sendData(const QByteArray &data)
 {
     writeData.append(data);
     if (socket == nullptr) {
-        logger()->debug() << "No socket - reconnecting";
+        logger()->debug() << "no socket - reconnecting";
         reconnect();
     } else if (is_connected) {
-        logger()->debug() << "Writing" << data.length() << "bytes to socket";
-        logger()->debug() << data.toHex();
+        logger()->debug() << "writing" << data.length() << "bytes to socket";
+        if (PROTOCOL_DEBUG) logger()->debug() << data.toHex();
         socket->write(data);
     }
 }
@@ -253,7 +255,7 @@ void WatchConnector::sendData(const QByteArray &data)
 void WatchConnector::onBytesWritten(qint64 bytes)
 {
     writeData.remove(0, bytes);
-    logger()->debug() << "Socket written" << bytes << "bytes," << writeData.length() << "left";
+    logger()->debug() << "socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
 void WatchConnector::sendMessage(uint endpoint, const QByteArray &data, const EndpointHandlerFunc &callback)

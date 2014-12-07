@@ -51,12 +51,14 @@
     </method>
 
     <!-- Bank management methods -->
+    <property name="AppSlots" type="as" access="read"/>
+    <signal name="AppSlotsChanged"/>
     <method name="UnloadApp">
-      <arg name="slot" type="u" direction="in"/>
+      <arg name="slot" type="i" direction="in"/>
     </method>
     <method name="UploadApp">
       <arg name="uuid" type="s" direction="in"/>
-      <arg name="slot" type="u" direction="in"/>
+      <arg name="slot" type="i" direction="in"/>
     </method>
   </interface>
 </node>

@@ -70,6 +70,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
     connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
+    connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
 
     QString currentProfile = getCurrentProfile();
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
@@ -414,6 +415,26 @@ void Manager::onAppClosed(const QUuid &uuid)
     emit proxy->AppUuidChanged();
 }
 
+QStringList PebbledProxy::AppSlots() const
+{
+    const int num_slots = manager()->bank->numSlots();
+    QStringList l;
+    l.reserve(num_slots);
+
+    for (int i = 0; i < num_slots; ++i) {
+        if (manager()->bank->isUsed(i)) {
+            QUuid uuid = manager()->bank->appAt(i);
+            l.append(uuid.toString());
+        } else {
+            l.append(QString());
+        }
+    }
+
+    Q_ASSERT(l.size() == num_slots);
+
+    return l;
+}
+
 bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data)
 {
     Q_ASSERT(calledFromDBus());
@@ -501,7 +522,7 @@ void PebbledProxy::SendAppConfigurationData(const QString &uuid, const QString &
     manager()->js->handleWebviewClosed(data);
 }
 
-void PebbledProxy::UnloadApp(uint slot)
+void PebbledProxy::UnloadApp(int slot)
 {
     Q_ASSERT(calledFromDBus());
     const QDBusMessage msg = message();
@@ -512,7 +533,7 @@ void PebbledProxy::UnloadApp(uint slot)
     }
 }
 
-void PebbledProxy::UploadApp(const QString &uuid, uint slot)
+void PebbledProxy::UploadApp(const QString &uuid, int slot)
 {
     Q_ASSERT(calledFromDBus());
     const QDBusMessage msg = message();

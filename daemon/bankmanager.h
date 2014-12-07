@@ -15,6 +15,9 @@ public:
 
     int numSlots() const;
 
+    bool isUsed(int slot) const;
+    QUuid appAt(int slot) const;
+
 signals:
     void slotsChanged();
 
@@ -27,7 +30,6 @@ public slots:
 private:
     int findUnusedSlot() const;
     void refreshWatchApp(int slot, std::function<void()> successCallback, std::function<void(int)> errorCallback);
-
 
 private slots:
     void handleWatchConnected();

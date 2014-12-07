@@ -193,7 +193,6 @@ public:
     static QString decodeEndpoint(uint val);
 
 signals:
-    void messageReceived(uint endpoint, const QByteArray &data);
     void nameChanged();
     void connectedChanged();
 

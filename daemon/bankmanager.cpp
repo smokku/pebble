@@ -21,6 +21,16 @@ int BankManager::numSlots() const
     return _slots.size();
 }
 
+bool BankManager::isUsed(int slot) const
+{
+    return _slots.at(slot).used;
+}
+
+QUuid BankManager::appAt(int slot) const
+{
+    return _slots.at(slot).uuid;
+}
+
 bool BankManager::uploadApp(const QUuid &uuid, int slot)
 {
     AppInfo info = apps->info(uuid);
@@ -37,6 +47,10 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     }
     if (slot < 0 || slot > _slots.size()) {
         logger()->warn() << "invalid slot index";
+        return false;
+    }
+    if (_slots[slot].used) {
+        logger()->warn() << "slot in use";
         return false;
     }
 

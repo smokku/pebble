@@ -122,8 +122,6 @@ void UploadManager::handleMessage(const QByteArray &msg)
     Q_ASSERT(!_pending.empty());
     PendingUpload &upload = _pending.head();
 
-    logger()->debug() << "get message" << msg.toHex();
-
     Unpacker u(msg);
     int status = u.read<quint8>();
 
@@ -194,6 +192,9 @@ void UploadManager::handleMessage(const QByteArray &msg)
         if (!_pending.empty()) {
             startNextUpload();
         }
+        break;
+    default:
+        logger()->warn() << "received message in wrong state";
         break;
     }
 }
