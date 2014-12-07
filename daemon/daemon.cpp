@@ -70,6 +70,7 @@ void initLogging()
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    app.setApplicationName("pebble"); // Use the same appname as the UI.
 
     // Init logging should be called after app object creation as initLogging() will examine
     // QCoreApplication for determining the .conf files locations
