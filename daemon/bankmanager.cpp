@@ -274,7 +274,11 @@ void BankManager::refreshWatchApp(int slot, std::function<void ()> successCallba
     watch->sendMessage(WatchConnector::watchAPP_MANAGER, msg,
                        [this, successCallback, errorCallback](const QByteArray &data) {
         Unpacker u(data);
-        if (u.read<quint8>() != WatchConnector::appmgrREFRESH_APP) {
+        int type = u.read<quint8>();
+        // For some reason, the watch might sometimes reply an "app installed" message
+        // with a "app removed" confirmation message
+        // Every other implementation seems to ignore this fact, so I guess it's not important.
+        if (type != WatchConnector::appmgrREFRESH_APP && type != WatchConnector::appmgrREMOVE_APP) {
             return false;
         }
         int code = u.read<quint32>();
@@ -302,9 +306,10 @@ void BankManager::handleWatchConnected()
 #if 0
 void BankManager::getAppbankUuids(const function<void(const QList<QUuid> &)>& callback)
 {
-    sendMessage(watchAPP_MANAGER, QByteArray(1, appmgrGET_APPBANK_UUIDS),
+    watch->sendMessage(WatchConnector::watchAPP_MANAGER,
+                       QByteArray(1, WatchConnector::appmgrGET_APPBANK_UUIDS),
                 [this, callback](const QByteArray &data) {
-        if (data.at(0) != appmgrGET_APPBANK_UUIDS) {
+        if (data.at(0) != WatchConnector::appmgrGET_APPBANK_UUIDS) {
             return false;
         }
         logger()->debug() << "getAppbankUuids response" << data.toHex();
