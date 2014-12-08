@@ -149,41 +149,43 @@ void WatchConnector::onReadSocket()
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
     Q_ASSERT(socket && socket == this->socket);
 
+    // Keep attempting to read messages as long as at least a header is present
     while (socket->bytesAvailable() >= header_length) {
-        // Do nothing if there is no message to read.
-        if (socket->bytesAvailable() < header_length) {
-            if (socket->bytesAvailable() > 0) {
-                logger()->debug() << "incomplete header in read buffer";
-            }
-            return;
-        }
-
+        // Take a look at the header, but do not remove it from the socket input buffer.
+        // We will only remove it once we're sure the entire packet is in the buffer.
         uchar header[header_length];
         socket->peek(reinterpret_cast<char*>(header), header_length);
 
-        quint16 message_length, endpoint;
-        message_length = qFromBigEndian<quint16>(&header[0]);
-        endpoint = qFromBigEndian<quint16>(&header[sizeof(quint16)]);
+        quint16 message_length = qFromBigEndian<quint16>(&header[0]);
+        quint16 endpoint = qFromBigEndian<quint16>(&header[2]);
 
-        if (message_length > 8 * 1024) {
+        // Sanity checks on the message_length
+        if (message_length == 0) {
+            logger()->warn() << "received empty message";
+            socket->read(header_length); // skip this header
+            continue; // check if there are additional headers.
+        } else if (message_length > 8 * 1024) {
             // Protocol does not allow messages more than 8K long, seemingly.
             logger()->warn() << "received message size too long: " << message_length;
-            socket->readAll(); // drop input buffer
+            socket->readAll(); // drop entire input buffer
             return;
         }
 
         // Now wait for the entire message
         if (socket->bytesAvailable() < header_length + message_length) {
             logger()->debug() << "incomplete msg body in read buffer";
-            return;
+            return; // try again once more data comes in
         }
 
-        socket->read(header_length); // Skip the header
+        // We can now safely remove the header from the input buffer,
+        // as we know the entire message is in the input buffer.
+        socket->read(header_length);
 
+        // Now read the rest of the message
         QByteArray data = socket->read(message_length);
 
         logger()->debug() << "received message of length" << message_length << "to endpoint" << decodeEndpoint(endpoint);
-        if (PROTOCOL_DEBUG) logger()->debug() << data.toHex();
+        if (PROTOCOL_DEBUG) logger()->trace() << data.toHex();
 
         dispatchMessage(endpoint, data);
     }
@@ -247,7 +249,7 @@ void WatchConnector::sendData(const QByteArray &data)
         reconnect();
     } else if (is_connected) {
         logger()->debug() << "writing" << data.length() << "bytes to socket";
-        if (PROTOCOL_DEBUG) logger()->debug() << data.toHex();
+        if (PROTOCOL_DEBUG) logger()->trace() << data.toHex();
         socket->write(data);
     }
 }
