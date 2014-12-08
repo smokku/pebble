@@ -1,6 +1,7 @@
 #include <QStandardPaths>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QAuthenticator>
 #include <QBuffer>
 #include <QDir>
 #include <limits>
@@ -201,6 +202,8 @@ JSKitXMLHttpRequest::JSKitXMLHttpRequest(JSKitManager *mgr, QObject *parent)
       _net(new QNetworkAccessManager(this)), _timeout(0), _reply(0)
 {
     logger()->debug() << "constructed";
+    connect(_net, &QNetworkAccessManager::authenticationRequired,
+            this, &JSKitXMLHttpRequest::handleAuthenticationRequired);
 }
 
 JSKitXMLHttpRequest::~JSKitXMLHttpRequest()
@@ -215,9 +218,13 @@ void JSKitXMLHttpRequest::open(const QString &method, const QString &url, bool a
         _reply = 0;
     }
 
+    _username = username;
+    _password = password;
     _request = QNetworkRequest(QUrl(url));
     _verb = method;
     Q_UNUSED(async);
+
+    logger()->debug() << "opened to URL" << _request.url().toString();
 }
 
 void JSKitXMLHttpRequest::setRequestHeader(const QString &header, const QString &value)
@@ -451,6 +458,22 @@ void JSKitXMLHttpRequest::handleReplyError(QNetworkReply::NetworkError code)
         QJSValue result = _onerror.callWithInstance(_mgr->engine()->newQObject(this));
         if (result.isError()) {
             logger()->warn() << "JS error on onerror handler:" << JSKitManager::describeError(result);
+        }
+    }
+}
+
+void JSKitXMLHttpRequest::handleAuthenticationRequired(QNetworkReply *reply, QAuthenticator *auth)
+{
+    if (_reply == reply) {
+        logger()->debug() << "authentication required";
+
+        if (!_username.isEmpty() || !_password.isEmpty()) {
+            logger()->debug() << "using provided authorization:" << _username;
+
+            auth->setUser(_username);
+            auth->setPassword(_password);
+        } else {
+            logger()->debug() << "no username or password provided";
         }
     }
 }

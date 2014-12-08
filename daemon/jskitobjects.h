@@ -143,12 +143,15 @@ signals:
 private slots:
     void handleReplyFinished();
     void handleReplyError(QNetworkReply::NetworkError code);
+    void handleAuthenticationRequired(QNetworkReply *reply, QAuthenticator *auth);
 
 private:
     JSKitManager *_mgr;
     QNetworkAccessManager *_net;
     QString _verb;
     uint _timeout;
+    QString _username;
+    QString _password;
     QNetworkRequest _request;
     QNetworkReply *_reply;
     QString _responseType;
