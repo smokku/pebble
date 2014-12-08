@@ -24,13 +24,12 @@ public:
 
     static QString describeError(QJSValue error);
 
+    void showConfiguration();
+    void handleWebviewClosed(const QString &result);
+
 signals:
     void appNotification(const QUuid &uuid, const QString &title, const QString &body);
     void appOpenUrl(const QUrl &url);
-
-public slots:
-    void showConfiguration();
-    void handleWebviewClosed(const QString &result);
 
 private slots:
     void handleAppStarted(const QUuid &uuid);

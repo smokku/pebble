@@ -454,14 +454,17 @@ QString PebbledProxy::StartAppConfiguration(const QString &uuid)
 {
     Q_ASSERT(calledFromDBus());
     const QDBusMessage msg = message();
+    QDBusConnection conn = connection();
 
     if (manager()->currentAppUuid != uuid) {
+        logger()->warn() << "Called StartAppConfiguration but the uuid" << uuid << "is not running";
         sendErrorReply(msg.interface() + ".Error.AppNotRunning",
                        "The requested app is not currently opened in the watch");
         return QString();
     }
 
     if (!manager()->js->isJSKitAppRunning()) {
+        logger()->warn() << "Called StartAppConfiguration but the uuid" << uuid << "is not a JS app";
         sendErrorReply(msg.interface() + ".Error.JSNotActive",
                        "The requested app is not a PebbleKit JS application");
         return QString();
@@ -474,25 +477,32 @@ QString PebbledProxy::StartAppConfiguration(const QString &uuid)
     setDelayedReply(true);
 
     // Set up a signal handler to catch the appOpenUrl signal.
-    QMetaObject::Connection c = connect(manager()->js, &JSKitManager::appOpenUrl,
-                                        [this,msg,c](const QUrl &url) {
-        // Workaround: due to a GCC bug we can't capture the uuid parameter, but we can extract
+    QMetaObject::Connection *c = new QMetaObject::Connection;
+    *c = connect(manager()->js, &JSKitManager::appOpenUrl,
+                 this, [this,conn,msg,c](const QUrl &url) {
+        // Workaround: due to a GCC crash we can't capture the uuid parameter, but we can extract
         // it again from the original message arguments.
-        QString uuid = msg.arguments().at(0).toString();
+        // Suspect GCC bug# is 59195, 61233, or 61321.
+        // TODO Possibly fixed in 4.9.0
+        const QString uuid = msg.arguments().at(0).toString();
+
         if (manager()->currentAppUuid != uuid) {
             // App was changed while we were waiting for the script..
             QDBusMessage reply = msg.createErrorReply(msg.interface() + ".Error.AppNotRunning",
                                                       "The requested app is not currently opened in the watch");
-            connection().send(reply);
+            conn.send(reply);
         } else {
             QDBusMessage reply = msg.createReply(QVariant::fromValue(url.toString()));
-            connection().send(reply);
+            conn.send(reply);
         }
 
-        disconnect(c);
+        disconnect(*c);
+        delete c;
     });
+
     // TODO: JS script may fail, never call OpenURL, or something like that
-    // In those cases we may leak the above connection
+    // In those cases we WILL leak the above connection.
+    // (at least until the next appOpenURL event comes in)
     // So we need to also set a timeout or similar.
 
     manager()->js->showConfiguration();

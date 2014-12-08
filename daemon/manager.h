@@ -114,10 +114,12 @@ private slots:
 /** This class is what's actually exported over D-Bus,
  *  so the names of the slots and properties must match with org.pebbled.Watch D-Bus interface.
  *  Case sensitive. Otherwise, _runtime_ failures will occur. */
-// The methods are marked inline so that they may be inlined inside qt_metacall
+// Some of the methods are marked inline so that they may be inlined inside qt_metacall
 class PebbledProxy : public QObject, protected QDBusContext
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
+
     Q_PROPERTY(QString Name READ Name NOTIFY NameChanged)
     Q_PROPERTY(QString Address READ Address NOTIFY AddressChanged)
     Q_PROPERTY(bool Connected READ Connected NOTIFY ConnectedChanged)
