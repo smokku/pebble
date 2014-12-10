@@ -33,7 +33,6 @@ public slots:
 protected slots:
     void onServiceRegistered(const QString &);
     void onServiceUnregistered(const QString &);
-
 };
 
 #endif // DBUSCONNECTOR_H

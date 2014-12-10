@@ -71,6 +71,8 @@ public:
         watchAPP_MANAGER = 6000,
         watchDATA_LOGGING = 6778,
         watchSCREENSHOT = 8000,
+        watchFILE_MANAGER = 8181,
+        watchCORE_DUMP = 9000,
         watchPUTBYTES = 48879
     };
     enum {
@@ -160,7 +162,9 @@ public:
         uploadRECOVERY = 2,
         uploadSYS_RESOURCES = 3,
         uploadRESOURCES = 4,
-        uploadBINARY = 5
+        uploadBINARY = 5,
+        uploadFILE = 6,
+        uploadWORKER = 7
     };
     enum PutBytesCommand {
         putbytesINIT = 1,
