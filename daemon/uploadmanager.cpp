@@ -20,13 +20,14 @@ UploadManager::UploadManager(WatchConnector *watch, QObject *parent) :
     });
 }
 
-uint UploadManager::upload(WatchConnector::UploadType type, int index, QIODevice *device, int size,
-                           function<void()> successCallback, function<void(int)> errorCallback)
+uint UploadManager::upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size,
+                           SuccessCallback successCallback, ErrorCallback errorCallback)
 {
     PendingUpload upload;
     upload.id = ++_lastUploadId;
     upload.type = type;
     upload.index = index;
+    upload.filename = filename;
     upload.device = device;
     if (size < 0) {
         upload.remaining = device->size();
@@ -51,6 +52,22 @@ uint UploadManager::upload(WatchConnector::UploadType type, int index, QIODevice
     }
 
     return upload.id;
+}
+
+uint UploadManager::uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+{
+    return upload(WatchConnector::uploadBINARY, slot, QString(), device, -1, successCallback, errorCallback);
+}
+
+uint UploadManager::uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+{
+    return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, successCallback, errorCallback);
+}
+
+uint UploadManager::uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+{
+    Q_ASSERT(!filename.isEmpty());
+    return upload(WatchConnector::uploadFILE, 0, filename, device, -1, successCallback, errorCallback);
 }
 
 void UploadManager::cancel(uint id, int code)
@@ -112,6 +129,11 @@ void UploadManager::startNextUpload()
     p.write<quint32>(upload.remaining);
     p.write<quint8>(upload.type);
     p.write<quint8>(upload.index);
+    if (!upload.filename.isEmpty()) {
+        p.writeCString(upload.filename);
+    }
+
+    logger()->debug() << "starting new upload, size:" << upload.remaining << ", type:" << upload.type << ", slot:" << upload.index;
 
     _state = StateWaitForToken;
     watch->sendMessage(WatchConnector::watchPUTBYTES, msg);

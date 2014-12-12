@@ -14,6 +14,12 @@ void Packer::writeBytes(int n, const QByteArray &b)
     }
 }
 
+void Packer::writeCString(const QString &s)
+{
+    _buf->append(s.toUtf8());
+    _buf->append('\0');
+}
+
 void Packer::writeUuid(const QUuid &uuid)
 {
     writeBytes(16, uuid.toRfc4122());

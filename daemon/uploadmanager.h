@@ -14,11 +14,16 @@ class UploadManager : public QObject
 public:
     explicit UploadManager(WatchConnector *watch, QObject *parent = 0);
 
-    typedef std::function<void()> Callback;
+    typedef std::function<void()> SuccessCallback;
+    typedef std::function<void(int)> ErrorCallback;
 
-    uint upload(WatchConnector::UploadType type, int index, QIODevice *device, int size = -1,
-                std::function<void()> successCallback = std::function<void()>(),
-                std::function<void(int)> errorCallback = std::function<void(int)>());
+    uint upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size = -1,
+                SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+
+    uint uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+    uint uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+    uint uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+
     void cancel(uint id, int code = 0);
 
 signals:
@@ -40,6 +45,7 @@ private:
 
         WatchConnector::UploadType type;
         int index;
+        QString filename;
         QIODevice *device;
         int remaining;
         Stm32Crc crc;

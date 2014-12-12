@@ -25,6 +25,8 @@ public:
 
     void writeFixedString(int n, const QString &s);
 
+    void writeCString(const QString &s);
+
     void writeUuid(const QUuid &uuid);
 
     void writeDict(const QMap<int, QVariant> &d);

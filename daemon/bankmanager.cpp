@@ -4,6 +4,26 @@
 #include "packer.h"
 #include "bankmanager.h"
 
+#if 0
+// TODO -- This is how language files seems to be installed.
+if (slot == -4) {
+    logger()->debug() << "starting lang install";
+    QFile *pbl = new QFile(QDir::home().absoluteFilePath("es.pbl"));
+    if (!pbl->open(QIODevice::ReadOnly)) {
+        logger()->warn() << "Failed to open pbl";
+        return false;
+    }
+
+    upload->uploadFile("lang", pbl, [this]() {
+        logger()->debug() << "success";
+    }, [this](int code) {
+        logger()->warn() << "Some error" << code;
+    });
+
+    return true;
+}
+#endif
+
 BankManager::BankManager(WatchConnector *watch, UploadManager *upload, AppManager *apps, QObject *parent) :
     QObject(parent), watch(watch), upload(upload), apps(apps), _refresh(new QTimer(this))
 {
@@ -82,14 +102,14 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     _slots[slot].name.clear();
     _slots[slot].uuid = QUuid();
 
-    upload->upload(WatchConnector::uploadBINARY, slot, binaryFile, -1,
+    upload->uploadAppBinary(slot, binaryFile,
     [this, binaryFile, resourceFile, slot]() {
         logger()->debug() << "app binary upload succesful";
         delete binaryFile;
 
         // Proceed to upload the resource file
         if (resourceFile) {
-            upload->upload(WatchConnector::uploadRESOURCES, slot, resourceFile, -1,
+            upload->uploadAppResources(slot, resourceFile,
             [this, resourceFile, slot]() {
                 logger()->debug() << "app resources upload succesful";
                 delete resourceFile;
