@@ -16,13 +16,14 @@ public:
 
     typedef std::function<void()> SuccessCallback;
     typedef std::function<void(int)> ErrorCallback;
+    typedef std::function<void(qreal)> ProgressCallback;
 
     uint upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size = -1,
-                SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+                SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback(), ProgressCallback progressCallback = ProgressCallback());
 
-    uint uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
-    uint uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
-    uint uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback());
+    uint uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback(), ProgressCallback progressCallback = ProgressCallback());
+    uint uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback(), ProgressCallback progressCallback = ProgressCallback());
+    uint uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback = SuccessCallback(), ErrorCallback errorCallback = ErrorCallback(), ProgressCallback progressCallback = ProgressCallback());
 
     void cancel(uint id, int code = 0);
 
@@ -47,11 +48,13 @@ private:
         int index;
         QString filename;
         QIODevice *device;
+        int size;
         int remaining;
         Stm32Crc crc;
 
-        std::function<void()> successCallback;
-        std::function<void(int)> errorCallback;
+        SuccessCallback successCallback;
+        ErrorCallback errorCallback;
+        ProgressCallback progressCallback;
     };
 
     void startNextUpload();

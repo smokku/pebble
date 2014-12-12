@@ -21,7 +21,7 @@ UploadManager::UploadManager(WatchConnector *watch, QObject *parent) :
 }
 
 uint UploadManager::upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size,
-                           SuccessCallback successCallback, ErrorCallback errorCallback)
+                           SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
     PendingUpload upload;
     upload.id = ++_lastUploadId;
@@ -30,12 +30,14 @@ uint UploadManager::upload(WatchConnector::UploadType type, int index, const QSt
     upload.filename = filename;
     upload.device = device;
     if (size < 0) {
-        upload.remaining = device->size();
+        upload.size = device->size();
     } else {
-        upload.remaining = size;
+        upload.size = size;
     }
+    upload.remaining = upload.size;
     upload.successCallback = successCallback;
     upload.errorCallback = errorCallback;
+    upload.progressCallback = progressCallback;
 
     if (upload.remaining <= 0) {
         logger()->warn() << "upload is empty";
@@ -54,20 +56,20 @@ uint UploadManager::upload(WatchConnector::UploadType type, int index, const QSt
     return upload.id;
 }
 
-uint UploadManager::uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+uint UploadManager::uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(WatchConnector::uploadBINARY, slot, QString(), device, -1, successCallback, errorCallback);
+    return upload(WatchConnector::uploadBINARY, slot, QString(), device, -1, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+uint UploadManager::uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, successCallback, errorCallback);
+    return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback)
+uint UploadManager::uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
     Q_ASSERT(!filename.isEmpty());
-    return upload(WatchConnector::uploadFILE, 0, filename, device, -1, successCallback, errorCallback);
+    return upload(WatchConnector::uploadFILE, 0, filename, device, -1, successCallback, errorCallback, progressCallback);
 }
 
 void UploadManager::cancel(uint id, int code)
@@ -181,6 +183,10 @@ void UploadManager::handleMessage(const QByteArray &msg)
         /* fallthrough */
     case StateInProgress:
         logger()->debug() << "moving to the next chunk";
+        if (upload.progressCallback) {
+            // Report that the previous chunk has been succesfully uploaded
+            upload.progressCallback(1.0 - (qreal(upload.remaining) / upload.size));
+        }
         if (upload.remaining > 0) {
             if (!uploadNextChunk(upload)) {
                 cancel(upload.id, -1);
@@ -197,6 +203,10 @@ void UploadManager::handleMessage(const QByteArray &msg)
         break;
     case StateCommit:
         logger()->debug() << "commited succesfully";
+        if (upload.progressCallback) {
+            // Report that all chunks have been succesfully uploaded
+            upload.progressCallback(1.0);
+        }
         _state = StateComplete;
         if (!complete(upload)) {
             cancel(upload.id, -1);
@@ -248,7 +258,7 @@ bool UploadManager::uploadNextChunk(PendingUpload &upload)
     upload.remaining -= chunk.size();
     upload.crc.addData(chunk);
 
-    logger()->debug() << "remaining" << upload.remaining << "bytes";
+    logger()->debug() << "remaining" << upload.remaining << "/" << upload.size << "bytes";
 
     return true;
 }
