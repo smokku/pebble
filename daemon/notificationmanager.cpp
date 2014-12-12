@@ -26,7 +26,7 @@ public:
 };
 
 NotificationManager::NotificationManager(Settings *settings, QObject *parent)
-    : QObject(parent), d_ptr(new NotificationManagerPrivate(this)), settings(settings)
+    : QObject(parent), l(metaObject()->className()), d_ptr(new NotificationManagerPrivate(this)), settings(settings)
 {
     Q_D(NotificationManager);
     QDBusConnection::sessionBus().registerObject("/org/freedesktop/Notifications", this, QDBusConnection::ExportAllSlots);
@@ -117,8 +117,8 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         return 0;
     }
 
-    logger()->debug() << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
-    logger()->debug() << hints;
+    qCDebug(l) << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
+    qCDebug(l) << hints;
 
     // Avoid sending a reply for this method call, since we've received it because we're eavesdropping.
     // The actual target of the method call will send the proper reply.
@@ -128,7 +128,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     if (app_name == "messageserver5") {
         QVariant notificationsEmails = settings->property("notificationsEmails");
         if (!notificationsEmails.isValid() || !notificationsEmails.toBool()) {
-            logger()->debug() << "Ignoring email notification because of setting!";
+            qCDebug(l) << "Ignoring email notification because of setting!";
             return 0;
         }
 
@@ -151,13 +151,13 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             if (category == "x-nemo.call.missed") {
                 QVariant notificationsMissedCall = settings->property("notificationsMissedCall");
                 if (notificationsMissedCall.isValid() && !notificationsMissedCall.toBool()) {
-                    logger()->debug() << "Ignoring MissedCall notification because of setting!";
+                    qCDebug(l) << "Ignoring MissedCall notification because of setting!";
                     return 0;
                 }
             } else {
                 QVariant notificationsCommhistoryd = settings->property("notificationsCommhistoryd");
                 if (notificationsCommhistoryd.isValid() && !notificationsCommhistoryd.toBool()) {
-                    logger()->debug() << "Ignoring commhistoryd notification because of setting!";
+                    qCDebug(l) << "Ignoring commhistoryd notification because of setting!";
                     return 0;
                 }
             }
@@ -168,7 +168,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     } else if (app_name == "harbour-mitakuuluu2-server") {
         QVariant notificationsMitakuuluu = settings->property("notificationsMitakuuluu");
         if (notificationsMitakuuluu.isValid() && !notificationsMitakuuluu.toBool()) {
-            logger()->debug() << "Ignoring mitakuuluu notification because of setting!";
+            qCDebug(l) << "Ignoring mitakuuluu notification because of setting!";
             return 0;
         }
 
@@ -178,7 +178,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     } else if (app_name == "twitter-notifications-client") {
         QVariant notificationsTwitter = settings->property("notificationsTwitter");
         if (notificationsTwitter.isValid() && !notificationsTwitter.toBool()) {
-            logger()->debug() << "Ignoring twitter notification because of setting!";
+            qCDebug(l) << "Ignoring twitter notification because of setting!";
             return 0;
         }
 
@@ -193,17 +193,17 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         QStringHash categoryParams = this->getCategoryParams(category);
         int prio = categoryParams.value("x-nemo-priority", "0").toInt();
 
-        logger()->debug() << "MSG Prio:" << prio;
+        qCDebug(l) << "MSG Prio:" << prio;
 
         QVariant notificationsAll = settings->property("notificationsAll");
         if ((!notificationsAll.isValid() || !notificationsAll.toBool()) && prio <= 10) {
-            logger()->debug() << "Ignoring notification because of setting! (all)";
+            qCDebug(l) << "Ignoring notification because of setting! (all)";
             return 0;
         }
 
         QVariant notificationsOther = settings->property("notificationsOther");
         if (notificationsOther.isValid() && !notificationsOther.toBool() && prio < 90) {
-            logger()->debug() << "Ignoring notification because of setting! (other)";
+            qCDebug(l) << "Ignoring notification because of setting! (other)";
             return 0;
         }
 
@@ -222,7 +222,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
         //Never send empty data and subject
         if (data.isEmpty() && subject.isEmpty()) {
-            logger()->warn() << Q_FUNC_INFO << "Empty subject and data in dbus app:" << app_name;
+            qCWarning(l) << Q_FUNC_INFO << "Empty subject and data in dbus app:" << app_name;
             return 0;
         }
 

@@ -82,6 +82,5 @@ systemctl --user daemon-reload
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
 %{_libdir}/systemd/user/%{name}d.service
 %{_libdir}/systemd/user/user-session.target.wants/%{name}d.service
-%{_datadir}/%{name}/log4qt.conf
 # >> files
 # << files

@@ -4,12 +4,12 @@
 #include <QObject>
 #include <QStringList>
 #include <QVariantMap>
-#include <Log4Qt/Logger>
+#include <QLoggingCategory>
 
 class DBusConnector : public QObject
 {
     Q_OBJECT
-    LOG4QT_DECLARE_QCLASS_LOGGER
+    QLoggingCategory l;
 
     Q_PROPERTY(QVariantMap pebble READ pebble NOTIFY pebbleChanged)
     Q_PROPERTY(QStringList services READ services NOTIFY servicesChanged)

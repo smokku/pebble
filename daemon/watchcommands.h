@@ -2,14 +2,14 @@
 #define WATCHCOMMANDS_H
 
 #include "watchconnector.h"
-#include <Log4Qt/Logger>
+#include <QLoggingCategory>
 
 #include <QObject>
 
 class WatchCommands : public QObject
 {
     Q_OBJECT
-    LOG4QT_DECLARE_QCLASS_LOGGER
+    QLoggingCategory l;
 
     watch::WatchConnector *watch;
 

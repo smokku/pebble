@@ -34,8 +34,7 @@
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
-#include <Log4Qt/LogManager>
-#include <Log4Qt/PropertyConfigurator>
+#include <QLoggingCategory>
 
 void signalhandler(int sig)
 {
@@ -49,33 +48,16 @@ void signalhandler(int sig)
     }
 }
 
-void initLogging()
-{
-    // Sailfish OS-specific locations for the app settings files and app's own files
-    const QString logConfigFilePath(QStandardPaths::standardLocations(QStandardPaths::ConfigLocation).at(0)
-                                    + "pebble/log4qt.conf");
-    const QString fallbackLogConfigPath("/usr/share/pebble/log4qt.conf");
-
-    const QString& usedConfigFile = QFile::exists(logConfigFilePath) ? logConfigFilePath : fallbackLogConfigPath;
-    Log4Qt::PropertyConfigurator::configure(usedConfigFile);
-
-    // For capturing qDebug() and console.log() messages
-    // Note that console.log() might fail in Sailfish OS device builds. Not sure why, but it seems like
-    // console.log() exactly in Sailfish OS device release builds doesn't go through the same qDebug() channel
-    Log4Qt::LogManager::setHandleQtMessages(true);
-
-    qDebug() << "Using following log config file:" << usedConfigFile;
-}
-
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    // Init logging should be called after app object creation as initLogging() will examine
-    // QCoreApplication for determining the .conf files locations
-    initLogging();
+    // Init logging should be called after app object creation
+    QLoggingCategory::setFilterRules("*.debug=false\n"
+                                     "fc.io.debug=true");
 
-    Log4Qt::Logger::logger(QLatin1String("Main Logger"))->info() << argv[0] << APP_VERSION;
+    QLoggingCategory l("main");
+    qCDebug(l) << argv[0] << APP_VERSION;
 
     Settings settings;
     watch::WatchConnector watch;

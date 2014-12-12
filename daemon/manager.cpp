@@ -6,7 +6,7 @@
 #include <QtContacts/QContactPhoneNumber>
 
 Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings) :
-    QObject(0), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
+    QObject(0), l(metaObject()->className()), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
     settings(settings), notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
@@ -58,7 +58,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     notification.setImage("icon-system-bluetooth-device");
 
     if (btDevice.isValid()) {
-        logger()->debug() << "BT local name:" << btDevice.name();
+        qCDebug(l) << "BT local name:" << btDevice.name();
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
@@ -67,12 +67,12 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
 void Manager::onSettingChanged(const QString &key)
 {
-    logger()->debug() << __FUNCTION__ << key << ":" << settings->property(qPrintable(key));
+    qCDebug(l) << __FUNCTION__ << key << ":" << settings->property(qPrintable(key));
 }
 
 void Manager::onSettingsChanged()
 {
-    logger()->warn() << __FUNCTION__ << "Not implemented!";
+    qCWarning(l) << __FUNCTION__ << "Not implemented!";
 }
 
 void Manager::onPebbleChanged()
@@ -80,7 +80,7 @@ void Manager::onPebbleChanged()
     const QVariantMap & pebble = dbus->pebble();
     QString name = pebble["Name"].toString();
     if (name.isEmpty()) {
-        logger()->debug() << "Pebble gone";
+        qCDebug(l) << "Pebble gone";
     } else {
         watch->deviceConnect(name, pebble["Address"].toString());
     }
@@ -91,13 +91,13 @@ void Manager::onConnectedChanged()
     QString message = QString("%1 %2")
             .arg(watch->name().isEmpty() ? "Pebble" : watch->name())
             .arg(watch->isConnected() ? "connected" : "disconnected");
-    logger()->debug() << message;
+    qCDebug(l) << message;
 
     if (notification.isPublished()) notification.remove();
 
     notification.setBody(message);
     if (!notification.publish()) {
-        logger()->debug() << "Failed publishing notification";
+        qCDebug(l) << "Failed publishing notification";
     }
 
     if (watch->isConnected()) {
@@ -110,7 +110,7 @@ void Manager::onConnectedChanged()
                 setMprisMetadata(Metadata.value().variant().value<QDBusArgument>());
             }
             else {
-                logger()->error() << Metadata.error().message();
+                qCCritical(l) << Metadata.error().message();
                 setMprisMetadata(QVariantMap());
             }
         }
@@ -119,11 +119,11 @@ void Manager::onConnectedChanged()
 
 void Manager::onActiveVoiceCallChanged()
 {
-    logger()->debug() << "Manager::onActiveVoiceCallChanged()";
+    qCDebug(l) << "Manager::onActiveVoiceCallChanged()";
 
     QVariant incomingCallNotification = settings->property("incomingCallNotification");
     if (incomingCallNotification.isValid() && !incomingCallNotification.toBool()) {
-        logger()->debug() << "Ignoring ActiveVoiceCallChanged because of setting!";
+        qCDebug(l) << "Ignoring ActiveVoiceCallChanged because of setting!";
         return;
     }
 
@@ -139,12 +139,12 @@ void Manager::onActiveVoiceCallStatusChanged()
 {
     VoiceCallHandler* handler = voice->activeVoiceCall();
     if (!handler) {
-        logger()->debug() << "ActiveVoiceCall destroyed";
+        qCDebug(l) << "ActiveVoiceCall destroyed";
         watch->endPhoneCall();
         return;
     }
 
-    logger()->debug() << "handlerId:" << handler->handlerId()
+    qCDebug(l) << "handlerId:" << handler->handlerId()
              << "providerId:" << handler->providerId()
              << "status:" << handler->status()
              << "statusText:" << handler->statusText()
@@ -152,28 +152,28 @@ void Manager::onActiveVoiceCallStatusChanged()
              << "incoming:" << handler->isIncoming();
 
     if (!watch->isConnected()) {
-        logger()->debug() << "Watch is not connected";
+        qCDebug(l) << "Watch is not connected";
         return;
     }
 
     switch ((VoiceCallHandler::VoiceCallStatus)handler->status()) {
     case VoiceCallHandler::STATUS_ALERTING:
     case VoiceCallHandler::STATUS_DIALING:
-        logger()->debug() << "Tell outgoing:" << handler->lineId();
+        qCDebug(l) << "Tell outgoing:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()), false);
         break;
     case VoiceCallHandler::STATUS_INCOMING:
     case VoiceCallHandler::STATUS_WAITING:
-        logger()->debug() << "Tell incoming:" << handler->lineId();
+        qCDebug(l) << "Tell incoming:" << handler->lineId();
         watch->ring(handler->lineId(), findPersonByNumber(handler->lineId()));
         break;
     case VoiceCallHandler::STATUS_NULL:
     case VoiceCallHandler::STATUS_DISCONNECTED:
-        logger()->debug() << "Endphone";
+        qCDebug(l) << "Endphone";
         watch->endPhoneCall();
         break;
     case VoiceCallHandler::STATUS_ACTIVE:
-        logger()->debug() << "Startphone";
+        qCDebug(l) << "Startphone";
         watch->startPhoneCall();
         break;
     case VoiceCallHandler::STATUS_HELD:
@@ -199,7 +199,7 @@ QString Manager::findPersonByNumber(QString number)
 
 void Manager::onVoiceError(const QString &message)
 {
-    logger()->error() << "Error:" << message;
+    qCCritical(l) << "Error:" << message;
 }
 
 
@@ -256,7 +256,7 @@ void Manager::hangupAll()
 
 void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
 {
-    logger()->debug() << interface << changed << invalidated;
+    qCDebug(l) << interface << changed << invalidated;
 
     if (changed.contains("Metadata")) {
         setMprisMetadata(changed.value("Metadata").value<QDBusArgument>());
@@ -270,7 +270,7 @@ void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant>
     }
 
     lastSeenMpris = message().service();
-    logger()->debug() << "lastSeenMpris:" << lastSeenMpris;
+    qCDebug(l) << "lastSeenMpris:" << lastSeenMpris;
 }
 
 QString Manager::mpris()
@@ -306,11 +306,11 @@ QString Manager::getCurrentProfile()
                 QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "get_profile"));
     if (profile.isValid()) {
         QString currentProfile = profile.value();
-        logger()->debug() << "Got profile" << currentProfile;
+        qCDebug(l) << "Got profile" << currentProfile;
         return currentProfile;
     }
 
-    logger()->error() << profile.error().message();
+    qCCritical(l) << profile.error().message();
     return QString();
 }
 
@@ -338,11 +338,11 @@ void Manager::applyProfile()
                     << newProfile);
         if (res.isValid()) {
             if (!res.value()) {
-                logger()->error() << "Unable to set profile" << newProfile;
+                qCCritical(l) << "Unable to set profile" << newProfile;
             }
         }
         else {
-            logger()->error() << res.error().message();
+            qCCritical(l) << res.error().message();
         }
     }
 }
@@ -353,11 +353,11 @@ void Manager::transliterateMessage(const QString &text)
         UErrorCode status = U_ZERO_ERROR;
         transliterator.reset(icu::Transliterator::createInstance(icu::UnicodeString::fromUTF8("Any-Latin; Latin-ASCII"),UTRANS_FORWARD, status));
         if (U_FAILURE(status)) {
-            logger()->warn() << "Error creaing ICU Transliterator \"Any-Latin; Latin-ASCII\":" << u_errorName(status);
+            qCWarning(l) << "Error creaing ICU Transliterator \"Any-Latin; Latin-ASCII\":" << u_errorName(status);
         }
     }
     if (!transliterator.isNull()) {
-        logger()->debug() << "String before transliteration:" << text;
+        qCDebug(l) << "String before transliteration:" << text;
 
         icu::UnicodeString uword = icu::UnicodeString::fromUTF8(text.toStdString());
         transliterator->transliterate(uword);
@@ -366,6 +366,6 @@ void Manager::transliterateMessage(const QString &text)
         uword.toUTF8String(translited);
 
         const_cast<QString&>(text) = QString::fromStdString(translited);
-        logger()->debug() << "String after transliteration:" << text;
+        qCDebug(l) << "String after transliteration:" << text;
     }
 }

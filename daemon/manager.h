@@ -14,7 +14,7 @@
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
 #include <MNotification>
-#include <Log4Qt/Logger>
+#include <QLoggingCategory>
 
 #include <unicode/translit.h>
 
@@ -25,7 +25,7 @@ class Manager :
         protected QDBusContext
 {
     Q_OBJECT
-    LOG4QT_DECLARE_QCLASS_LOGGER
+    QLoggingCategory l;
 
     friend class PebbledProxy;
 

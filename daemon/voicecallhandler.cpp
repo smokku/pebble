@@ -43,10 +43,10 @@ public:
   Constructs a new proxy interface for the provided voice call handlerId.
 */
 VoiceCallHandler::VoiceCallHandler(const QString &handlerId, QObject *parent)
-    : QObject(parent), d_ptr(new VoiceCallHandlerPrivate(this, handlerId))
+    : QObject(parent), l(metaObject()->className()), d_ptr(new VoiceCallHandlerPrivate(this, handlerId))
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << QString("Creating D-Bus interface to: ") + handlerId;
+    qCDebug(l) << QString("Creating D-Bus interface to: ") + handlerId;
     d->interface = new QDBusInterface("org.nemomobile.voicecall",
                                       "/calls/" + handlerId,
                                       "org.nemomobile.voicecall.VoiceCall",
@@ -89,7 +89,7 @@ void VoiceCallHandler::initialize(bool notifyError)
         }
     }
     else {
-        logger()->error() << d->interface->lastError().name() << d->interface->lastError().message();
+        qCCritical(l) << d->interface->lastError().name() << d->interface->lastError().message();
     }
 }
 
@@ -103,7 +103,7 @@ bool VoiceCallHandler::getProperties()
     QDBusReply<QVariantMap> reply = props.call("GetAll", d->interface->interface());
     if (reply.isValid()) {
         QVariantMap props = reply.value();
-        logger()->debug() << props;
+        qCDebug(l) << props;
         d->providerId = props["providerId"].toString();
         d->duration = props["duration"].toInt();
         d->status = props["status"].toInt();
@@ -116,7 +116,7 @@ bool VoiceCallHandler::getProperties()
         return true;
     }
     else {
-        logger()->error() << "Failed to get VoiceCall properties from VCM D-Bus service.";
+        qCCritical(l) << "Failed to get VoiceCall properties from VCM D-Bus service.";
         return false;
     }
 }
@@ -124,7 +124,7 @@ bool VoiceCallHandler::getProperties()
 void VoiceCallHandler::onDurationChanged(int duration)
 {
     Q_D(VoiceCallHandler);
-    //logger()->debug() <<"onDurationChanged"<<duration;
+    //qCDebug(l) <<"onDurationChanged"<<duration;
     d->duration = duration;
     emit durationChanged();
 }
@@ -132,7 +132,7 @@ void VoiceCallHandler::onDurationChanged(int duration)
 void VoiceCallHandler::onStatusChanged(int status, QString statusText)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() <<"onStatusChanged" << status << statusText;
+    qCDebug(l) <<"onStatusChanged" << status << statusText;
     d->status = status;
     d->statusText = statusText;
     // we still fetch all properties to be sure all properties are present.
@@ -143,7 +143,7 @@ void VoiceCallHandler::onStatusChanged(int status, QString statusText)
 void VoiceCallHandler::onLineIdChanged(QString lineId)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << "onLineIdChanged" << lineId;
+    qCDebug(l) << "onLineIdChanged" << lineId;
     d->lineId = lineId;
     emit lineIdChanged();
 }
@@ -151,7 +151,7 @@ void VoiceCallHandler::onLineIdChanged(QString lineId)
 void VoiceCallHandler::onStartedAtChanged(const QDateTime &startedAt)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << "onStartedAtChanged" << startedAt;
+    qCDebug(l) << "onStartedAtChanged" << startedAt;
     d->startedAt = d->interface->property("startedAt").toDateTime();
     emit startedAtChanged();
 }
@@ -159,7 +159,7 @@ void VoiceCallHandler::onStartedAtChanged(const QDateTime &startedAt)
 void VoiceCallHandler::onEmergencyChanged(bool isEmergency)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << "onEmergencyChanged" << isEmergency;
+    qCDebug(l) << "onEmergencyChanged" << isEmergency;
     d->emergency = isEmergency;
     emit emergencyChanged();
 }
@@ -167,7 +167,7 @@ void VoiceCallHandler::onEmergencyChanged(bool isEmergency)
 void VoiceCallHandler::onMultipartyChanged(bool isMultiparty)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << "onMultipartyChanged" << isMultiparty;
+    qCDebug(l) << "onMultipartyChanged" << isMultiparty;
     d->multiparty = isMultiparty;
     emit multipartyChanged();
 }
@@ -175,7 +175,7 @@ void VoiceCallHandler::onMultipartyChanged(bool isMultiparty)
 void VoiceCallHandler::onForwardedChanged(bool isForwarded)
 {
     Q_D(VoiceCallHandler);
-    logger()->debug() << "onForwardedChanged" << isForwarded;
+    qCDebug(l) << "onForwardedChanged" << isForwarded;
     d->forwarded = isForwarded;
     emit forwardedChanged();
 }
@@ -341,10 +341,10 @@ void VoiceCallHandler::onPendingCallFinished(QDBusPendingCallWatcher *watcher)
     QDBusPendingReply<bool> reply = *watcher;
 
     if (reply.isError()) {
-        logger()->error() << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
+        qCCritical(l) << QString::fromLatin1("Received error reply for member: %1 (%2)").arg(reply.reply().member()).arg(reply.error().message());
         emit this->error(reply.error().message());
         watcher->deleteLater();
     } else {
-        logger()->debug() << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
+        qCDebug(l) << QString::fromLatin1("Received successful reply for member: %1").arg(reply.reply().member());
     }
 }

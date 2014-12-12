@@ -37,11 +37,7 @@
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
 #include <QBluetoothServiceInfo>
-#include <Log4Qt/Logger>
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
-using namespace QtBluetooth;
-#endif
+#include <QLoggingCategory>
 
 namespace watch
 {
@@ -49,7 +45,7 @@ namespace watch
 class WatchConnector : public QObject
 {
     Q_OBJECT
-    LOG4QT_DECLARE_QCLASS_LOGGER
+    QLoggingCategory l;
 
     Q_ENUMS(Endpoints)
 

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QtDBus/QDBusContext>
-#include <Log4Qt/Logger>
+#include <QLoggingCategory>
 #include "settings.h"
 
 #include <QDBusInterface>
@@ -14,7 +14,7 @@ typedef QHash<QString, QString> QStringHash;
 class NotificationManager : public QObject, protected QDBusContext
 {
     Q_OBJECT
-    LOG4QT_DECLARE_QCLASS_LOGGER
+    QLoggingCategory l;
     Q_CLASSINFO("D-Bus Interface", "org.freedesktop.Notifications")
 
     Q_PROPERTY(QDBusInterface* interface READ interface)

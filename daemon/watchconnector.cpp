@@ -8,7 +8,7 @@ using namespace watch;
 static int RECONNECT_TIMEOUT = 500; //ms
 
 WatchConnector::WatchConnector(QObject *parent) :
-    QObject(parent), socket(nullptr), is_connected(false)
+    QObject(parent), l(metaObject()->className()), socket(nullptr), is_connected(false)
 {
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
@@ -22,10 +22,10 @@ void WatchConnector::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     //FIXME TODO: Configurable
     if (device.name().startsWith("Pebble")) {
-        logger()->debug() << "Found Pebble:" << device.name() << '(' << device.address().toString() << ')';
+        qCDebug(l) << "Found Pebble:" << device.name() << '(' << device.address().toString() << ')';
         handleWatch(device.name(), device.address().toString());
     } else {
-        logger()->debug() << "Found other device:" << device.name() << '(' << device.address().toString() << ')';
+        qCDebug(l) << "Found other device:" << device.name() << '(' << device.address().toString() << ')';
     }
 }
 
@@ -36,7 +36,7 @@ void WatchConnector::deviceConnect(const QString &name, const QString &address)
 
 void WatchConnector::reconnect()
 {
-    logger()->debug() << "reconnect" << _last_name;
+    qCDebug(l) << "reconnect" << _last_name;
     if (!_last_name.isEmpty() && !_last_address.isEmpty()) {
         deviceConnect(_last_name, _last_address);
     }
@@ -44,16 +44,16 @@ void WatchConnector::reconnect()
 
 void WatchConnector::disconnect()
 {
-    logger()->debug() << __FUNCTION__;
+    qCDebug(l) << __FUNCTION__;
     socket->close();
     socket->deleteLater();
     reconnectTimer.stop();
-    logger()->debug() << "Stopped reconnect timer";
+    qCDebug(l) << "Stopped reconnect timer";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
-    logger()->debug() << "handleWatch" << name << address;
+    qCDebug(l) << "handleWatch" << name << address;
     reconnectTimer.stop();
     if (socket != nullptr && socket->isOpen()) {
         socket->close();
@@ -65,12 +65,8 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     _last_address = address;
     if (emit_name) emit nameChanged();
 
-    logger()->debug() << "Creating socket";
-#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
-    socket = new QBluetoothSocket(QBluetoothSocket::RfcommSocket);
-#else
+    qCDebug(l) << "Creating socket";
     socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-#endif
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
     connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
     connect(socket, SIGNAL(connected()), SLOT(onConnected()));
@@ -96,7 +92,7 @@ void WatchConnector::decodeMsg(QByteArray data)
     }
 
     if (data.length() < 4) {
-        logger()->error() << "Can not decode message data length invalid: " << data.toHex();
+        qCCritical(l) << "Can not decode message data length invalid: " << data.toHex();
         return;
     }
 
@@ -109,15 +105,15 @@ void WatchConnector::decodeMsg(QByteArray data)
     endpoint = (data.at(index) << 8) + data.at(index+1);
     index += 2;
 
-    logger()->debug() << "Length:" << datalen << "Endpoint:" << decodeEndpoint(endpoint);
-    logger()->debug() << "Data:" << data.mid(index).toHex();
+    qCDebug(l) << "Length:" << datalen << "Endpoint:" << decodeEndpoint(endpoint);
+    qCDebug(l) << "Data:" << data.mid(index).toHex();
 
     emit messageDecoded(endpoint, data.mid(index, datalen));
 }
 
 void WatchConnector::onReadSocket()
 {
-    logger()->debug() << "read";
+    qCDebug(l) << "read";
 
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
     if (!socket) return;
@@ -131,14 +127,14 @@ void WatchConnector::onReadSocket()
 
 void WatchConnector::onConnected()
 {
-    logger()->debug() << "Connected!";
+    qCDebug(l) << "Connected!";
     bool was_connected = is_connected;
     is_connected = true;
     reconnectTimer.stop();
     reconnectTimer.setInterval(0);
     if (not was_connected) {
         if (not writeData.isEmpty()) {
-            logger()->info() << "Found" << writeData.length() << "bytes in write buffer - resending";
+            qCDebug(l) << "Found" << writeData.length() << "bytes in write buffer - resending";
             sendData(writeData);
         }
         emit connectedChanged();
@@ -147,7 +143,7 @@ void WatchConnector::onConnected()
 
 void WatchConnector::onDisconnected()
 {
-    logger()->debug() << "Disconnected!";
+    qCDebug(l) << "Disconnected!";
 
     bool was_connected = is_connected;
     is_connected = false;
@@ -167,15 +163,15 @@ void WatchConnector::onDisconnected()
         reconnectTimer.setInterval(reconnectTimer.interval() + RECONNECT_TIMEOUT);
     }
     reconnectTimer.start();
-    logger()->debug() << "Will reconnect in" << reconnectTimer.interval() << "ms";
+    qCDebug(l) << "Will reconnect in" << reconnectTimer.interval() << "ms";
 }
 
 void WatchConnector::onError(QBluetoothSocket::SocketError error)
 {
     if (error == QBluetoothSocket::UnknownSocketError) {
-        logger()->info() << error << socket->errorString();
+        qCDebug(l) << error << socket->errorString();
     } else {
-        logger()->error() << "Error connecting Pebble:" << error << socket->errorString();
+        qCCritical(l) << "Error connecting Pebble:" << error << socket->errorString();
     }
 }
 
@@ -183,12 +179,12 @@ void WatchConnector::sendData(const QByteArray &data)
 {
     writeData = data;
     if (socket == nullptr) {
-        logger()->debug() << "No socket - reconnecting";
+        qCDebug(l) << "No socket - reconnecting";
         reconnect();
         return;
     }
     if (is_connected) {
-        logger()->debug() << "Writing" << data.length() << "bytes to socket";
+        qCDebug(l) << "Writing" << data.length() << "bytes to socket";
         socket->write(data);
     }
 }
@@ -196,12 +192,12 @@ void WatchConnector::sendData(const QByteArray &data)
 void WatchConnector::onBytesWritten(qint64 bytes)
 {
     writeData = writeData.mid(bytes);
-    logger()->debug() << "Socket written" << bytes << "bytes," << writeData.length() << "left";
+    qCDebug(l) << "Socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
 void WatchConnector::sendMessage(uint endpoint, QByteArray data)
 {
-    logger()->debug() << "Sending message";
+    qCDebug(l) << "Sending message";
     QByteArray msg;
 
     // First send the length

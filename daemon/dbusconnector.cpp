@@ -14,7 +14,7 @@
 //dbus-send --system --dest=org.bluez --print-reply $devpath org.bluez.Input.Connect
 
 DBusConnector::DBusConnector(QObject *parent) :
-    QObject(parent)
+    QObject(parent), l(metaObject()->className())
 {
     QDBusConnectionInterface *interface = QDBusConnection::sessionBus().interface();
 
@@ -23,7 +23,7 @@ DBusConnector::DBusConnector(QObject *parent) :
         dbusServices = serviceNames.value();
     }
     else {
-        logger()->error() << serviceNames.error().message();
+        qCCritical(l) << serviceNames.error().message();
     }
     connect(interface, SIGNAL(serviceRegistered(const QString &)), SLOT(onServiceRegistered(const QString &)));
     connect(interface, SIGNAL(serviceUnregistered(const QString &)), SLOT(onServiceUnregistered(const QString &)));
@@ -37,14 +37,14 @@ bool DBusConnector::findPebble()
                 QDBusMessage::createMethodCall("org.bluez", "/", "org.bluez.Manager",
                                                "ListAdapters"));
     if (not ListAdaptersReply.isValid()) {
-        logger()->error() << ListAdaptersReply.error().message();
+        qCCritical(l) << ListAdaptersReply.error().message();
         return false;
     }
 
     QList<QDBusObjectPath> adapters = ListAdaptersReply.value();
 
     if (adapters.isEmpty()) {
-        logger()->debug() << "No BT adapters found";
+        qCDebug(l) << "No BT adapters found";
         return false;
     }
 
@@ -52,7 +52,7 @@ bool DBusConnector::findPebble()
                 QDBusMessage::createMethodCall("org.bluez", adapters[0].path(), "org.bluez.Adapter",
                                                "GetProperties"));
     if (not AdapterPropertiesReply.isValid()) {
-        logger()->error() << AdapterPropertiesReply.error().message();
+        qCCritical(l) << AdapterPropertiesReply.error().message();
         return false;
     }
 
@@ -64,16 +64,16 @@ bool DBusConnector::findPebble()
                     QDBusMessage::createMethodCall("org.bluez", path.path(), "org.bluez.Device",
                                                    "GetProperties"));
         if (not DevicePropertiesReply.isValid()) {
-            logger()->error() << DevicePropertiesReply.error().message();
+            qCCritical(l) << DevicePropertiesReply.error().message();
             continue;
         }
 
         const QVariantMap &dict = DevicePropertiesReply.value();
 
         QString tmp = dict["Name"].toString();
-        logger()->debug() << "Found BT device:" << tmp;
+        qCDebug(l) << "Found BT device:" << tmp;
         if (tmp.startsWith("Pebble")) {
-            logger()->debug() << "Found Pebble:" << tmp;
+            qCDebug(l) << "Found Pebble:" << tmp;
             pebbleProps = dict;
             emit pebbleChanged();
             return true;
@@ -85,12 +85,12 @@ bool DBusConnector::findPebble()
 
 void DBusConnector::onServiceRegistered(const QString &name)
 {
-    logger()->debug() << "DBus service online:" << name;
+    qCDebug(l) << "DBus service online:" << name;
     if (!dbusServices.contains(name)) dbusServices.append(name);
 }
 
 void DBusConnector::onServiceUnregistered(const QString &name)
 {
-    logger()->debug() << "DBus service offline:" << name;
+    qCDebug(l) << "DBus service offline:" << name;
     if (dbusServices.contains(name)) dbusServices.removeAll(name);
 }

@@ -7,12 +7,12 @@
 using namespace watch;
 
 WatchCommands::WatchCommands(WatchConnector *watch, QObject *parent) :
-    QObject(parent), watch(watch)
+    QObject(parent), l(metaObject()->className()), watch(watch)
 {}
 
 void WatchCommands::processMessage(uint endpoint, QByteArray data)
 {
-    logger()->debug() << __FUNCTION__ << endpoint << "/" << data.toHex() << data.length();
+    qCDebug(l) << __FUNCTION__ << endpoint << "/" << data.toHex() << data.length();
     switch (endpoint) {
     case WatchConnector::watchPHONE_VERSION:
         watch->sendPhoneVersion();
@@ -26,12 +26,12 @@ void WatchCommands::processMessage(uint endpoint, QByteArray data)
         musicControl(WatchConnector::MusicControl(data.at(0)));
         break;
     case WatchConnector::watchSYSTEM_MESSAGE:
-        logger()->info() << "Got SYSTEM_MESSAGE" << WatchConnector::SystemMessage(data.at(0));
+        qCDebug(l) << "Got SYSTEM_MESSAGE" << WatchConnector::SystemMessage(data.at(0));
         // TODO: handle systemBLUETOOTH_START_DISCOVERABLE/systemBLUETOOTH_END_DISCOVERABLE
         break;
 
     default:
-        logger()->info() << __FUNCTION__ << "endpoint" << endpoint << "not supported yet";
+        qCDebug(l) << __FUNCTION__ << "endpoint" << endpoint << "not supported yet";
     }
 }
 
@@ -40,17 +40,17 @@ void WatchCommands::onMprisMetadataChanged(QVariantMap metadata)
     QString track = metadata.value("xesam:title").toString();
     QString album = metadata.value("xesam:album").toString();
     QString artist = metadata.value("xesam:artist").toString();
-    logger()->debug() << __FUNCTION__ << track << album << artist;
+    qCDebug(l) << __FUNCTION__ << track << album << artist;
     watch->sendMusicNowPlaying(track, album, artist);
 }
 
 void WatchCommands::musicControl(WatchConnector::MusicControl operation)
 {
-    logger()->debug() << "Operation:" << operation;
+    qCDebug(l) << "Operation:" << operation;
 
     QString mpris = parent()->property("mpris").toString();
     if (mpris.isEmpty()) {
-        logger()->debug() << "No mpris interface active";
+        qCDebug(l) << "No mpris interface active";
         return;
     }
 
@@ -85,16 +85,16 @@ void WatchCommands::musicControl(WatchConnector::MusicControl operation)
                 else {
                     volume -= 0.1;
                 }
-                logger()->debug() << "Setting volume" << volume;
+                qCDebug(l) << "Setting volume" << volume;
                 QDBusError err = QDBusConnection::sessionBus().call(
                             QDBusMessage::createMethodCall(mpris, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Set")
                             << "org.mpris.MediaPlayer2.Player" << "Volume" << QVariant::fromValue(QDBusVariant(volume)));
                 if (err.isValid()) {
-                    logger()->error() << err.message();
+                    qCCritical(l) << err.message();
                 }
             }
             else {
-                logger()->error() << VolumeReply.error().message();
+                qCCritical(l) << VolumeReply.error().message();
             }
         }
         return;
@@ -103,20 +103,20 @@ void WatchCommands::musicControl(WatchConnector::MusicControl operation)
         return;
 
     case WatchConnector::musicSEND_NOW_PLAYING:
-        logger()->warn() << "Operation" << operation << "not supported";
+        qCWarning(l) << "Operation" << operation << "not supported";
         return;
     }
 
     if (method.isEmpty()) {
-        logger()->error() << "Requested unsupported operation" << operation;
+        qCCritical(l) << "Requested unsupported operation" << operation;
         return;
     }
 
-    logger()->debug() << operation << "->" << method;
+    qCDebug(l) << operation << "->" << method;
 
     QDBusError err = QDBusConnection::sessionBus().call(
                 QDBusMessage::createMethodCall(mpris, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", method));
     if (err.isValid()) {
-        logger()->error() << err.message();
+        qCCritical(l) << err.message();
     }
 }
