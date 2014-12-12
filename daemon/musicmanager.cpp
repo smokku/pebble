@@ -12,10 +12,6 @@ MusicManager::MusicManager(WatchConnector *watch, QObject *parent)
                 this, SLOT(handleMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
 
     // Listen for D-Bus name registered signals to see if a MPRIS service comes up
-    connect(bus_iface, &QDBusConnectionInterface::serviceRegistered,
-            this, &MusicManager::handleServiceRegistered);
-    connect(bus_iface, &QDBusConnectionInterface::serviceUnregistered,
-            this, &MusicManager::handleServiceUnregistered);
     connect(bus_iface, &QDBusConnectionInterface::serviceOwnerChanged,
             this, &MusicManager::handleServiceOwnerChanged);
 
@@ -28,7 +24,7 @@ MusicManager::MusicManager(WatchConnector *watch, QObject *parent)
         }
     }
 
-    // Set up watch endpoint handler
+    // Set up watch endpoint handler for music control
     watch->setEndpointHandler(WatchConnector::watchMUSIC_CONTROL, [this](const QByteArray& data) {
         musicControl(WatchConnector::MusicControl(data.at(0)));
         return true;
@@ -130,6 +126,7 @@ void MusicManager::setMprisMetadata(const QVariantMap &metadata)
     QString track = metadata.value("xesam:title").toString();
     QString album = metadata.value("xesam:album").toString();
     QString artist = metadata.value("xesam:artist").toString();
+
     logger()->debug() << "new mpris metadata:" << track << album << artist;
 
     if (watch->isConnected()) {
@@ -149,7 +146,8 @@ void MusicManager::handleServiceRegistered(const QString &service)
 void MusicManager::handleServiceUnregistered(const QString &service)
 {
     if (service == _curService) {
-        // Oops!
+        // Oops! Losing the current MPRIS service
+        // We must assume it's been closed and thus remove current metadata
         setMprisMetadata(QVariantMap());
         switchToService(QString());
     }
@@ -196,7 +194,6 @@ void MusicManager::handleWatchConnected()
             QDBusReply<QDBusVariant> metadata = QDBusConnection::sessionBus().call(call);
             if (metadata.isValid()) {
                 setMprisMetadata(qdbus_cast<QVariantMap>(metadata.value().variant().value<QDBusArgument>()));
-                //
             } else {
                 logger()->error() << metadata.error().message();
                 setMprisMetadata(QVariantMap());
