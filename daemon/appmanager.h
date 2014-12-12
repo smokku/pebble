@@ -17,12 +17,16 @@ public:
     explicit AppManager(QObject *parent = 0);
 
     QStringList appPaths() const;
+    QList<QUuid> appUuids() const;
 
     AppInfo info(const QUuid &uuid) const;
     AppInfo info(const QString &shortName) const;
 
 public slots:
     void rescan();
+
+signals:
+    void appsChanged();
 
 private:
     void scanApp(const QString &path);

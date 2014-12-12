@@ -30,6 +30,11 @@ QStringList AppManager::appPaths() const
                                      QStandardPaths::LocateDirectory);
 }
 
+QList<QUuid> AppManager::appUuids() const
+{
+    return _apps.keys();
+}
+
 AppInfo AppManager::info(const QUuid &uuid) const
 {
     return _apps.value(uuid);
@@ -71,6 +76,7 @@ void AppManager::rescan()
     }
 
     logger()->debug() << "now watching" << _watcher->directories() << _watcher->files();
+    emit appsChanged();
 }
 
 void AppManager::scanApp(const QString &path)

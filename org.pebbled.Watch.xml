@@ -60,5 +60,11 @@
       <arg name="uuid" type="s" direction="in"/>
       <arg name="slot" type="i" direction="in"/>
     </method>
+
+    <!-- Installed apps (not necessarily uploaded) -->
+    <property name="AllApps" type="aa{sv}" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="QVariantList"/>
+    </property>
+    <signal name="AllAppsChanged"/>
   </interface>
 </node>

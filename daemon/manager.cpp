@@ -366,6 +366,26 @@ QStringList PebbledProxy::AppSlots() const
     return l;
 }
 
+QVariantList PebbledProxy::AllApps() const
+{
+    QList<QUuid> uuids = manager()->apps->appUuids();
+    QVariantList l;
+
+    foreach (const QUuid &uuid, uuids) {
+        const AppInfo &info = manager()->apps->info(uuid);
+        QVariantMap m;
+        m.insert("uuid", QVariant::fromValue(uuid.toString()));
+        m.insert("short-name", QVariant::fromValue(info.shortName()));
+        m.insert("long-name", QVariant::fromValue(info.longName()));
+        m.insert("company-name", QVariant::fromValue(info.companyName()));
+        m.insert("version-label", QVariant::fromValue(info.versionLabel()));
+        m.insert("is-watchface", QVariant::fromValue(info.isWatchface()));
+        l.append(QVariant::fromValue(m));
+    }
+
+    return l;
+}
+
 bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data)
 {
     Q_ASSERT(calledFromDBus());

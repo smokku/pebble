@@ -110,6 +110,7 @@ class PebbledProxy : public QObject, protected QDBusContext
     Q_PROPERTY(bool Connected READ Connected NOTIFY ConnectedChanged)
     Q_PROPERTY(QString AppUuid READ AppUuid NOTIFY AppUuidChanged)
     Q_PROPERTY(QStringList AppSlots READ AppSlots NOTIFY AppSlotsChanged)
+    Q_PROPERTY(QVariantList AllApps READ AllApps NOTIFY AllAppsChanged)
 
     inline Manager* manager() const { return static_cast<Manager*>(parent()); }
     inline QVariantMap pebble() const { return manager()->dbus->pebble(); }
@@ -123,6 +124,8 @@ public:
     inline QString AppUuid() const { return manager()->currentAppUuid.toString(); }
 
     QStringList AppSlots() const;
+
+    QVariantList AllApps() const;
 
 public slots:
     inline void Disconnect() { manager()->watch->disconnect(); }
@@ -146,6 +149,7 @@ signals:
     void ConnectedChanged();
     void AppUuidChanged();
     void AppSlotsChanged();
+    void AllAppsChanged();
     void AppOpened(const QString &uuid);
     void AppClosed(const QString &uuid);
 };
