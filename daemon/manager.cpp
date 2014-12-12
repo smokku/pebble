@@ -76,13 +76,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
     connect(watch, SIGNAL(connectedChanged()), SLOT(applyProfile()));
 
-    // Music Control interface
-    session.connect("", "/org/mpris/MediaPlayer2",
-                "org.freedesktop.DBus.Properties", "PropertiesChanged",
-                this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
-
-    connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), music, SLOT(onMprisMetadataChanged(QVariantMap)));
-
     // Set BT icon for notification
     notification.setImage("icon-system-bluetooth-device");
 
@@ -130,22 +123,6 @@ void Manager::onConnectedChanged()
     notification.setBody(message);
     if (!notification.publish()) {
         logger()->debug() << "Failed publishing notification";
-    }
-
-    if (watch->isConnected()) {
-        QString mpris = this->mpris();
-        if (not mpris.isEmpty()) {
-            QDBusReply<QDBusVariant> Metadata = QDBusConnection::sessionBus().call(
-                        QDBusMessage::createMethodCall(mpris, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get")
-                        << "org.mpris.MediaPlayer2.Player" << "Metadata");
-            if (Metadata.isValid()) {
-                setMprisMetadata(Metadata.value().variant().value<QDBusArgument>());
-            }
-            else {
-                logger()->error() << Metadata.error().message();
-                setMprisMetadata(QVariantMap());
-            }
-        }
     }
 }
 
@@ -277,52 +254,6 @@ void Manager::onEmailNotify(const QString &sender, const QString &data,const QSt
         transliterateMessage(subject);
     }
     watch->sendEmailNotification(sender, data, subject);
-}
-
-void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
-{
-    logger()->debug() << interface << changed << invalidated;
-
-    if (changed.contains("Metadata")) {
-        setMprisMetadata(changed.value("Metadata").value<QDBusArgument>());
-    }
-
-    if (changed.contains("PlaybackStatus")) {
-        QString PlaybackStatus = changed.value("PlaybackStatus").toString();
-        if (PlaybackStatus == "Stopped") {
-            setMprisMetadata(QVariantMap());
-        }
-    }
-
-    lastSeenMpris = message().service();
-    logger()->debug() << "lastSeenMpris:" << lastSeenMpris;
-}
-
-QString Manager::mpris() const
-{
-    const QStringList &services = dbus->services();
-    if (not lastSeenMpris.isEmpty() && services.contains(lastSeenMpris))
-        return lastSeenMpris;
-
-    foreach (QString service, services)
-        if (service.startsWith("org.mpris.MediaPlayer2."))
-            return service;
-
-    return QString();
-}
-
-void Manager::setMprisMetadata(QDBusArgument metadata)
-{
-    if (metadata.currentType() == QDBusArgument::MapType) {
-        metadata >> mprisMetadata;
-        emit mprisMetadataChanged(mprisMetadata);
-    }
-}
-
-void Manager::setMprisMetadata(QVariantMap metadata)
-{
-    mprisMetadata = metadata;
-    emit mprisMetadataChanged(mprisMetadata);
 }
 
 QString Manager::getCurrentProfile() const

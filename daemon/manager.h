@@ -35,9 +35,6 @@ class Manager : public QObject, protected QDBusContext
 
     friend class PebbledProxy;
 
-    Q_PROPERTY(QString mpris READ mpris)
-    Q_PROPERTY(QVariantMap mprisMetadata READ getMprisMetadata WRITE setMprisMetadata NOTIFY mprisMetadataChanged)
-
     QBluetoothLocalDevice btDevice;
 
     Settings *settings;
@@ -63,9 +60,6 @@ class Manager : public QObject, protected QDBusContext
 
     QString defaultProfile;
 
-    QString lastSeenMpris;
-    QVariantMap mprisMetadata;
-
     QUuid currentAppUuid;
 
     QScopedPointer<icu::Transliterator> transliterator;
@@ -76,15 +70,9 @@ public:
 
     QString findPersonByNumber(QString number);
     QString getCurrentProfile() const;
-    QString mpris() const;
-
-    inline QVariantMap getMprisMetadata() const { return mprisMetadata; }
 
 protected:
     void transliterateMessage(const QString &text);
-
-signals:
-    void mprisMetadataChanged(const QVariantMap &metadata);
 
 public slots:
     void applyProfile();
@@ -102,9 +90,6 @@ private slots:
     void onTwitterNotify(const QString &sender, const QString &data);
     void onFacebookNotify(const QString &sender, const QString &data);
     void onEmailNotify(const QString &sender, const QString &data,const QString &subject);
-    void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
-    void setMprisMetadata(QDBusArgument metadata);
-    void setMprisMetadata(QVariantMap metadata);
 
     void onAppNotification(const QUuid &uuid, const QString &title, const QString &body);
     void onAppOpened(const QUuid &uuid);
