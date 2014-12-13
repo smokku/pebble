@@ -94,8 +94,7 @@ public:
         musicPREVIOUS = 5,
         musicVOLUME_UP = 6,
         musicVOLUME_DOWN = 7,
-        musicGET_NOW_PLAYING = 8,
-        musicSEND_NOW_PLAYING = 9
+        musicGET_NOW_PLAYING = 8
     };
     enum SystemMessage {
         systemFIRMWARE_AVAILABLE = 0,

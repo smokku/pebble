@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDBusContext>
+#include <QDBusServiceWatcher>
 #include "watchconnector.h"
 
 class MusicManager : public QObject, protected QDBusContext
@@ -14,22 +15,22 @@ public:
     explicit MusicManager(WatchConnector *watch, QObject *parent = 0);
 
 private:
-    void musicControl(WatchConnector::MusicControl operation);
     void switchToService(const QString &service);
-    void setMprisMetadata(const QVariantMap &data);
+    void fetchMetadataFromService();
+    void sendCurrentMprisMetadata();
+    void callMprisMethod(const QString &method);
 
 private slots:
-    void handleServiceRegistered(const QString &service);
-    void handleServiceUnregistered(const QString &service);
-    void handleServiceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
+    void handleMusicControl(WatchConnector::MusicControl operation);
+    void handleMprisServiceOwnerChanged(const QString &serviceName, const QString &oldOwner, const QString &newOwner);
     void handleMprisPropertiesChanged(const QString &interface, const QMap<QString,QVariant> &changed, const QStringList &invalidated);
     void handleWatchConnected();
 
 private:
     WatchConnector *watch;
-
-    QVariantMap _curMetadata;
+    QDBusServiceWatcher *_watcher;
     QString _curService;
+    QVariantMap _curMetadata;
 };
 
 #endif // MUSICMANAGER_H

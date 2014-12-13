@@ -1,69 +1,143 @@
-#include <QtDBus>
+#include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include "musicmanager.h"
 
 MusicManager::MusicManager(WatchConnector *watch, QObject *parent)
-    : QObject(parent), watch(watch)
+    : QObject(parent), watch(watch), _watcher(new QDBusServiceWatcher(this))
 {
     QDBusConnection bus = QDBusConnection::sessionBus();
     QDBusConnectionInterface *bus_iface = bus.interface();
 
-    // Listen for MPRIS signals from every player
-    bus.connect("", "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "PropertiesChanged",
-                this, SLOT(handleMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
+    // This watcher will be used to find when the current MPRIS service dies
+    // (and thus we must clear the metadata)
+    _watcher->setConnection(bus);
+    connect(_watcher, &QDBusServiceWatcher::serviceOwnerChanged,
+            this, &MusicManager::handleMprisServiceOwnerChanged);
 
-    // Listen for D-Bus name registered signals to see if a MPRIS service comes up
-    connect(bus_iface, &QDBusConnectionInterface::serviceOwnerChanged,
-            this, &MusicManager::handleServiceOwnerChanged);
-
-    // But also try to find an already active MPRIS service
+    // Try to find an active MPRIS service to initially connect to
     const QStringList &services = bus_iface->registeredServiceNames();
     foreach (QString service, services) {
         if (service.startsWith("org.mpris.MediaPlayer2.")) {
             switchToService(service);
+            fetchMetadataFromService();
+            // The watch is not connected by this point,
+            // so we don't send the current metadata.
             break;
         }
     }
 
-    // Set up watch endpoint handler for music control
+    // Even if we didn't find any service, we still listen for metadataChanged signals
+    // from every MPRIS-compatible player
+    // If such a signal comes in, we will connect to the source service for that signal
+    bus.connect("", "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "PropertiesChanged",
+                this, SLOT(handleMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
+
+    // Now set up the Pebble endpoint handler for music control commands
     watch->setEndpointHandler(WatchConnector::watchMUSIC_CONTROL, [this](const QByteArray& data) {
-        musicControl(WatchConnector::MusicControl(data.at(0)));
+        handleMusicControl(WatchConnector::MusicControl(data.at(0)));
         return true;
     });
+
+    // If the watch disconnects, we will send the current metadata when it comes back.
     connect(watch, &WatchConnector::connectedChanged,
             this, &MusicManager::handleWatchConnected);
 }
 
-void MusicManager::musicControl(WatchConnector::MusicControl operation)
+void MusicManager::switchToService(const QString &service)
+{
+    if (_curService != service) {
+        logger()->debug() << "switching to mpris service" << service;
+        _curService = service;
+
+        if (_curService.isEmpty()) {
+            _watcher->setWatchedServices(QStringList());
+        } else {
+            _watcher->setWatchedServices(QStringList(_curService));
+        }
+    }
+}
+
+void MusicManager::fetchMetadataFromService()
+{
+    _curMetadata.clear();
+
+    if (!_curService.isEmpty()) {
+        QDBusMessage call = QDBusMessage::createMethodCall(_curService, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get");
+        call << "org.mpris.MediaPlayer2.Player" << "Metadata";
+        QDBusReply<QDBusVariant> reply = QDBusConnection::sessionBus().call(call);
+        if (reply.isValid()) {
+            logger()->debug() << "got mpris metadata from service" << _curService;
+            _curMetadata = qdbus_cast<QVariantMap>(reply.value().variant().value<QDBusArgument>());
+        } else {
+            logger()->error() << reply.error().message();
+        }
+    }
+}
+
+void MusicManager::sendCurrentMprisMetadata()
+{
+    Q_ASSERT(watch->isConnected());
+
+    QString track = _curMetadata.value("xesam:title").toString().left(30);
+    QString album = _curMetadata.value("xesam:album").toString().left(30);
+    QString artist = _curMetadata.value("xesam:artist").toString().left(30);
+
+    logger()->debug() << "sending mpris metadata:" << track << album << artist;
+
+    watch->sendMusicNowPlaying(track, album, artist);
+}
+
+void MusicManager::callMprisMethod(const QString &method)
+{
+    Q_ASSERT(!method.isEmpty());
+    Q_ASSERT(!_curService.isEmpty());
+
+    logger()->debug() << _curService << "->" << method;
+
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    QDBusMessage call = QDBusMessage::createMethodCall(_curService,
+                                                       "/org/mpris/MediaPlayer2",
+                                                       "org.mpris.MediaPlayer2.Player",
+                                                       method);
+
+    QDBusError err = bus.call(call);
+
+    if (err.isValid()) {
+        logger()->error() << "while calling mpris method on" << _curService << ":" << err.message();
+    }
+}
+
+void MusicManager::handleMusicControl(WatchConnector::MusicControl operation)
 {
     logger()->debug() << "operation from watch:" << operation;
 
     if (_curService.isEmpty()) {
-        logger()->info() << "No mpris interface active";
+        logger()->info() << "can't do any music operation, no mpris interface active";
         return;
     }
 
-    QString method;
-
-    switch(operation) {
+    switch (operation) {
     case WatchConnector::musicPLAY_PAUSE:
-        method = "PlayPause";
+        callMprisMethod("PlayPause");
         break;
     case WatchConnector::musicPAUSE:
-        method = "Pause";
+        callMprisMethod("Pause");
         break;
     case WatchConnector::musicPLAY:
-        method = "Play";
+        callMprisMethod("Play");
         break;
     case WatchConnector::musicNEXT:
-        method = "Next";
+        callMprisMethod("Next");
         break;
     case WatchConnector::musicPREVIOUS:
-        method = "Previous";
+        callMprisMethod("Previous");
         break;
+
     case WatchConnector::musicVOLUME_UP:
     case WatchConnector::musicVOLUME_DOWN: {
         QDBusConnection bus = QDBusConnection::sessionBus();
-        QDBusMessage call = QDBusMessage::createMethodCall(_curService, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get");
+        QDBusMessage call = QDBusMessage::createMethodCall(_curService, "/org/mpris/MediaPlayer2",
+                                                           "org.freedesktop.DBus.Properties", "Get");
         call << "org.mpris.MediaPlayer2.Player" << "Volume";
         QDBusReply<QDBusVariant> volumeReply = bus.call(call);
         if (volumeReply.isValid()) {
@@ -87,79 +161,28 @@ void MusicManager::musicControl(WatchConnector::MusicControl operation)
             logger()->error() << volumeReply.error().message();
         }
         }
-        return;
-    case WatchConnector::musicGET_NOW_PLAYING:
-        setMprisMetadata(_curMetadata);
-        return;
+        break;
 
-    case WatchConnector::musicSEND_NOW_PLAYING:
+    case WatchConnector::musicGET_NOW_PLAYING:
+        sendCurrentMprisMetadata();
+        break;
+
     default:
         logger()->warn() << "Operation" << operation << "not supported";
-        return;
-    }
-
-    if (method.isEmpty()) {
-        logger()->error() << "Requested unsupported operation" << operation;
-        return;
-    }
-
-    logger()->debug() << operation << "->" << method;
-
-    QDBusMessage call = QDBusMessage::createMethodCall(_curService, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", method);
-    QDBusError err = QDBusConnection::sessionBus().call(call);
-    if (err.isValid()) {
-        logger()->error() << err.message();
+        break;
     }
 }
 
-void MusicManager::switchToService(const QString &service)
-{
-    if (_curService != service) {
-        logger()->debug() << "switching to mpris service" << service;
-        _curService = service;
-    }
-}
-
-void MusicManager::setMprisMetadata(const QVariantMap &metadata)
-{
-    _curMetadata = metadata;
-    QString track = metadata.value("xesam:title").toString();
-    QString album = metadata.value("xesam:album").toString();
-    QString artist = metadata.value("xesam:artist").toString();
-
-    logger()->debug() << "new mpris metadata:" << track << album << artist;
-
-    if (watch->isConnected()) {
-        watch->sendMusicNowPlaying(track, album, artist);
-    }
-}
-
-void MusicManager::handleServiceRegistered(const QString &service)
-{
-    if (service.startsWith("org.mpris.MediaPlayer2.")) {
-        if (_curService.isEmpty()) {
-            switchToService(service);
-        }
-    }
-}
-
-void MusicManager::handleServiceUnregistered(const QString &service)
-{
-    if (service == _curService) {
-        // Oops! Losing the current MPRIS service
-        // We must assume it's been closed and thus remove current metadata
-        setMprisMetadata(QVariantMap());
-        switchToService(QString());
-    }
-}
-
-void MusicManager::handleServiceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
+void MusicManager::handleMprisServiceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
 {
     Q_UNUSED(oldOwner);
-    if (newOwner.isEmpty()) {
-        handleServiceUnregistered(name);
-    } else {
-        handleServiceRegistered(name);
+    if (name == _curService && newOwner.isEmpty()) {
+        // Oops, current service is going away
+        switchToService(QString());
+        _curMetadata.clear();
+        if (watch->isConnected()) {
+            sendCurrentMprisMetadata();
+        }
     }
 }
 
@@ -172,14 +195,18 @@ void MusicManager::handleMprisPropertiesChanged(const QString &interface, const 
     if (changed.contains("Metadata")) {
         QVariantMap metadata = qdbus_cast<QVariantMap>(changed.value("Metadata").value<QDBusArgument>());
         logger()->debug() << "received new metadata" << metadata;
-        setMprisMetadata(metadata);
+        _curMetadata = metadata;
     }
 
     if (changed.contains("PlaybackStatus")) {
         QString status = changed.value("PlaybackStatus").toString();
         if (status == "Stopped") {
-            setMprisMetadata(QVariantMap());
+            _curMetadata.clear();
         }
+    }
+
+    if (watch->isConnected()) {
+        sendCurrentMprisMetadata();
     }
 
     switchToService(message().service());
@@ -188,16 +215,6 @@ void MusicManager::handleMprisPropertiesChanged(const QString &interface, const 
 void MusicManager::handleWatchConnected()
 {
     if (watch->isConnected()) {
-        if (!_curService.isEmpty()) {
-            QDBusMessage call = QDBusMessage::createMethodCall(_curService, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get");
-            call << "org.mpris.MediaPlayer2.Player" << "Metadata";
-            QDBusReply<QDBusVariant> metadata = QDBusConnection::sessionBus().call(call);
-            if (metadata.isValid()) {
-                setMprisMetadata(qdbus_cast<QVariantMap>(metadata.value().variant().value<QDBusArgument>()));
-            } else {
-                logger()->error() << metadata.error().message();
-                setMprisMetadata(QVariantMap());
-            }
-        }
+        sendCurrentMprisMetadata();
     }
 }
