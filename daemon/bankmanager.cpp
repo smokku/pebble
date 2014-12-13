@@ -168,7 +168,7 @@ bool BankManager::unloadApp(int slot)
     int installId = _slots[slot].id;
 
     QByteArray msg;
-    msg.reserve(2 * sizeof(quint32));
+    msg.reserve(1 + 2 * sizeof(quint32));
     Packer p(&msg);
     p.write<quint8>(WatchConnector::appmgrREMOVE_APP);
     p.write<quint32>(installId);
@@ -183,7 +183,7 @@ bool BankManager::unloadApp(int slot)
 
         uint result = u.read<quint32>();
         switch (result) {
-        case 1: /* Success */
+        case Success: /* Success */
             logger()->debug() << "sucessfully unloaded app";
             break;
         default:

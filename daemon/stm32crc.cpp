@@ -10,7 +10,7 @@
  *    XorOut       = 0xffffffff
  *    ReflectOut   = False
  *    Algorithm    = table-driven
- * Modified to use STM32-like word size
+ * The algorithm has been modified to use 32bit word size like STM32
  *****************************************************************************/
 static const quint32 crc_table[256] = {
     0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9,
