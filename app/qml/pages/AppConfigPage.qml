@@ -7,14 +7,14 @@ Page {
     id: appConfigPage
 
     property alias url: webview.url
-    property string uuid
+    property string name
 
     SilicaWebView {
         id: webview
         anchors.fill: parent
 
         header: PageHeader {
-            title: "Configuring " + uuid
+            title: "Configuring " + name
         }
 
         onNavigationRequested: {
@@ -30,5 +30,10 @@ Page {
                 request.action = WebView.AcceptRequest;
             }
         }
+    }
+
+    ViewPlaceholder {
+        enabled: url == ""
+        text: qsTr("No configuration settings available")
     }
 }

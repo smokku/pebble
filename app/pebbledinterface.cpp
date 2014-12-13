@@ -24,6 +24,13 @@ PebbledInterface::PebbledInterface(QObject *parent) :
             this, &PebbledInterface::connectedChanged);
     connect(watch, &OrgPebbledWatchInterface::AppUuidChanged,
             this, &PebbledInterface::appUuidChanged);
+    connect(watch, &OrgPebbledWatchInterface::AppSlotsChanged,
+            this, &PebbledInterface::refreshAppSlots);
+    connect(watch, &OrgPebbledWatchInterface::AllAppsChanged,
+            this, &PebbledInterface::refreshAllApps);
+
+    connect(watch, &OrgPebbledWatchInterface::ConnectedChanged,
+            this, &PebbledInterface::onWatchConnectedChanged);
 
     // simulate connected change on active changed
     // as the daemon might not had a chance to send 'connectedChanged'
@@ -45,6 +52,11 @@ PebbledInterface::PebbledInterface(QObject *parent) :
                     this, SLOT(onPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
     } else {
         qWarning() << unit.error().message();
+    }
+
+    if (watch->isValid()) {
+        refreshAllApps();
+        refreshAppSlots();
     }
 }
 
@@ -161,12 +173,136 @@ void PebbledInterface::reconnect()
 QUrl PebbledInterface::configureApp(const QString &uuid)
 {
     qDebug() << Q_FUNC_INFO << uuid;
-    QString url = watch->StartAppConfiguration(uuid);
-    return QUrl(url);
+    QDBusPendingReply<QString> reply = watch->StartAppConfiguration(uuid);
+    reply.waitForFinished();
+    if (reply.isError()) {
+        qWarning() << "Received error:" << reply.error().message();
+        return QUrl();
+    } else {
+        return QUrl(reply.value());
+    }
+}
+
+bool PebbledInterface::isAppInstalled(const QString &uuid)
+{
+    QUuid u(uuid);
+
+    foreach (const QString &s, _appSlots) {
+        if (QUuid(s) == u) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void PebbledInterface::setAppConfiguration(const QString &uuid, const QString &data)
 {
     qDebug() << Q_FUNC_INFO << uuid << data;
     watch->SendAppConfigurationData(uuid, data);
+}
+
+void PebbledInterface::launchApp(const QString &uuid)
+{
+    qDebug() << Q_FUNC_INFO << uuid;
+    QDBusPendingReply<> reply = watch->LaunchApp(uuid);
+    reply.waitForFinished();
+
+    // TODO Terrible hack; need to give time for the watch to open the app
+    // A better solution would be to wait until AppUuidChanged is generated.
+    int sleep_count = 0;
+    while (watch->appUuid() != uuid && sleep_count < 5) {
+        QThread::sleep(1);
+        sleep_count++;
+    }
+}
+
+void PebbledInterface::uploadApp(const QString &uuid, int slot)
+{
+    qDebug() << Q_FUNC_INFO << uuid << slot;
+    QDBusPendingReply<> reply = watch->UploadApp(uuid, slot);
+    reply.waitForFinished();
+}
+
+void PebbledInterface::unloadApp(int slot)
+{
+    qDebug() << Q_FUNC_INFO << slot;
+    QDBusPendingReply<> reply = watch->UnloadApp(slot);
+    reply.waitForFinished();
+}
+
+QStringList PebbledInterface::appSlots() const
+{
+    return _appSlots;
+}
+
+QVariantList PebbledInterface::allApps() const
+{
+    return _apps;
+}
+
+QVariantMap PebbledInterface::appInfoByUuid(const QString &uuid) const
+{
+    int index = _appsByUuid.value(QUuid(uuid), -1);
+    if (index >= 0) {
+        return _apps[index].toMap();
+    } else {
+        return QVariantMap();
+    }
+}
+
+void PebbledInterface::onWatchConnectedChanged()
+{
+    qDebug() << Q_FUNC_INFO;
+    if (watch->connected()) {
+        refreshAllApps();
+        refreshAppSlots();
+    }
+}
+
+void PebbledInterface::refreshAppSlots()
+{
+    qDebug() << "refreshing app slots list";
+    _appSlots = watch->appSlots();
+    emit appSlotsChanged();
+}
+
+void PebbledInterface::refreshAllApps()
+{
+    _apps.clear();
+    _appsByUuid.clear();
+
+    qDebug() << "refreshing all apps list";
+
+    const QVariantList l = watch->allApps();
+    foreach (const QVariant &v, l) {
+        QVariantMap orig = qdbus_cast<QVariantMap>(v.value<QDBusArgument>());
+        QUuid uuid = orig.value("uuid").toUuid();
+        if (uuid.isNull()) {
+            qWarning() << "Invalid app uuid received" << orig;
+            continue;
+        }
+
+        QVariantMap m;
+        m.insert("uuid", uuid.toString());
+        m.insert("shortName", orig.value("short-name"));
+        m.insert("longName", orig.value("long-name"));
+
+        _apps.append(QVariant::fromValue(m));
+    }
+
+    std::sort(_apps.begin(), _apps.end(), [](const QVariant &v1, const QVariant &v2) {
+        const QVariantMap &a = v1.toMap();
+        const QVariantMap &b = v2.toMap();
+        return a.value("shortName").toString() < b.value("shortName").toString();
+    });
+
+    for (int i = 0; i < _apps.size(); ++i) {
+        QUuid uuid = _apps[i].toMap().value("uuid").toUuid();
+        _appsByUuid.insert(uuid, i);
+    }
+
+    qDebug() << _appsByUuid.size() << "different app uuids known";
+
+    emit allAppsChanged();
 }

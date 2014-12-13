@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QHash>
+#include <QUuid>
 #include <QDBusInterface>
 
 class OrgPebbledWatchInterface;
@@ -17,6 +19,9 @@ class PebbledInterface : public QObject
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
     Q_PROPERTY(QString appUuid READ appUuid NOTIFY appUuidChanged)
 
+    Q_PROPERTY(QStringList appSlots READ appSlots NOTIFY appSlotsChanged)
+    Q_PROPERTY(QVariantList allApps READ allApps NOTIFY allAppsChanged)
+
 public:
     explicit PebbledInterface(QObject *parent = 0);
 
@@ -27,6 +32,15 @@ public:
     QString address() const;
     QString appUuid() const;
 
+    QStringList appSlots() const;
+    QVariantList allApps() const;
+
+    Q_INVOKABLE QVariantMap appInfoByUuid(const QString& uuid) const;
+
+    Q_INVOKABLE QUrl configureApp(const QString &uuid);
+
+    Q_INVOKABLE bool isAppInstalled(const QString &uuid);
+
 signals:
     void enabledChanged();
     void activeChanged();
@@ -34,6 +48,8 @@ signals:
     void nameChanged();
     void addressChanged();
     void appUuidChanged();
+    void appSlotsChanged();
+    void allAppsChanged();
 
 public slots:
     void setEnabled(bool);
@@ -43,18 +59,29 @@ public slots:
     void disconnect();
     void reconnect();
 
-    QUrl configureApp(const QString &uuid);
     void setAppConfiguration(const QString &uuid, const QString &data);
 
+    void launchApp(const QString &uuid);
+    void uploadApp(const QString &uuid, int slot);
+    void unloadApp(int slot);
+
 private slots:
+    void onWatchConnectedChanged();
     void getUnitProperties();
     void onPropertiesChanged(QString interface, QMap<QString, QVariant> changed, QStringList invalidated);
+    void refreshAppSlots();
+    void refreshAllApps();
 
 private:
     QDBusInterface *systemd;
     OrgPebbledWatchInterface *watch;
     QDBusObjectPath unitPath;
     QVariantMap unitProperties;
+
+    // Cached properties
+    QStringList _appSlots;
+    QVariantList _apps;
+    QHash<QUuid, int> _appsByUuid;
 };
 
 #endif // PEBBLEDINTERFACE_H

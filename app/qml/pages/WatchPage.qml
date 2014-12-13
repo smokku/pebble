@@ -34,7 +34,7 @@ import QtQml 2.1
 import Sailfish.Silica 1.0
 
 Page {
-    id: page
+    id: watchPage
 
     SilicaFlickable {
         id: flickable
@@ -45,9 +45,8 @@ Page {
 
         Column {
             id: column
+            width: watchPage.width
 
-            width: page.width
-            spacing: Theme.paddingLarge
             PageHeader {
                 title: pebbled.name
             }
@@ -77,36 +76,124 @@ Page {
                 }
             }
 
+            Item {
+                height: Theme.paddingMedium
+            }
 
             Label {
-                text: qsTr("App configuration")
+                text: qsTr("Installed applications")
                 font.family: Theme.fontFamilyHeading
                 color: Theme.highlightColor
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.paddingMedium
             }
 
-            Button {
-                text: "Configure current app"
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    margins: Theme.paddingLarge
-                }
-                onClicked: {
-                    var uuid = pebbled.appUuid;
-                    console.log("going to configureApp " + uuid);
-                    var url = pebbled.configureApp(uuid);
-                    console.log("obtained configure URL " + url);
-                    if (url) {
+            Repeater {
+                id: slotsRepeater
+                model: pebbled.appSlots
+
+                ListItem {
+                    id: slotDelegate
+                    menu: slotMenu
+                    contentHeight: Theme.itemSizeSmall
+
+                    property bool isEmptySlot: modelData === ""
+                    property var appInfo: pebbled.appInfoByUuid(modelData)
+                    property bool isKnownApp: appInfo.hasOwnProperty("uuid")
+                    property bool busy: false
+
+                    function configure() {
+                        var uuid = modelData;
+                        pebbled.launchApp(uuid);
+                        console.log("going to call configure on app with uuid " + uuid);
+                        var url = pebbled.configureApp(uuid);
+                        console.log("received url: " + url);
                         pageStack.push(Qt.resolvedUrl("AppConfigPage.qml"), {
                                            url: url,
-                                           uuid: uuid
+                                           name: appInfo.longName
                                        });
+                    }
+
+                    function remove() {
+                        remorseAction(qsTr("Uninstalling"), function() {
+                            busy = true;
+                            pebbled.unloadApp(index);
+                        });
+                    }
+
+                    function install() {
+                        var dialog = pageStack.push(Qt.resolvedUrl("InstallAppDialog.qml"));
+                        dialog.accepted.connect(function() {
+                            var uuid = dialog.selectedUuid;
+
+                            if (pebbled.isAppInstalled(uuid)) {
+                                console.warn("uuid already installed");
+                                return;
+                            }
+
+                            var slot = index;
+                            console.log("installing " + uuid + " into " + slot);
+                            busy = true;
+                            pebbled.uploadApp(uuid, slot);
+                        });
+
+                    }
+
+                    Image {
+                        id: slotImage
+                        anchors {
+                            top: parent.top
+                            left: parent.left
+                            leftMargin: Theme.paddingLarge
+                        }
+                        width: Theme.itemSizeSmall
+                    }
+
+                    BusyIndicator {
+                        id: slotBusy
+                        anchors.centerIn: slotImage
+                        running: slotDelegate.busy
+                    }
+
+                    Label {
+                        id: slotName
+                        anchors {
+                            left: slotImage.right
+                            leftMargin: Theme.paddingMedium
+                            right: parent.right
+                            rightMargin: Theme.paddiumLarge
+                            verticalCenter: parent.verticalCenter
+                        }
+                        text: isEmptySlot ? qsTr("(empty slot)") : (isKnownApp ? appInfo.longName : qsTr("(slot in use by unknown app)"))
+                        color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+                        onTextChanged: slotDelegate.busy = false;
+                    }
+
+                    Component {
+                        id: slotMenu
+                        ContextMenu {
+                            MenuItem {
+                                text: qsTr("Configure...")
+                                visible: !isEmptySlot && isKnownApp
+                                onClicked: configure();
+                            }
+                            MenuItem {
+                                text: qsTr("Uninstall")
+                                visible: !isEmptySlot
+                                onClicked: remove();
+                            }
+                        }
+                    }
+
+                    onClicked: {
+                        if (isEmptySlot) {
+                            install();
+                        } else {
+                            showMenu();
+                        }
                     }
                 }
             }
-
         }
     }
 }
