@@ -33,6 +33,22 @@ Dialog {
                 request.action = WebView.AcceptRequest;
             }
         }
+
+        VerticalScrollDecorator { flickable: webview }
+    }
+
+    ProgressBar {
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+
+        visible: webview.visible && webview.loading
+        minimumValue: 0
+        maximumValue: 100
+        indeterminate: webview.loadProgress === 0
+        value: webview.loadProgress
     }
 
     Text {

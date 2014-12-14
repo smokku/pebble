@@ -22,7 +22,7 @@
 <context>
     <name>AppConfigDialog</name>
     <message>
-        <location filename="../qml/pages/AppConfigDialog.qml" line="41"/>
+        <location filename="../qml/pages/AppConfigDialog.qml" line="57"/>
         <source>No configuration settings available</source>
         <translation type="unfinished"></translation>
     </message>
