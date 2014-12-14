@@ -27,20 +27,29 @@ Dialog {
             property string uuid: modelData.uuid
             property bool alreadyInstalled: pebbled.isAppInstalled(uuid)
 
-            Image {
-                id: appImage
+            Item {
+                id: appIcon
+                width: Theme.itemSizeSmall
+                height: Theme.itemSizeSmall
+
                 anchors {
                     top: parent.top
                     left: parent.left
                     leftMargin: Theme.paddingLarge
                 }
-                width: Theme.itemSizeSmall
+
+                Image {
+                    id: appImage
+                    anchors.centerIn: parent
+                    source: "image://pebble-app-icon/" + uuid;
+                    scale: 2
+                }
             }
 
             Label {
                 id: appName
                 anchors {
-                    left: appImage.right
+                    left: appIcon.right
                     leftMargin: Theme.paddingMedium
                     right: parent.right
                     rightMargin: Theme.paddiumLarge

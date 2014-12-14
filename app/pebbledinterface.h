@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QHash>
 #include <QUuid>
+#include <QImage>
 #include <QDBusInterface>
 
 class OrgPebbledWatchInterface;
@@ -39,7 +40,9 @@ public:
 
     Q_INVOKABLE QUrl configureApp(const QString &uuid);
 
-    Q_INVOKABLE bool isAppInstalled(const QString &uuid);
+    Q_INVOKABLE bool isAppInstalled(const QString &uuid) const;
+
+    QImage menuIconForApp(const QUuid &uuid) const;
 
 signals:
     void enabledChanged();
@@ -82,6 +85,7 @@ private:
     QStringList _appSlots;
     QVariantList _apps;
     QHash<QUuid, int> _appsByUuid;
+    QHash<QUuid, QImage> _appMenuIcons;
 };
 
 #endif // PEBBLEDINTERFACE_H

@@ -77,7 +77,8 @@ Page {
             }
 
             Item {
-                height: Theme.paddingMedium
+                width: parent.width
+                height: Theme.paddingLarge
             }
 
             Label {
@@ -139,26 +140,49 @@ Page {
 
                     }
 
-                    Image {
-                        id: slotImage
+                    Item {
+                        id: slotIcon
+                        width: Theme.itemSizeSmall
+                        height: Theme.itemSizeSmall
+
                         anchors {
                             top: parent.top
                             left: parent.left
                             leftMargin: Theme.paddingLarge
                         }
-                        width: Theme.itemSizeSmall
-                    }
 
-                    BusyIndicator {
-                        id: slotBusy
-                        anchors.centerIn: slotImage
-                        running: slotDelegate.busy
+                        Image {
+                            id: slotImage
+                            anchors.centerIn: parent
+                            source: isKnownApp ? "image://pebble-app-icon/" + modelData : ""
+                            scale: 2
+                            visible: !isEmptySlot && isKnownApp && !slotBusy.running
+                        }
+
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            anchors.centerIn: parent
+                            scale: 2
+                            border {
+                                width: 2
+                                color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+                            }
+                            color: "transparent"
+                            visible: isEmptySlot && !slotBusy.running
+                        }
+
+                        BusyIndicator {
+                            id: slotBusy
+                            anchors.centerIn: parent
+                            running: slotDelegate.busy
+                        }
                     }
 
                     Label {
                         id: slotName
                         anchors {
-                            left: slotImage.right
+                            left: slotIcon.right
                             leftMargin: Theme.paddingMedium
                             right: parent.right
                             rightMargin: Theme.paddiumLarge
@@ -172,6 +196,11 @@ Page {
                     Component {
                         id: slotMenu
                         ContextMenu {
+                            MenuItem {
+                                text: qsTr("Install app...")
+                                visible: isEmptySlot
+                                onClicked: install();
+                            }
                             MenuItem {
                                 text: qsTr("Configure...")
                                 visible: !isEmptySlot && isKnownApp

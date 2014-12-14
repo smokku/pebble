@@ -3,16 +3,18 @@ TARGET = pebble
 CONFIG += sailfishapp
 
 QT += dbus
-QMAKE_CXXFLAGS += -std=c++0x
+CONFIG += c++11
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 SOURCES += \
     pebble.cpp \
-    pebbledinterface.cpp
+    pebbledinterface.cpp \
+    pebbleappiconprovider.cpp
 
 HEADERS += \
-    pebbledinterface.h
+    pebbledinterface.h \
+    pebbleappiconprovider.h
 
 DBUS_INTERFACES += ../org.pebbled.Watch.xml
 

@@ -1,5 +1,6 @@
-#include "appinfo.h"
 #include <QSharedData>
+#include <QBuffer>
+#include "appinfo.h"
 
 struct AppInfoData : public QSharedData {
     QUuid uuid;
@@ -13,6 +14,7 @@ struct AppInfoData : public QSharedData {
     AppInfo::Capabilities capabilities;
     QHash<QString, int> keyInts;
     QHash<int, QString> keyNames;
+    QImage menuIcon;
     QString path;
 };
 
@@ -21,6 +23,7 @@ AppInfo::AppInfo() : d(new AppInfoData)
     d->versionCode = 0;
     d->watchface = false;
     d->jskit = false;
+    d->capabilities = 0;
 }
 
 AppInfo::AppInfo(const AppInfo &rhs) : d(rhs.d)
@@ -152,6 +155,26 @@ bool AppInfo::hasAppKey(const QString &key) const
 int AppInfo::valueForAppKey(const QString &key) const
 {
     return d->keyInts.value(key, -1);
+}
+
+QImage AppInfo::menuIcon() const
+{
+    return d->menuIcon;
+}
+
+QByteArray AppInfo::menuIconAsPng() const
+{
+    QByteArray data;
+    QBuffer buf(&data);
+    buf.open(QIODevice::WriteOnly);
+    d->menuIcon.save(&buf, "PNG");
+    buf.close();
+    return data;
+}
+
+void AppInfo::setMenuIcon(const QImage &img)
+{
+    d->menuIcon = img;
 }
 
 QString AppInfo::path() const

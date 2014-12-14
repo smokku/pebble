@@ -11,6 +11,7 @@ Page {
 
     SilicaWebView {
         id: webview
+        visible: url != ""
         anchors.fill: parent
 
         header: PageHeader {
@@ -32,8 +33,17 @@ Page {
         }
     }
 
-    ViewPlaceholder {
-        enabled: url == ""
+    Text {
+        anchors.centerIn: parent
+        visible: url == ""
         text: qsTr("No configuration settings available")
+        width: parent.width - 2*Theme.paddingLarge
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.Wrap
+        font {
+            pixelSize: Theme.fontSizeLarge
+            family: Theme.fontFamilyHeading
+        }
+        color: Theme.highlightColor
     }
 }

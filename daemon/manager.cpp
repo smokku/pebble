@@ -380,6 +380,11 @@ QVariantList PebbledProxy::AllApps() const
         m.insert("company-name", QVariant::fromValue(info.companyName()));
         m.insert("version-label", QVariant::fromValue(info.versionLabel()));
         m.insert("is-watchface", QVariant::fromValue(info.isWatchface()));
+
+        if (!info.menuIcon().isNull()) {
+            m.insert("menu-icon", QVariant::fromValue(info.menuIconAsPng()));
+        }
+
         l.append(QVariant::fromValue(m));
     }
 

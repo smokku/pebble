@@ -1,10 +1,10 @@
 #ifndef APPINFO_H
 #define APPINFO_H
 
-#include <QObject>
+#include <QSharedDataPointer>
 #include <QUuid>
 #include <QHash>
-#include <QSharedDataPointer>
+#include <QImage>
 
 class AppInfoData;
 
@@ -28,6 +28,7 @@ public:
     Q_PROPERTY(bool watchface READ isWatchface WRITE setWatchface)
     Q_PROPERTY(bool jskit READ isJSKit WRITE setJSKit)
     Q_PROPERTY(Capabilities capabilities READ capabilities WRITE setCapabilities)
+    Q_PROPERTY(QImage menuIcon READ menuIcon WRITE setMenuIcon)
     Q_PROPERTY(QString path READ path WRITE setPath)
 
 public:
@@ -70,6 +71,10 @@ public:
 
     bool hasAppKey(const QString &key) const;
     int valueForAppKey(const QString &key) const;
+
+    QImage menuIcon() const;
+    QByteArray menuIconAsPng() const;
+    void setMenuIcon(const QImage &img);
 
     QString path() const;
     void setPath(const QString &string);

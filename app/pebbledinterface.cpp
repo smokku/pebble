@@ -183,7 +183,7 @@ QUrl PebbledInterface::configureApp(const QString &uuid)
     }
 }
 
-bool PebbledInterface::isAppInstalled(const QString &uuid)
+bool PebbledInterface::isAppInstalled(const QString &uuid) const
 {
     QUuid u(uuid);
 
@@ -194,6 +194,11 @@ bool PebbledInterface::isAppInstalled(const QString &uuid)
     }
 
     return false;
+}
+
+QImage PebbledInterface::menuIconForApp(const QUuid &uuid) const
+{
+    return _appMenuIcons.value(uuid);
 }
 
 void PebbledInterface::setAppConfiguration(const QString &uuid, const QString &data)
@@ -210,8 +215,11 @@ void PebbledInterface::launchApp(const QString &uuid)
 
     // TODO Terrible hack; need to give time for the watch to open the app
     // A better solution would be to wait until AppUuidChanged is generated.
+    QUuid u(uuid);
+    if (u.isNull()) return;
     int sleep_count = 0;
-    while (watch->appUuid() != uuid && sleep_count < 5) {
+    while (QUuid(watch->appUuid()) != u && sleep_count < 5) {
+        qDebug() << "Waiting for" << u.toString() << "to launch";
         QThread::sleep(1);
         sleep_count++;
     }
@@ -271,6 +279,7 @@ void PebbledInterface::refreshAllApps()
 {
     _apps.clear();
     _appsByUuid.clear();
+    _appMenuIcons.clear();
 
     qDebug() << "refreshing all apps list";
 
@@ -287,6 +296,11 @@ void PebbledInterface::refreshAllApps()
         m.insert("uuid", uuid.toString());
         m.insert("shortName", orig.value("short-name"));
         m.insert("longName", orig.value("long-name"));
+
+        QByteArray pngIcon = orig.value("menu-icon").toByteArray();
+        if (!pngIcon.isEmpty()) {
+            _appMenuIcons.insert(uuid, QImage::fromData(pngIcon, "PNG"));
+        }
 
         _apps.append(QVariant::fromValue(m));
     }
