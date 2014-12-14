@@ -72,6 +72,12 @@ void Packer::writeDict(const QMap<int, QVariant> &d)
             writeLE<int>(it.value().value<int>());
             break;
 
+        case QMetaType::Bool:
+            writeLE<quint8>(WatchConnector::typeINT);
+            writeLE<quint16>(sizeof(char));
+            writeLE<char>(it.value().value<char>());
+            break;
+
         case QMetaType::Float: // Treat qreals as ints
         case QMetaType::Double:
             writeLE<quint8>(WatchConnector::typeINT);
