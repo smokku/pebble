@@ -60,7 +60,7 @@ Page {
 
 
                 Button {
-                    text: "Ping"
+                    text: qsTr("Ping")
                     width: parent.width / 2
                     onClicked: {
                         pebbled.ping(66)
@@ -68,7 +68,7 @@ Page {
                 }
 
                 Button {
-                    text: "Sync Time"
+                    text: qsTr("Sync Time")
                     width: parent.width / 2
                     onClicked: {
                         pebbled.time()
