@@ -109,8 +109,9 @@ Page {
                         console.log("going to call configure on app with uuid " + uuid);
                         var url = pebbled.configureApp(uuid);
                         console.log("received url: " + url);
-                        pageStack.push(Qt.resolvedUrl("AppConfigPage.qml"), {
+                        pageStack.push(Qt.resolvedUrl("AppConfigDialog.qml"), {
                                            url: url,
+                                           uuid: uuid,
                                            name: appInfo.longName
                                        });
                     }

@@ -3,10 +3,11 @@ import QtQml 2.1
 import QtWebKit 3.0
 import Sailfish.Silica 1.0
 
-Page {
+Dialog {
     id: appConfigPage
 
     property alias url: webview.url
+    property string uuid
     property string name
 
     SilicaWebView {
@@ -14,7 +15,7 @@ Page {
         visible: url != ""
         anchors.fill: parent
 
-        header: PageHeader {
+        header: DialogHeader {
             title: "Configuring " + name
         }
 
@@ -25,7 +26,8 @@ Page {
                 var data = decodeURIComponent(url.substring(17));
                 console.log("appconfig requesting close; data: " + data);
                 pebbled.setAppConfiguration(uuid, data);
-                pageStack.pop();
+                appConfigPage.canAccept = true;
+                appConfigPage.accept();
                 request.action = WebView.IgnoreRequest;
             } else {
                 request.action = WebView.AcceptRequest;
@@ -46,4 +48,6 @@ Page {
         }
         color: Theme.highlightColor
     }
+
+    canAccept: false
 }

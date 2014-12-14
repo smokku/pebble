@@ -27,5 +27,5 @@ OTHER_FILES += \
     qml/images/* \
     pebble.desktop \
     pebble.png \
-    qml/pages/AppConfigPage.qml \
-    qml/pages/InstallAppDialog.qml
+    qml/pages/InstallAppDialog.qml \
+    qml/pages/AppConfigDialog.qml
