@@ -1,19 +1,60 @@
 #include <QDateTime>
 #include <QMetaEnum>
 
-#include "watchconnector.h"
 #include "unpacker.h"
+#include "watchconnector.h"
 
 static const int RECONNECT_TIMEOUT = 500; //ms
 static const bool PROTOCOL_DEBUG = false;
-
-using std::function;
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), socket(nullptr), is_connected(false)
 {
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+
+    setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
+        Unpacker u(data);
+
+        u.skip(1);
+
+        quint32 version = u.read<quint32>();
+        QString version_string = u.readFixedString(32);
+        QString commit = u.readFixedString(8);
+        bool is_recovery = u.read<quint8>();
+        quint8 hw_platform = u.read<quint8>();
+        quint8 metadata_version = u.read<quint8>();
+
+        quint32 safe_version = u.read<quint32>();
+        QString safe_version_string = u.readFixedString(32);
+        QString safe_commit = u.readFixedString(8);
+        bool safe_is_recovery = u.read<quint8>();
+        quint8 safe_hw_platform = u.read<quint8>();
+        quint8 safe_metadata_version = u.read<quint8>();
+
+        quint32 bootLoaderTimestamp = u.read<quint32>();
+        QString hardwareRevision = u.readFixedString(9);
+        QString serialNumber = u.readFixedString(12);
+        QByteArray address = u.readBytes(6);
+
+        if (u.bad()) {
+            logger()->warn() << "short read while reading firmware version";
+        }
+
+        logger()->debug() << "got version information"
+                          << version << version_string << commit
+                          << is_recovery << hw_platform << metadata_version;
+        logger()->debug() << "recovery version information"
+                          << safe_version << safe_version_string << safe_commit
+                          << safe_is_recovery << safe_hw_platform << safe_metadata_version;
+        logger()->debug() << "hardware information" << bootLoaderTimestamp << hardwareRevision;
+        logger()->debug() << "serial number" << serialNumber.left(3) << "...";
+        logger()->debug() << "bt address" << address.toHex();
+
+        this->_serialNumber = serialNumber;
+
+        return true;
+    });
 }
 
 WatchConnector::~WatchConnector()
@@ -46,11 +87,11 @@ void WatchConnector::reconnect()
 
 void WatchConnector::disconnect()
 {
-    logger()->debug() << __FUNCTION__;
+    logger()->debug() << "disconnecting";
     socket->close();
     socket->deleteLater();
     reconnectTimer.stop();
-    logger()->debug() << "Stopped reconnect timer";
+    logger()->debug() << "stopped reconnect timer";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
@@ -66,6 +107,11 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     _last_name = name;
     _last_address = address;
     if (emit_name) emit nameChanged();
+
+    if (emit_name) {
+        // If we've changed names, don't reuse cached serial number!
+        _serialNumber.clear();
+    }
 
     logger()->debug() << "Creating socket";
 #if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
@@ -198,10 +244,14 @@ void WatchConnector::onConnected()
     is_connected = true;
     reconnectTimer.stop();
     reconnectTimer.setInterval(0);
-    if (not was_connected) {
-        if (not writeData.isEmpty()) {
+    if (!was_connected) {
+        if (!writeData.isEmpty()) {
             logger()->info() << "Found" << writeData.length() << "bytes in write buffer - resending";
             sendData(writeData);
+        }
+        if (_serialNumber.isEmpty()) {
+            // Ask for version information from the watch
+            sendMessage(watchVERSION, QByteArray(1, 0));
         }
         emit connectedChanged();
     }

@@ -18,7 +18,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     music(new MusicManager(watch, this)),
     datalog(new DataLogManager(watch, this)),
     appmsg(new AppMsgManager(apps, watch, this)),
-    js(new JSKitManager(apps, appmsg, this)),
+    js(new JSKitManager(watch, apps, appmsg, settings, this)),
     notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));

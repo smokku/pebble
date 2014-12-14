@@ -4,8 +4,8 @@
 #include "jskitmanager.h"
 #include "jskitobjects.h"
 
-JSKitManager::JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *parent) :
-    QObject(parent), _apps(apps), _appmsg(appmsg), _engine(0)
+JSKitManager::JSKitManager(WatchConnector *watch, AppManager *apps, AppMsgManager *appmsg, Settings *settings, QObject *parent) :
+    QObject(parent), _watch(watch), _apps(apps), _appmsg(appmsg), _settings(settings), _engine(0)
 {
     connect(_appmsg, &AppMsgManager::appStarted, this, &JSKitManager::handleAppStarted);
     connect(_appmsg, &AppMsgManager::appStopped, this, &JSKitManager::handleAppStopped);

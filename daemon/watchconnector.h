@@ -188,6 +188,7 @@ public:
 
     inline bool isConnected() const { return is_connected; }
     inline QString name() const { return socket != nullptr ? socket->peerName() : ""; }
+    inline QString serialNumber() const { return _serialNumber; }
 
     void setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func);
     void clearEndpointHandler(uint endpoint);
@@ -245,6 +246,7 @@ private:
     QTimer reconnectTimer;
     QString _last_name;
     QString _last_address;
+    QString _serialNumber;
 };
 
 #endif // WATCHCONNECTOR_H

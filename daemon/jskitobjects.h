@@ -25,6 +25,9 @@ public:
 
     Q_INVOKABLE void openURL(const QUrl &url);
 
+    Q_INVOKABLE QString getAccountToken() const;
+    Q_INVOKABLE QString getWatchToken() const;
+
     Q_INVOKABLE QJSValue createXMLHttpRequest();
 
     void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());

@@ -18,6 +18,8 @@ class Settings : public MDConfGroup
     Q_PROPERTY(bool notificationsFacebook MEMBER notificationsFacebook NOTIFY notificationsFacebookChanged)
     Q_PROPERTY(bool notificationsOther MEMBER notificationsOther NOTIFY notificationsOtherChanged)
     Q_PROPERTY(bool notificationsAll MEMBER notificationsAll NOTIFY notificationsAllChanged)
+    Q_PROPERTY(QString accountToken MEMBER accountToken NOTIFY accountTokenChanged)
+
     bool silentWhenConnected;
     bool transliterateMessage;
     bool incomingCallNotification;
@@ -29,6 +31,7 @@ class Settings : public MDConfGroup
     bool notificationsFacebook;
     bool notificationsOther;
     bool notificationsAll;
+    QString accountToken;
 
 public:
     explicit Settings(QObject *parent = 0) :
@@ -36,20 +39,18 @@ public:
     { resolveMetaObject(); }
 
 signals:
-    void silentWhenConnectedChanged(bool);
-    void transliterateMessageChanged(bool);
-    void incomingCallNotificationChanged(bool);
-    void notificationsCommhistorydChanged(bool);
-    void notificationsMissedCallChanged(bool);
-    void notificationsEmailsChanged(bool);
-    void notificationsMitakuuluuChanged(bool);
-    void notificationsTwitterChanged(bool);
-    void notificationsFacebookChanged(bool);
-    void notificationsOtherChanged(bool);
-    void notificationsAllChanged(bool);
-
-public slots:
-
+    void silentWhenConnectedChanged();
+    void transliterateMessageChanged();
+    void incomingCallNotificationChanged();
+    void notificationsCommhistorydChanged();
+    void notificationsMissedCallChanged();
+    void notificationsEmailsChanged();
+    void notificationsMitakuuluuChanged();
+    void notificationsTwitterChanged();
+    void notificationsFacebookChanged();
+    void notificationsOtherChanged();
+    void notificationsAllChanged();
+    void accountTokenChanged();
 };
 
 #endif // SETTINGS_H

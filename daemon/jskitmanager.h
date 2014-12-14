@@ -4,6 +4,7 @@
 #include <QJSEngine>
 #include "appmanager.h"
 #include "appmsgmanager.h"
+#include "settings.h"
 
 class JSKitPebble;
 class JSKitConsole;
@@ -16,7 +17,7 @@ class JSKitManager : public QObject
     LOG4QT_DECLARE_QCLASS_LOGGER
 
 public:
-    explicit JSKitManager(AppManager *apps, AppMsgManager *appmsg, QObject *parent = 0);
+    explicit JSKitManager(WatchConnector *watch, AppManager *apps, AppMsgManager *appmsg, Settings *settings, QObject *parent = 0);
     ~JSKitManager();
 
     QJSEngine * engine();
@@ -44,8 +45,10 @@ private:
 private:
     friend class JSKitPebble;
 
+    WatchConnector *_watch;
     AppManager *_apps;
     AppMsgManager *_appmsg;
+    Settings *_settings;
     AppInfo _curApp;
     QJSEngine *_engine;
     QPointer<JSKitPebble> _jspebble;

@@ -4,8 +4,11 @@
 #include <QAuthenticator>
 #include <QBuffer>
 #include <QDir>
+#include <QCryptographicHash>
 #include <limits>
 #include "jskitobjects.h"
+
+static const char *token_salt = "0feeb7416d3c4546a19b04bccd8419b1";
 
 JSKitPebble::JSKitPebble(const AppInfo &info, JSKitManager *mgr)
     : QObject(mgr), _appInfo(info), _mgr(mgr)
@@ -86,6 +89,42 @@ void JSKitPebble::openURL(const QUrl &url)
 {
     logger()->debug() << "opening url" << url.toString();
     emit _mgr->appOpenUrl(url);
+}
+
+QString JSKitPebble::getAccountToken() const
+{
+    // We do not have any account system, so we just fake something up.
+    QCryptographicHash hasher(QCryptographicHash::Md5);
+
+    hasher.addData(token_salt, strlen(token_salt));
+    hasher.addData(_appInfo.uuid().toByteArray());
+
+    QString token = _mgr->_settings->property("accountToken").toString();
+    if (token.isEmpty()) {
+        token = QUuid::createUuid().toString();
+        logger()->debug() << "created new account token" << token;
+        _mgr->_settings->setProperty("accountToken", token);
+    }
+    hasher.addData(token.toLatin1());
+
+    QString hash = hasher.result().toHex();
+    logger()->debug() << "returning account token" << hash;
+
+    return hash;
+}
+
+QString JSKitPebble::getWatchToken() const
+{
+    QCryptographicHash hasher(QCryptographicHash::Md5);
+
+    hasher.addData(token_salt, strlen(token_salt));
+    hasher.addData(_appInfo.uuid().toByteArray());
+    hasher.addData(_mgr->_watch->serialNumber().toLatin1());
+
+    QString hash = hasher.result().toHex();
+    logger()->debug() << "returning watch token" << hash;
+
+    return hash;
 }
 
 QJSValue JSKitPebble::createXMLHttpRequest()
