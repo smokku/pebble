@@ -237,7 +237,7 @@ QByteArray WatchConnector::buildMessageData(uint lead, QStringList data)
 void WatchConnector::sendPhoneVersion()
 {
     unsigned int sessionCap = sessionCapGAMMA_RAY;
-    unsigned int remoteCap = remoteCapTELEPHONY | remoteCapSMS | osANDROID;
+    unsigned int remoteCap = remoteCapTELEPHONY | remoteCapSMS | osIOS;
     QByteArray res;
 
     //Prefix

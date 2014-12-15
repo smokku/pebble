@@ -21,6 +21,9 @@ void WatchCommands::processMessage(uint endpoint, QByteArray data)
         if (data.at(0) == WatchConnector::callHANGUP) {
             emit hangup();
         }
+        if (data.at(0) == WatchConnector::callANSWER) {
+            emit answer();
+        }
         break;
     case WatchConnector::watchMUSIC_CONTROL:
         musicControl(WatchConnector::MusicControl(data.at(0)));

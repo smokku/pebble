@@ -34,6 +34,7 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
 
     connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
     connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
+    connect(commands, SIGNAL(answer()), SLOT(answerAll()));
 
     PebbledProxy *proxy = new PebbledProxy(this);
     PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
@@ -251,6 +252,13 @@ void Manager::hangupAll()
 {
     foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
         handler->hangup();
+    }
+}
+
+void Manager::answerAll()
+{
+    foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
+        handler->answer();
     }
 }
 

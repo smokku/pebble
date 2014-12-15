@@ -71,6 +71,7 @@ signals:
 
 public slots:
     void hangupAll();
+    void answerAll();
     void applyProfile();
 
 protected slots:
