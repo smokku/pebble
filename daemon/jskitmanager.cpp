@@ -146,6 +146,7 @@ void JSKitManager::startJsApp()
 
     QJSValue navigatorObj = _engine->newObject();
     navigatorObj.setProperty("geolocation", _engine->newQObject(_jsgeo));
+    navigatorObj.setProperty("language", _engine->toScriptValue(QLocale().name()));
     globalObj.setProperty("navigator", navigatorObj);
 
     // Set this.window = this
