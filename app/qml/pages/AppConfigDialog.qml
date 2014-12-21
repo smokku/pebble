@@ -21,6 +21,8 @@ Dialog {
 
         VerticalScrollDecorator { flickable: webview }
 
+        overridePageStackNavigation: true
+
         onNavigationRequested: {
             console.log("appconfig navigation requested to " + request.url);
             var url = request.url.toString();
