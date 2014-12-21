@@ -19,6 +19,8 @@ Dialog {
             title: "Configuring " + name
         }
 
+        VerticalScrollDecorator { flickable: webview }
+
         onNavigationRequested: {
             console.log("appconfig navigation requested to " + request.url);
             var url = request.url.toString();
@@ -34,7 +36,21 @@ Dialog {
             }
         }
 
-        VerticalScrollDecorator { flickable: webview }
+        experimental.itemSelector: Component {
+            Item {
+                Component.onCompleted: {
+                    var dialog = pageStack.push(Qt.resolvedUrl("WebItemSelDialog.qml"), {
+                                                       model: model.items
+                                                });
+                    dialog.onRejected.connect(function() {
+                        model.reject();
+                    });
+                    dialog.onAccepted.connect(function() {
+                        model.accept(dialog.selectedIndex);
+                    });
+                }
+            }
+        }
     }
 
     ProgressBar {

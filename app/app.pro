@@ -25,6 +25,7 @@ OTHER_FILES += \
     qml/pages/AboutPage.qml \
     qml/pages/InstallAppDialog.qml \
     qml/pages/AppConfigDialog.qml \
+    qml/pages/WebItemSelDialog.qml \
     qml/pebble.qml \
     qml/images/* \
     translations/*.ts \
