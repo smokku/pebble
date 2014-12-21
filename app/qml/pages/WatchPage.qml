@@ -186,7 +186,7 @@ Page {
                             left: slotIcon.right
                             leftMargin: Theme.paddingMedium
                             right: parent.right
-                            rightMargin: Theme.paddiumLarge
+                            rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
                         text: isEmptySlot ? qsTr("(empty slot)") : (isKnownApp ? appInfo.longName : qsTr("(slot in use by unknown app)"))

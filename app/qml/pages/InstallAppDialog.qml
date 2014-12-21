@@ -52,7 +52,7 @@ Dialog {
                     left: appIcon.right
                     leftMargin: Theme.paddingMedium
                     right: parent.right
-                    rightMargin: Theme.paddiumLarge
+                    rightMargin: Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
                 text: modelData.longName
