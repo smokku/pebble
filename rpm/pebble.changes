@@ -1,3 +1,7 @@
+* Tue Dec 23 2014 Tomasz Sterna <tomek@xiaoka.com> 0.13
+- Update for Qt 5.2
+- Logging using Qt logging categories
+
 * Tue Sep 30 2014 Tomasz Sterna <tomek@xiaoka.com> 0.12
 - Do not use invoker to run pebbled
 
@@ -36,7 +40,7 @@
 * Fri Jul 18 2014 Tomasz Sterna <tomek@xiaoka.com> 0.6
 - Music Control via MPRIS
 
-* Sun Jul 13 2014 Tomasz Sterna <tomek@xiaoka.com> 0.6
+* Sun Jul 13 2014 Tomasz Sterna <tomek@xiaoka.com> 0.5
 - Fixed incoming call notification
 - support for PHONE_VERSION endpoint
 
