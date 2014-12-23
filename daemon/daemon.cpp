@@ -52,9 +52,13 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
+    QStringList filterRules;
+
+    filterRules << (argc > 1 and QString("-d") == argv[0] ?
+                       "*.debug=false" : "*.debug=true");
+
     // Init logging should be called after app object creation
-    QLoggingCategory::setFilterRules("*.debug=false\n"
-                                     "fc.io.debug=true");
+    QLoggingCategory::setFilterRules(filterRules.join("\n"));
 
     QLoggingCategory l("main");
     qCDebug(l) << argv[0] << APP_VERSION;
