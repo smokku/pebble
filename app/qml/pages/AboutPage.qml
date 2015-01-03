@@ -84,13 +84,13 @@ Page {
                 onClicked: Qt.openUrlExternally("https://github.com/smokku/pebble/issues")
             }
             Button {
-                text: "Send application log to developer"
+                text: "Send issue e-mail to developer"
                 anchors {
                     left: parent.left
                     right: parent.right
                     margins: Theme.paddingLarge
                 }
-                onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=please describe your issue&attachment=/home/nemo/.cache/pebbled/pebble.log")
+                onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=describe your issue here")
             }
         }
     }
