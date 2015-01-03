@@ -30,10 +30,6 @@
 
 #include <signal.h>
 #include <QCoreApplication>
-#include <QStandardPaths>
-#include <QFile>
-#include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 void signalhandler(int sig)

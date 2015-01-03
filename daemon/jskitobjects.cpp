@@ -229,7 +229,7 @@ void JSKitLocalStorage::checkLengthChanged()
 QString JSKitLocalStorage::getStorageFileFor(const QUuid &uuid)
 {
     QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    dataDir.mkdir("js-storage");
+    dataDir.mkpath("js-storage");
     QString fileName = uuid.toString();
     fileName.remove('{');
     fileName.remove('}');

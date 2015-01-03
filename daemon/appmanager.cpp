@@ -24,10 +24,8 @@ AppManager::AppManager(QObject *parent)
             this, &AppManager::rescan);
 
     QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-    if (!dataDir.exists("apps")) {
-        if (!dataDir.mkdir("apps")) {
-            logger()->warn() << "could not create dir" << dataDir.absoluteFilePath("apps");
-        }
+    if (!dataDir.mkpath("apps")) {
+        qCWarning(l) << "could not create apps dir" << dataDir.absoluteFilePath("apps");
     }
     qCDebug(l) << "install apps in" << dataDir.absoluteFilePath("apps");
 
