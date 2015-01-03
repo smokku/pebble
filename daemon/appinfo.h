@@ -19,6 +19,7 @@ public:
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
+    Q_PROPERTY(bool local READ isLocal WRITE setLocal)
     Q_PROPERTY(QUuid uuid READ uuid WRITE setUuid)
     Q_PROPERTY(QString shortName READ shortName WRITE setShortName)
     Q_PROPERTY(QString longName READ longName WRITE setLongName)
@@ -36,6 +37,9 @@ public:
     AppInfo(const AppInfo &);
     AppInfo &operator=(const AppInfo &);
     ~AppInfo();
+
+    bool isLocal() const;
+    void setLocal(const bool local);
 
     QUuid uuid() const;
     void setUuid(const QUuid &uuid);

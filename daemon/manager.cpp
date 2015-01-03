@@ -374,7 +374,8 @@ QVariantList PebbledProxy::AllApps() const
     foreach (const QUuid &uuid, uuids) {
         const AppInfo &info = manager()->apps->info(uuid);
         QVariantMap m;
-        m.insert("uuid", QVariant::fromValue(uuid.toString()));
+        m.insert("local", QVariant::fromValue(info.isLocal()));
+        m.insert("uuid", QVariant::fromValue(info.uuid().toString()));
         m.insert("short-name", QVariant::fromValue(info.shortName()));
         m.insert("long-name", QVariant::fromValue(info.longName()));
         m.insert("company-name", QVariant::fromValue(info.companyName()));

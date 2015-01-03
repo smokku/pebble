@@ -24,6 +24,8 @@ Dialog {
             id: appDelegate
             contentHeight: Theme.itemSizeSmall
 
+            visible: modelData.isLocal
+
             property string uuid: modelData.uuid
             property bool alreadyInstalled: pebbled.isAppInstalled(uuid)
 
@@ -41,7 +43,7 @@ Dialog {
                 Image {
                     id: appImage
                     anchors.centerIn: parent
-                    source: "image://pebble-app-icon/" + uuid;
+                    source: appDelegate.visible ? "image://pebble-app-icon/" + uuid : ""
                     scale: 2
                 }
             }

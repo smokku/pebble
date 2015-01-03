@@ -294,8 +294,12 @@ void PebbledInterface::refreshAllApps()
 
         QVariantMap m;
         m.insert("uuid", uuid.toString());
+        m.insert("isLocal", orig.value("local"));
         m.insert("shortName", orig.value("short-name"));
         m.insert("longName", orig.value("long-name"));
+        m.insert("companyName", orig.value("company-name"));
+        m.insert("versionLabel", orig.value("version-label"));
+        m.insert("isWatchface", orig.value("is-watchface"));
 
         QByteArray pngIcon = orig.value("menu-icon").toByteArray();
         if (!pngIcon.isEmpty()) {

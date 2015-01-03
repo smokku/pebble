@@ -88,6 +88,16 @@ void AppManager::rescan()
     emit appsChanged();
 }
 
+void AppManager::insertAppInfo(const AppInfo &info)
+{
+    _apps.insert(info.uuid(), info);
+    _names.insert(info.shortName(), info.uuid());
+
+    const char *type = info.isWatchface() ? "watchface" : "app";
+    const char *local = info.isLocal() ? "local" : "watch";
+    qCDebug(l) << "found" << local << type << info.shortName() << info.versionCode() << "/" << info.versionLabel() << "with uuid" << info.uuid().toString();
+}
+
 void AppManager::scanApp(const QString &path)
 {
     qCDebug(l) << "scanning app" << path;
@@ -114,6 +124,7 @@ void AppManager::scanApp(const QString &path)
 
     const QJsonObject root = doc.object();
     AppInfo info;
+    info.setLocal(true);
     info.setUuid(QUuid(root["uuid"].toString()));
     info.setShortName(root["shortName"].toString());
     info.setLongName(root["longName"].toString());
@@ -183,11 +194,7 @@ void AppManager::scanApp(const QString &path)
         return;
     }
 
-    _apps.insert(info.uuid(), info);
-    _names.insert(info.shortName(), info.uuid());
-
-    const char *type = info.isWatchface() ? "watchface" : "app";
-    qCDebug(l) << "found installed" << type << info.shortName() << info.versionLabel() << "with uuid" << info.uuid().toString();
+    insertAppInfo(info);
 }
 
 QByteArray AppManager::extractFromResourcePack(const QString &file, int wanted_id) const

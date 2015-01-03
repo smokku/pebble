@@ -101,6 +101,7 @@ Page {
                     property bool isEmptySlot: modelData === ""
                     property var appInfo: pebbled.appInfoByUuid(modelData)
                     property bool isKnownApp: appInfo.hasOwnProperty("uuid")
+                    property bool isLocalApp: appInfo.hasOwnProperty("isLocal") && appInfo.isLocal
                     property bool busy: false
 
                     function configure() {
@@ -155,9 +156,9 @@ Page {
                         Image {
                             id: slotImage
                             anchors.centerIn: parent
-                            source: isKnownApp ? "image://pebble-app-icon/" + modelData : ""
+                            source: isLocalApp ? "image://pebble-app-icon/" + modelData : ""
                             scale: 2
-                            visible: !isEmptySlot && isKnownApp && !slotBusy.running
+                            visible: !isEmptySlot && isLocalApp && !slotBusy.running
                         }
 
                         Rectangle {
@@ -170,7 +171,7 @@ Page {
                                 color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
                             }
                             color: "transparent"
-                            visible: isEmptySlot && !slotBusy.running
+                            visible: (isEmptySlot || !isLocalApp) && !slotBusy.running
                         }
 
                         BusyIndicator {
@@ -189,7 +190,7 @@ Page {
                             rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
-                        text: isEmptySlot ? qsTr("(empty slot)") : (isKnownApp ? appInfo.longName : qsTr("(slot in use by unknown app)"))
+                        text: isEmptySlot ? qsTr("(empty slot)") : (isKnownApp ? (isLocalApp ? appInfo.longName : appInfo.shortName) : qsTr("(slot in use by unknown app)"))
                         color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
                         onTextChanged: slotDelegate.busy = false;
                     }
@@ -204,7 +205,7 @@ Page {
                             }
                             MenuItem {
                                 text: qsTr("Configure...")
-                                visible: !isEmptySlot && isKnownApp
+                                visible: !isEmptySlot && isLocalApp
                                 onClicked: configure();
                             }
                             MenuItem {

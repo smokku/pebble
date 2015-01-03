@@ -262,6 +262,15 @@ void BankManager::refresh()
            _slots[index].version = version;
 
            AppInfo info = apps->info(name);
+           if (info.shortName() != name) {
+               info.setLocal(false);
+               info.setUuid(QUuid::createUuid());
+               info.setShortName(name);
+               info.setCompanyName(company);
+               info.setVersionCode(version);
+               info.setCapabilities(AppInfo::Capabilities(flags));
+               apps->insertAppInfo(info);
+           }
            QUuid uuid = info.uuid();
            _slots[index].uuid = uuid;
 

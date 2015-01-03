@@ -3,6 +3,7 @@
 #include "appinfo.h"
 
 struct AppInfoData : public QSharedData {
+    bool local;
     QUuid uuid;
     QString shortName;
     QString longName;
@@ -20,6 +21,7 @@ struct AppInfoData : public QSharedData {
 
 AppInfo::AppInfo() : d(new AppInfoData)
 {
+    d->local = false;
     d->versionCode = 0;
     d->watchface = false;
     d->jskit = false;
@@ -39,6 +41,16 @@ AppInfo &AppInfo::operator=(const AppInfo &rhs)
 
 AppInfo::~AppInfo()
 {
+}
+
+bool AppInfo::isLocal() const
+{
+    return d->local;
+}
+
+void AppInfo::setLocal(const bool local)
+{
+    d->local = local;
 }
 
 QUuid AppInfo::uuid() const

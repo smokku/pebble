@@ -22,6 +22,8 @@ public:
     AppInfo info(const QUuid &uuid) const;
     AppInfo info(const QString &shortName) const;
 
+    void insertAppInfo(const AppInfo &info);
+
 public slots:
     void rescan();
 

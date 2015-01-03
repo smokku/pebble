@@ -220,32 +220,32 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="120"/>
+        <location filename="../qml/pages/WatchPage.qml" line="121"/>
         <source>Uninstalling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="192"/>
+        <location filename="../qml/pages/WatchPage.qml" line="193"/>
         <source>(empty slot)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="192"/>
+        <location filename="../qml/pages/WatchPage.qml" line="193"/>
         <source>(slot in use by unknown app)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="201"/>
+        <location filename="../qml/pages/WatchPage.qml" line="202"/>
         <source>Install app...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="206"/>
+        <location filename="../qml/pages/WatchPage.qml" line="207"/>
         <source>Configure...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="211"/>
+        <location filename="../qml/pages/WatchPage.qml" line="212"/>
         <source>Uninstall</source>
         <translation type="unfinished"></translation>
     </message>
