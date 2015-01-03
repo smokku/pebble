@@ -38,8 +38,4 @@ ApplicationWindow
 {
     initialPage: Component { ManagerPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-
-    PebbledInterface {
-        id: pebbled
-    }
 }

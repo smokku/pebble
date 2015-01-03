@@ -6,7 +6,6 @@
 #include <QDBusReply>
 #include <QDBusArgument>
 #include <QDBusObjectPath>
-#include <QDBusConnectionInterface>
 
 //dbus-send --system --dest=org.bluez --print-reply / org.bluez.Manager.ListAdapters
 //dbus-send --system --dest=org.bluez --print-reply $path org.bluez.Adapter.GetProperties
@@ -15,19 +14,7 @@
 
 DBusConnector::DBusConnector(QObject *parent) :
     QObject(parent), l(metaObject()->className())
-{
-    QDBusConnectionInterface *interface = QDBusConnection::sessionBus().interface();
-
-    QDBusReply<QStringList> serviceNames = interface->registeredServiceNames();
-    if (serviceNames.isValid()) {
-        dbusServices = serviceNames.value();
-    }
-    else {
-        qCCritical(l) << serviceNames.error().message();
-    }
-    connect(interface, SIGNAL(serviceRegistered(const QString &)), SLOT(onServiceRegistered(const QString &)));
-    connect(interface, SIGNAL(serviceUnregistered(const QString &)), SLOT(onServiceUnregistered(const QString &)));
-}
+{}
 
 bool DBusConnector::findPebble()
 {
@@ -81,16 +68,4 @@ bool DBusConnector::findPebble()
     }
 
     return false;
-}
-
-void DBusConnector::onServiceRegistered(const QString &name)
-{
-    qCDebug(l) << "DBus service online:" << name;
-    if (!dbusServices.contains(name)) dbusServices.append(name);
-}
-
-void DBusConnector::onServiceUnregistered(const QString &name)
-{
-    qCDebug(l) << "DBus service offline:" << name;
-    if (dbusServices.contains(name)) dbusServices.removeAll(name);
 }

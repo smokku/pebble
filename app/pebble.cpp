@@ -33,16 +33,22 @@
 
 #include <sailfishapp.h>
 #include "pebbledinterface.h"
+#include "pebbleappiconprovider.h"
 
 int main(int argc, char *argv[])
 {
-    // Register Pebble daemon interface object on QML side
-    qmlRegisterType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface");
-
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
 
+    qmlRegisterUncreatableType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface",
+                                                 "Please use pebbled context property");
+
     QScopedPointer<QQuickView> view(SailfishApp::createView());
+    QScopedPointer<PebbledInterface> pebbled(new PebbledInterface);
+    QScopedPointer<PebbleAppIconProvider> appicons(new PebbleAppIconProvider(pebbled.data()));
+
     view->rootContext()->setContextProperty("APP_VERSION", APP_VERSION);
+    view->rootContext()->setContextProperty("pebbled", pebbled.data());
+    view->engine()->addImageProvider("pebble-app-icon", appicons.data());
     view->setSource(SailfishApp::pathTo("qml/pebble.qml"));
     view->show();
 

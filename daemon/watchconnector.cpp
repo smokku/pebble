@@ -1,17 +1,60 @@
-#include "watchconnector.h"
-#include <QTimer>
 #include <QDateTime>
 #include <QMetaEnum>
 
-using namespace watch;
+#include "unpacker.h"
+#include "watchconnector.h"
 
-static int RECONNECT_TIMEOUT = 500; //ms
+static const int RECONNECT_TIMEOUT = 500; //ms
+static const bool PROTOCOL_DEBUG = false;
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), l(metaObject()->className()), socket(nullptr), is_connected(false)
 {
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+
+    setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
+        Unpacker u(data);
+
+        u.skip(1);
+
+        quint32 version = u.read<quint32>();
+        QString version_string = u.readFixedString(32);
+        QString commit = u.readFixedString(8);
+        bool is_recovery = u.read<quint8>();
+        quint8 hw_platform = u.read<quint8>();
+        quint8 metadata_version = u.read<quint8>();
+
+        quint32 safe_version = u.read<quint32>();
+        QString safe_version_string = u.readFixedString(32);
+        QString safe_commit = u.readFixedString(8);
+        bool safe_is_recovery = u.read<quint8>();
+        quint8 safe_hw_platform = u.read<quint8>();
+        quint8 safe_metadata_version = u.read<quint8>();
+
+        quint32 bootLoaderTimestamp = u.read<quint32>();
+        QString hardwareRevision = u.readFixedString(9);
+        QString serialNumber = u.readFixedString(12);
+        QByteArray address = u.readBytes(6);
+
+        if (u.bad()) {
+            qCWarning(l) << "short read while reading firmware version";
+        }
+
+        qCDebug(l) << "got version information"
+                   << version << version_string << commit
+                   << is_recovery << hw_platform << metadata_version;
+        qCDebug(l) << "recovery version information"
+                   << safe_version << safe_version_string << safe_commit
+                   << safe_is_recovery << safe_hw_platform << safe_metadata_version;
+        qCDebug(l) << "hardware information" << bootLoaderTimestamp << hardwareRevision;
+        qCDebug(l) << "serial number" << serialNumber.left(3) << "...";
+        qCDebug(l) << "bt address" << address.toHex();
+
+        this->_serialNumber = serialNumber;
+
+        return true;
+    });
 }
 
 WatchConnector::~WatchConnector()
@@ -44,11 +87,11 @@ void WatchConnector::reconnect()
 
 void WatchConnector::disconnect()
 {
-    qCDebug(l) << __FUNCTION__;
+    qCDebug(l) << "disconnecting";
     socket->close();
     socket->deleteLater();
     reconnectTimer.stop();
-    qCDebug(l) << "Stopped reconnect timer";
+    qCDebug(l) << "stopped reconnect timer";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
@@ -65,6 +108,11 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     _last_address = address;
     if (emit_name) emit nameChanged();
 
+    if (emit_name) {
+        // If we've changed names, don't reuse cached serial number!
+        _serialNumber.clear();
+    }
+
     qCDebug(l) << "Creating socket";
     socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
     connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
@@ -79,49 +127,109 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
 
 QString WatchConnector::decodeEndpoint(uint val)
 {
-    QMetaEnum Endpoints = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("Endpoints"));
+    QMetaEnum Endpoints = staticMetaObject.enumerator(staticMetaObject.indexOfEnumerator("Endpoint"));
     const char *endpoint = Endpoints.valueToKey(val);
     return endpoint ? QString(endpoint) : QString("watchUNKNOWN_%1").arg(val);
 }
 
-void WatchConnector::decodeMsg(QByteArray data)
+void WatchConnector::setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func)
 {
-    //Sometimes pebble sends a "00", we ignore it without future action
-    if (data.length() == 1 && data.at(0) == 0) {
-        return;
+    if (func) {
+        handlers.insert(endpoint, func);
+    } else {
+        handlers.remove(endpoint);
+    }
+}
+
+void WatchConnector::clearEndpointHandler(uint endpoint)
+{
+    handlers.remove(endpoint);
+}
+
+bool WatchConnector::dispatchMessage(uint endpoint, const QByteArray &data)
+{
+    auto tmp_it = tmpHandlers.find(endpoint);
+    if (tmp_it != tmpHandlers.end()) {
+        QList<EndpointHandlerFunc>& funcs = tmp_it.value();
+        bool ok = false;
+        for (int i = 0; i < funcs.size(); i++) {
+            if (funcs[i](data)) {
+                // This handler accepted this message
+                ok = true;
+                // Since it is a temporary handler, remove it.
+                funcs.removeAt(i);
+                break;
+            }
+        }
+        if (funcs.empty()) {
+            // "Garbage collect" the tmpHandlers entry.
+            tmpHandlers.erase(tmp_it);
+        }
+        if (ok) {
+            return true;
+        }
     }
 
-    if (data.length() < 4) {
-        qCCritical(l) << "Can not decode message data length invalid: " << data.toHex();
-        return;
+    auto it = handlers.find(endpoint);
+    if (it != handlers.end()) {
+        if (it.value() && it.value()(data)) {
+            return true;
+        }
     }
 
-    unsigned int datalen = 0;
-    int index = 0;
-    datalen = (data.at(index) << 8) + data.at(index+1);
-    index += 2;
-
-    unsigned int endpoint = 0;
-    endpoint = (data.at(index) << 8) + data.at(index+1);
-    index += 2;
-
-    qCDebug(l) << "Length:" << datalen << "Endpoint:" << decodeEndpoint(endpoint);
-    qCDebug(l) << "Data:" << data.mid(index).toHex();
-
-    emit messageDecoded(endpoint, data.mid(index, datalen));
+    qCDebug(l) << "message to endpoint" << decodeEndpoint(endpoint) << "was not dispatched";
+    qCDebug(l) << data.toHex();
+    return false;
 }
 
 void WatchConnector::onReadSocket()
 {
-    qCDebug(l) << "read";
+    static const int header_length = 4;
+
+    qCDebug(l) << "readyRead bytesAvailable =" << socket->bytesAvailable();
 
     QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
-    if (!socket) return;
+    Q_ASSERT(socket && socket == this->socket);
 
-    while (socket->bytesAvailable()) {
-        QByteArray line = socket->readAll();
-        emit messageReceived(socket->peerName(), QString::fromUtf8(line.constData(), line.length()));
-        decodeMsg(line);
+    // Keep attempting to read messages as long as at least a header is present
+    while (socket->bytesAvailable() >= header_length) {
+        // Take a look at the header, but do not remove it from the socket input buffer.
+        // We will only remove it once we're sure the entire packet is in the buffer.
+        uchar header[header_length];
+        socket->peek(reinterpret_cast<char*>(header), header_length);
+
+        quint16 message_length = qFromBigEndian<quint16>(&header[0]);
+        quint16 endpoint = qFromBigEndian<quint16>(&header[2]);
+
+        // Sanity checks on the message_length
+        if (message_length == 0) {
+            qCWarning(l) << "received empty message";
+            socket->read(header_length); // skip this header
+            continue; // check if there are additional headers.
+        } else if (message_length > 8 * 1024) {
+            // Protocol does not allow messages more than 8K long, seemingly.
+            qCWarning(l) << "received message size too long: " << message_length;
+            socket->readAll(); // drop entire input buffer
+            return;
+        }
+
+        // Now wait for the entire message
+        if (socket->bytesAvailable() < header_length + message_length) {
+            qCDebug(l) << "incomplete msg body in read buffer";
+            return; // try again once more data comes in
+        }
+
+        // We can now safely remove the header from the input buffer,
+        // as we know the entire message is in the input buffer.
+        socket->read(header_length);
+
+        // Now read the rest of the message
+        QByteArray data = socket->read(message_length);
+
+        qCDebug(l) << "received message of length" << message_length << "to endpoint" << decodeEndpoint(endpoint);
+        if (PROTOCOL_DEBUG) qCDebug(l) << data.toHex();
+
+        dispatchMessage(endpoint, data);
     }
 }
 
@@ -132,10 +240,14 @@ void WatchConnector::onConnected()
     is_connected = true;
     reconnectTimer.stop();
     reconnectTimer.setInterval(0);
-    if (not was_connected) {
-        if (not writeData.isEmpty()) {
+    if (!was_connected) {
+        if (!writeData.isEmpty()) {
             qCDebug(l) << "Found" << writeData.length() << "bytes in write buffer - resending";
             sendData(writeData);
+        }
+        if (_serialNumber.isEmpty()) {
+            // Ask for version information from the watch
+            sendMessage(watchVERSION, QByteArray(1, 0));
         }
         emit connectedChanged();
     }
@@ -163,7 +275,7 @@ void WatchConnector::onDisconnected()
         reconnectTimer.setInterval(reconnectTimer.interval() + RECONNECT_TIMEOUT);
     }
     reconnectTimer.start();
-    qCDebug(l) << "Will reconnect in" << reconnectTimer.interval() << "ms";
+    qCDebug(l) << "will reconnect in" << reconnectTimer.interval() << "ms";
 }
 
 void WatchConnector::onError(QBluetoothSocket::SocketError error)
@@ -171,33 +283,32 @@ void WatchConnector::onError(QBluetoothSocket::SocketError error)
     if (error == QBluetoothSocket::UnknownSocketError) {
         qCDebug(l) << error << socket->errorString();
     } else {
-        qCCritical(l) << "Error connecting Pebble:" << error << socket->errorString();
+        qCCritical(l) << "error connecting Pebble:" << error << socket->errorString();
     }
 }
 
 void WatchConnector::sendData(const QByteArray &data)
 {
-    writeData = data;
+    writeData.append(data);
     if (socket == nullptr) {
-        qCDebug(l) << "No socket - reconnecting";
+        qCDebug(l) << "no socket - reconnecting";
         reconnect();
-        return;
-    }
-    if (is_connected) {
-        qCDebug(l) << "Writing" << data.length() << "bytes to socket";
+    } else if (is_connected) {
+        qCDebug(l) << "writing" << data.length() << "bytes to socket";
+        if (PROTOCOL_DEBUG) qCDebug(l) << data.toHex();
         socket->write(data);
     }
 }
 
 void WatchConnector::onBytesWritten(qint64 bytes)
 {
-    writeData = writeData.mid(bytes);
-    qCDebug(l) << "Socket written" << bytes << "bytes," << writeData.length() << "left";
+    writeData.remove(0, bytes);
+    qCDebug(l) << "socket written" << bytes << "bytes," << writeData.length() << "left";
 }
 
-void WatchConnector::sendMessage(uint endpoint, QByteArray data)
+void WatchConnector::sendMessage(uint endpoint, const QByteArray &data, const EndpointHandlerFunc &callback)
 {
-    qCDebug(l) << "Sending message";
+    qCDebug(l) << "sending message to endpoint" << decodeEndpoint(endpoint);
     QByteArray msg;
 
     // First send the length
@@ -212,6 +323,10 @@ void WatchConnector::sendMessage(uint endpoint, QByteArray data)
     msg.append(data);
 
     sendData(msg);
+
+    if (callback) {
+        tmpHandlers[endpoint].append(callback);
+    }
 }
 
 void WatchConnector::buildData(QByteArray &res, QStringList data)

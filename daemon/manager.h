@@ -3,9 +3,15 @@
 
 #include "watchconnector.h"
 #include "dbusconnector.h"
+#include "uploadmanager.h"
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
-#include "watchcommands.h"
+#include "musicmanager.h"
+#include "datalogmanager.h"
+#include "appmsgmanager.h"
+#include "jskitmanager.h"
+#include "appmanager.h"
+#include "bankmanager.h"
 #include "settings.h"
 
 #include <QObject>
@@ -20,28 +26,32 @@
 
 using namespace QtContacts;
 
-class Manager :
-        public QObject,
-        protected QDBusContext
+class PebbledProxy;
+
+class Manager : public QObject, protected QDBusContext
 {
     Q_OBJECT
     QLoggingCategory l;
 
     friend class PebbledProxy;
 
-    Q_PROPERTY(QString mpris READ mpris)
-    Q_PROPERTY(QVariantMap mprisMetadata READ getMprisMetadata WRITE setMprisMetadata NOTIFY mprisMetadataChanged)
-
     QBluetoothLocalDevice btDevice;
 
-    watch::WatchConnector *watch;
+    Settings *settings;
+
+    PebbledProxy *proxy;
+
+    WatchConnector *watch;
     DBusConnector *dbus;
+    UploadManager *upload;
+    AppManager *apps;
+    BankManager *bank;
     VoiceCallManager *voice;
     NotificationManager *notifications;
-
-    WatchCommands *commands;
-
-    Settings *settings;
+    MusicManager *music;
+    DataLogManager *datalog;
+    AppMsgManager *appmsg;
+    JSKitManager *js;
 
     MNotification notification;
 
@@ -50,30 +60,24 @@ class Manager :
 
     QString defaultProfile;
 
-    QString lastSeenMpris;
+    QUuid currentAppUuid;
 
     QScopedPointer<icu::Transliterator> transliterator;
 
 public:
-    explicit Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings);
+    explicit Manager(Settings *settings, QObject *parent = 0);
+    ~Manager();
 
-    Q_INVOKABLE QString findPersonByNumber(QString number);
-    Q_INVOKABLE QString getCurrentProfile();
-    Q_INVOKABLE QString mpris();
-    QVariantMap mprisMetadata;
-    QVariantMap getMprisMetadata() { return mprisMetadata; }
+    QString findPersonByNumber(QString number);
+    QString getCurrentProfile() const;
 
 protected:
     void transliterateMessage(const QString &text);
 
-signals:
-    void mprisMetadataChanged(QVariantMap);
-
 public slots:
-    void hangupAll();
     void applyProfile();
 
-protected slots:
+private slots:
     void onSettingChanged(const QString &key);
     void onSettingsChanged();
     void onPebbleChanged();
@@ -86,33 +90,69 @@ protected slots:
     void onTwitterNotify(const QString &sender, const QString &data);
     void onFacebookNotify(const QString &sender, const QString &data);
     void onEmailNotify(const QString &sender, const QString &data,const QString &subject);
-    void onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList);
-    void setMprisMetadata(QDBusArgument metadata);
-    void setMprisMetadata(QVariantMap metadata);
+
+    void onAppNotification(const QUuid &uuid, const QString &title, const QString &body);
+    void onAppOpened(const QUuid &uuid);
+    void onAppClosed(const QUuid &uuid);
 };
 
-class PebbledProxy : public QObject
+/** This class is what's actually exported over D-Bus,
+ *  so the names of the slots and properties must match with org.pebbled.Watch D-Bus interface.
+ *  Case sensitive. Otherwise, _runtime_ failures will occur. */
+// Some of the methods are marked inline so that they may be inlined inside qt_metacall
+class PebbledProxy : public QObject, protected QDBusContext
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap pebble READ pebble)
-    Q_PROPERTY(QString name READ pebbleName)
-    Q_PROPERTY(QString address READ pebbleAddress)
-    Q_PROPERTY(bool connected READ pebbleConnected)
+    QLoggingCategory l;
 
-    QVariantMap pebble() { return static_cast<Manager*>(parent())->dbus->pebble(); }
-    QString pebbleName() { return static_cast<Manager*>(parent())->dbus->pebble()["Name"].toString(); }
-    QString pebbleAddress() { return static_cast<Manager*>(parent())->dbus->pebble()["Address"].toString(); }
-    bool pebbleConnected() { return static_cast<Manager*>(parent())->watch->isConnected(); }
+    Q_PROPERTY(QString Name READ Name NOTIFY NameChanged)
+    Q_PROPERTY(QString Address READ Address NOTIFY AddressChanged)
+    Q_PROPERTY(bool Connected READ Connected NOTIFY ConnectedChanged)
+    Q_PROPERTY(QString AppUuid READ AppUuid NOTIFY AppUuidChanged)
+    Q_PROPERTY(QStringList AppSlots READ AppSlots NOTIFY AppSlotsChanged)
+    Q_PROPERTY(QVariantList AllApps READ AllApps NOTIFY AllAppsChanged)
+
+    inline Manager* manager() const { return static_cast<Manager*>(parent()); }
+    inline QVariantMap pebble() const { return manager()->dbus->pebble(); }
 
 public:
-    explicit PebbledProxy(QObject *parent) : QObject(parent) {}
+    inline explicit PebbledProxy(QObject *parent)
+        : QObject(parent), l(metaObject()->className()) {}
+
+    inline QString Name() const { return pebble()["Name"].toString(); }
+    inline QString Address() const { return pebble()["Address"].toString(); }
+    inline bool Connected() const { return manager()->watch->isConnected(); }
+    inline QString AppUuid() const { return manager()->currentAppUuid.toString(); }
+
+    QStringList AppSlots() const;
+
+    QVariantList AllApps() const;
 
 public slots:
-    void ping(int val) { static_cast<Manager*>(parent())->watch->ping((unsigned int)val); }
-    void time() { static_cast<Manager*>(parent())->watch->time(); }
-    void disconnect() { static_cast<Manager*>(parent())->watch->disconnect(); }
-    void reconnect() { static_cast<Manager*>(parent())->watch->reconnect(); }
+    inline void Disconnect() { manager()->watch->disconnect(); }
+    inline void Reconnect() { manager()->watch->reconnect(); }
+    inline void Ping(uint val) { manager()->watch->ping(val); }
+    inline void SyncTime() { manager()->watch->time(); }
 
+    inline void LaunchApp(const QString &uuid) { manager()->appmsg->launchApp(uuid); }
+    inline void CloseApp(const QString &uuid) { manager()->appmsg->closeApp(uuid); }
+
+    bool SendAppMessage(const QString &uuid, const QVariantMap &data);
+    QString StartAppConfiguration(const QString &uuid);
+    void SendAppConfigurationData(const QString &uuid, const QString &data);
+
+    void UnloadApp(int slot);
+    void UploadApp(const QString &uuid, int slot);
+
+signals:
+    void NameChanged();
+    void AddressChanged();
+    void ConnectedChanged();
+    void AppUuidChanged();
+    void AppSlotsChanged();
+    void AllAppsChanged();
+    void AppOpened(const QString &uuid);
+    void AppClosed(const QString &uuid);
 };
 
 #endif // MANAGER_H

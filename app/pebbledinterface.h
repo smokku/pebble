@@ -2,48 +2,57 @@
 #define PEBBLEDINTERFACE_H
 
 #include <QObject>
-#include <QtDBus/QtDBus>
-#include <QDBusArgument>
+#include <QUrl>
+#include <QHash>
+#include <QUuid>
+#include <QImage>
+#include <QDBusInterface>
+
+class OrgPebbledWatchInterface;
 
 class PebbledInterface : public QObject
 {
     Q_OBJECT
-
-    static QString PEBBLED_SYSTEMD_UNIT;
-    static QString PEBBLED_DBUS_SERVICE;
-    static QString PEBBLED_DBUS_PATH;
-    static QString PEBBLED_DBUS_IFACE;
-
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
-    bool enabled() const;
-
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-    bool active() const;
-
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
-    bool connected() const;
-
-    Q_PROPERTY(QVariantMap pebble READ pebble NOTIFY pebbleChanged)
-    QVariantMap pebble() const;
-
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
-    QString name() const;
-
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
-    QString address() const;
+    Q_PROPERTY(QString appUuid READ appUuid NOTIFY appUuidChanged)
 
+    Q_PROPERTY(QStringList appSlots READ appSlots NOTIFY appSlotsChanged)
+    Q_PROPERTY(QVariantList allApps READ allApps NOTIFY allAppsChanged)
 
 public:
     explicit PebbledInterface(QObject *parent = 0);
 
+    bool enabled() const;
+    bool active() const;
+    bool connected() const;
+    QString name() const;
+    QString address() const;
+    QString appUuid() const;
+
+    QStringList appSlots() const;
+    QVariantList allApps() const;
+
+    Q_INVOKABLE QVariantMap appInfoByUuid(const QString& uuid) const;
+
+    Q_INVOKABLE QUrl configureApp(const QString &uuid);
+
+    Q_INVOKABLE bool isAppInstalled(const QString &uuid) const;
+
+    QImage menuIconForApp(const QUuid &uuid) const;
+
 signals:
     void enabledChanged();
     void activeChanged();
-
     void connectedChanged();
-    void pebbleChanged();
     void nameChanged();
     void addressChanged();
+    void appUuidChanged();
+    void appSlotsChanged();
+    void allAppsChanged();
 
 public slots:
     void setEnabled(bool);
@@ -53,16 +62,30 @@ public slots:
     void disconnect();
     void reconnect();
 
+    void setAppConfiguration(const QString &uuid, const QString &data);
+
+    void launchApp(const QString &uuid);
+    void uploadApp(const QString &uuid, int slot);
+    void unloadApp(int slot);
+
 private slots:
+    void onWatchConnectedChanged();
     void getUnitProperties();
     void onPropertiesChanged(QString interface, QMap<QString, QVariant> changed, QStringList invalidated);
-    void onPebbleChanged();
+    void refreshAppSlots();
+    void refreshAllApps();
 
 private:
     QDBusInterface *systemd;
+    OrgPebbledWatchInterface *watch;
     QDBusObjectPath unitPath;
+    QVariantMap unitProperties;
 
-    QVariantMap properties;
+    // Cached properties
+    QStringList _appSlots;
+    QVariantList _apps;
+    QHash<QUuid, int> _appsByUuid;
+    QHash<QUuid, QImage> _appMenuIcons;
 };
 
 #endif // PEBBLEDINTERFACE_H

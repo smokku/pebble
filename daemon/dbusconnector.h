@@ -6,34 +6,26 @@
 #include <QVariantMap>
 #include <QLoggingCategory>
 
+// TODO Remove this.
+
 class DBusConnector : public QObject
 {
     Q_OBJECT
     QLoggingCategory l;
 
     Q_PROPERTY(QVariantMap pebble READ pebble NOTIFY pebbleChanged)
-    Q_PROPERTY(QStringList services READ services NOTIFY servicesChanged)
-
     QVariantMap pebbleProps;
-    QStringList dbusServices;
 
 public:
     explicit DBusConnector(QObject *parent = 0);
 
-    QVariantMap pebble() { return pebbleProps; }
-    QStringList services() { return dbusServices; }
+    QVariantMap pebble() const { return pebbleProps; }
 
 signals:
     void pebbleChanged();
-    void servicesChanged();
 
 public slots:
     bool findPebble();
-
-protected slots:
-    void onServiceRegistered(const QString &);
-    void onServiceUnregistered(const QString &);
-
 };
 
 #endif // DBUSCONNECTOR_H

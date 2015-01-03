@@ -1,6 +1,6 @@
 Name: pebble
 Summary: Support for Pebble watch in SailfishOS
-Version: 0.13
+Version: 0.13.js1
 Release: 1
 Group: Qt/Qt
 URL: http://getpebble.com/
@@ -22,16 +22,16 @@ PkgConfigBR:
 - Qt5Core
 - mlite5
 - sailfishapp >= 0.0.10
-PkgBR:
-- libicu-devel
+- icu-i18n
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets
 Files:
 - '%{_bindir}'
 - '%{_datadir}/%{name}/qml'
+- '%{_datadir}/%{name}/js'
+- '%{_datadir}/%{name}/translations'
 - '%{_datadir}/applications/%{name}.desktop'
 - '%{_datadir}/icons/hicolor/86x86/apps/%{name}.png'
 - '%{_libdir}/systemd/user/%{name}d.service'
 - '%{_libdir}/systemd/user/user-session.target.wants/%{name}d.service'
-PkgBR: []

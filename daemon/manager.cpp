@@ -1,13 +1,25 @@
-#include "manager.h"
-#include "dbusadaptor.h"
-
 #include <QDebug>
 #include <QtContacts/QContact>
 #include <QtContacts/QContactPhoneNumber>
 
-Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallManager *voice, NotificationManager *notifications, Settings *settings) :
-    QObject(0), l(metaObject()->className()), watch(watch), dbus(dbus), voice(voice), notifications(notifications), commands(new WatchCommands(watch, this)),
-    settings(settings), notification(MNotification::DeviceEvent)
+#include "manager.h"
+#include "watch_adaptor.h"
+
+Manager::Manager(Settings *settings, QObject *parent) :
+    QObject(parent), l(metaObject()->className()), settings(settings),
+    proxy(new PebbledProxy(this)),
+    watch(new WatchConnector(this)),
+    dbus(new DBusConnector(this)),
+    upload(new UploadManager(watch, this)),
+    apps(new AppManager(this)),
+    bank(new BankManager(watch, upload, apps, this)),
+    voice(new VoiceCallManager(settings, this)),
+    notifications(new NotificationManager(settings, this)),
+    music(new MusicManager(watch, this)),
+    datalog(new DataLogManager(watch, this)),
+    appmsg(new AppMsgManager(apps, watch, this)),
+    js(new JSKitManager(watch, apps, appmsg, settings, this)),
+    notification(MNotification::DeviceEvent)
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
     connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));
@@ -22,6 +34,19 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     numberFilter.setMatchFlags(QContactFilter::MatchPhoneNumber);
 
     connect(watch, SIGNAL(connectedChanged()), SLOT(onConnectedChanged()));
+    watch->setEndpointHandler(WatchConnector::watchPHONE_VERSION,
+                              [this](const QByteArray& data) {
+        Q_UNUSED(data);
+        watch->sendPhoneVersion();
+        return true;
+    });
+    watch->setEndpointHandler(WatchConnector::watchPHONE_CONTROL,
+                              [this](const QByteArray &data) {
+        if (data.at(0) == WatchConnector::callHANGUP) {
+            voice->hangupAll();
+        }
+        return true;
+    });
 
     connect(voice, SIGNAL(activeVoiceCallChanged()), SLOT(onActiveVoiceCallChanged()));
     connect(voice, SIGNAL(error(const QString &)), SLOT(onVoiceError(const QString &)));
@@ -32,27 +57,24 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
     connect(notifications, SIGNAL(twitterNotify(const QString &,const QString &)), SLOT(onTwitterNotify(const QString &,const QString &)));
     connect(notifications, SIGNAL(facebookNotify(const QString &,const QString &)), SLOT(onFacebookNotify(const QString &,const QString &)));
 
-    connect(watch, SIGNAL(messageDecoded(uint,QByteArray)), commands, SLOT(processMessage(uint,QByteArray)));
-    connect(commands, SIGNAL(hangup()), SLOT(hangupAll()));
+    connect(appmsg, &AppMsgManager::appStarted, this, &Manager::onAppOpened);
+    connect(appmsg, &AppMsgManager::appStopped, this, &Manager::onAppClosed);
 
-    PebbledProxy *proxy = new PebbledProxy(this);
-    PebbledAdaptor *adaptor = new PebbledAdaptor(proxy);
+    connect(js, &JSKitManager::appNotification, this, &Manager::onAppNotification);
+
     QDBusConnection session = QDBusConnection::sessionBus();
-    session.registerObject("/", proxy);
+    new WatchAdaptor(proxy);
+    session.registerObject("/org/pebbled/Watch", proxy);
     session.registerService("org.pebbled");
-    connect(dbus, SIGNAL(pebbleChanged()), adaptor, SIGNAL(pebbleChanged()));
-    connect(watch, SIGNAL(connectedChanged()), adaptor, SIGNAL(connectedChanged()));
+
+    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
+    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
+    connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
+    connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
 
     QString currentProfile = getCurrentProfile();
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
     connect(watch, SIGNAL(connectedChanged()), SLOT(applyProfile()));
-
-    // Music Control interface
-    session.connect("", "/org/mpris/MediaPlayer2",
-                "org.freedesktop.DBus.Properties", "PropertiesChanged",
-                this, SLOT(onMprisPropertiesChanged(QString,QMap<QString,QVariant>,QStringList)));
-
-    connect(this, SIGNAL(mprisMetadataChanged(QVariantMap)), commands, SLOT(onMprisMetadataChanged(QVariantMap)));
 
     // Set BT icon for notification
     notification.setImage("icon-system-bluetooth-device");
@@ -62,7 +84,10 @@ Manager::Manager(watch::WatchConnector *watch, DBusConnector *dbus, VoiceCallMan
         connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
         dbus->findPebble();
     }
+}
 
+Manager::~Manager()
+{
 }
 
 void Manager::onSettingChanged(const QString &key)
@@ -98,22 +123,6 @@ void Manager::onConnectedChanged()
     notification.setBody(message);
     if (!notification.publish()) {
         qCDebug(l) << "Failed publishing notification";
-    }
-
-    if (watch->isConnected()) {
-        QString mpris = this->mpris();
-        if (not mpris.isEmpty()) {
-            QDBusReply<QDBusVariant> Metadata = QDBusConnection::sessionBus().call(
-                        QDBusMessage::createMethodCall(mpris, "/org/mpris/MediaPlayer2", "org.freedesktop.DBus.Properties", "Get")
-                        << "org.mpris.MediaPlayer2.Player" << "Metadata");
-            if (Metadata.isValid()) {
-                setMprisMetadata(Metadata.value().variant().value<QDBusArgument>());
-            }
-            else {
-                qCCritical(l) << Metadata.error().message();
-                setMprisMetadata(QVariantMap());
-            }
-        }
     }
 }
 
@@ -247,60 +256,7 @@ void Manager::onEmailNotify(const QString &sender, const QString &data,const QSt
     watch->sendEmailNotification(sender, data, subject);
 }
 
-void Manager::hangupAll()
-{
-    foreach (VoiceCallHandler* handler, voice->voiceCalls()) {
-        handler->hangup();
-    }
-}
-
-void Manager::onMprisPropertiesChanged(QString interface, QMap<QString,QVariant> changed, QStringList invalidated)
-{
-    qCDebug(l) << interface << changed << invalidated;
-
-    if (changed.contains("Metadata")) {
-        setMprisMetadata(changed.value("Metadata").value<QDBusArgument>());
-    }
-
-    if (changed.contains("PlaybackStatus")) {
-        QString PlaybackStatus = changed.value("PlaybackStatus").toString();
-        if (PlaybackStatus == "Stopped") {
-            setMprisMetadata(QVariantMap());
-        }
-    }
-
-    lastSeenMpris = message().service();
-    qCDebug(l) << "lastSeenMpris:" << lastSeenMpris;
-}
-
-QString Manager::mpris()
-{
-    const QStringList &services = dbus->services();
-    if (not lastSeenMpris.isEmpty() && services.contains(lastSeenMpris))
-        return lastSeenMpris;
-
-    foreach (QString service, services)
-        if (service.startsWith("org.mpris.MediaPlayer2."))
-            return service;
-
-    return QString();
-}
-
-void Manager::setMprisMetadata(QDBusArgument metadata)
-{
-    if (metadata.currentType() == QDBusArgument::MapType) {
-        metadata >> mprisMetadata;
-        emit mprisMetadataChanged(mprisMetadata);
-    }
-}
-
-void Manager::setMprisMetadata(QVariantMap metadata)
-{
-    mprisMetadata = metadata;
-    emit mprisMetadataChanged(mprisMetadata);
-}
-
-QString Manager::getCurrentProfile()
+QString Manager::getCurrentProfile() const
 {
     QDBusReply<QString> profile = QDBusConnection::sessionBus().call(
                 QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "get_profile"));
@@ -367,5 +323,189 @@ void Manager::transliterateMessage(const QString &text)
 
         const_cast<QString&>(text) = QString::fromStdString(translited);
         qCDebug(l) << "String after transliteration:" << text;
+    }
+}
+
+void Manager::onAppNotification(const QUuid &uuid, const QString &title, const QString &body)
+{
+    Q_UNUSED(uuid);
+    watch->sendSMSNotification(title, body);
+}
+
+void Manager::onAppOpened(const QUuid &uuid)
+{
+    currentAppUuid = uuid;
+    emit proxy->AppUuidChanged();
+    emit proxy->AppOpened(uuid.toString());
+}
+
+void Manager::onAppClosed(const QUuid &uuid)
+{
+    currentAppUuid = QUuid();
+    emit proxy->AppClosed(uuid.toString());
+    emit proxy->AppUuidChanged();
+}
+
+QStringList PebbledProxy::AppSlots() const
+{
+    const int num_slots = manager()->bank->numSlots();
+    QStringList l;
+    l.reserve(num_slots);
+
+    for (int i = 0; i < num_slots; ++i) {
+        if (manager()->bank->isUsed(i)) {
+            QUuid uuid = manager()->bank->appAt(i);
+            l.append(uuid.toString());
+        } else {
+            l.append(QString());
+        }
+    }
+
+    Q_ASSERT(l.size() == num_slots);
+
+    return l;
+}
+
+QVariantList PebbledProxy::AllApps() const
+{
+    QList<QUuid> uuids = manager()->apps->appUuids();
+    QVariantList l;
+
+    foreach (const QUuid &uuid, uuids) {
+        const AppInfo &info = manager()->apps->info(uuid);
+        QVariantMap m;
+        m.insert("uuid", QVariant::fromValue(uuid.toString()));
+        m.insert("short-name", QVariant::fromValue(info.shortName()));
+        m.insert("long-name", QVariant::fromValue(info.longName()));
+        m.insert("company-name", QVariant::fromValue(info.companyName()));
+        m.insert("version-label", QVariant::fromValue(info.versionLabel()));
+        m.insert("is-watchface", QVariant::fromValue(info.isWatchface()));
+
+        if (!info.menuIcon().isNull()) {
+            m.insert("menu-icon", QVariant::fromValue(info.menuIconAsPng()));
+        }
+
+        l.append(QVariant::fromValue(m));
+    }
+
+    return l;
+}
+
+bool PebbledProxy::SendAppMessage(const QString &uuid, const QVariantMap &data)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+    setDelayedReply(true);
+    manager()->appmsg->send(uuid, data, [this, msg]() {
+        QDBusMessage reply = msg.createReply(QVariant::fromValue(true));
+        this->connection().send(reply);
+    }, [this, msg]() {
+        QDBusMessage reply = msg.createReply(QVariant::fromValue(false));
+        this->connection().send(reply);
+    });
+    return false; // D-Bus clients should never see this reply.
+}
+
+QString PebbledProxy::StartAppConfiguration(const QString &uuid)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+    QDBusConnection conn = connection();
+
+    if (manager()->currentAppUuid != uuid) {
+        qCWarning(l) << "Called StartAppConfiguration but the uuid" << uuid << "is not running";
+        sendErrorReply(msg.interface() + ".Error.AppNotRunning",
+                       "The requested app is not currently opened in the watch");
+        return QString();
+    }
+
+    if (!manager()->js->isJSKitAppRunning()) {
+        qCWarning(l) << "Called StartAppConfiguration but the uuid" << uuid << "is not a JS app";
+        sendErrorReply(msg.interface() + ".Error.JSNotActive",
+                       "The requested app is not a PebbleKit JS application");
+        return QString();
+    }
+
+    // After calling showConfiguration() on the script,
+    // it will (eventually!) return a URL to us via the appOpenUrl signal.
+
+    // So we can't send the D-Bus reply right now.
+    setDelayedReply(true);
+
+    // Set up a signal handler to catch the appOpenUrl signal.
+    QMetaObject::Connection *c = new QMetaObject::Connection;
+    *c = connect(manager()->js, &JSKitManager::appOpenUrl,
+                 this, [this,conn,msg,c](const QUrl &url) {
+        // Workaround: due to a GCC crash we can't capture the uuid parameter, but we can extract
+        // it again from the original message arguments.
+        // Suspect GCC bug# is 59195, 61233, or 61321.
+        // TODO Possibly fixed in 4.9.0
+        const QString uuid = msg.arguments().at(0).toString();
+
+        if (manager()->currentAppUuid != uuid) {
+            // App was changed while we were waiting for the script..
+            QDBusMessage reply = msg.createErrorReply(msg.interface() + ".Error.AppNotRunning",
+                                                      "The requested app is not currently opened in the watch");
+            conn.send(reply);
+        } else {
+            QDBusMessage reply = msg.createReply(QVariant::fromValue(url.toString()));
+            conn.send(reply);
+        }
+
+        disconnect(*c);
+        delete c;
+    });
+
+    // TODO: JS script may fail, never call OpenURL, or something like that
+    // In those cases we WILL leak the above connection.
+    // (at least until the next appOpenURL event comes in)
+    // So we need to also set a timeout or similar.
+
+    manager()->js->showConfiguration();
+
+    // Note that the above signal handler _might_ have been already called by this point.
+
+    return QString(); // This return value should never be used.
+}
+
+void PebbledProxy::SendAppConfigurationData(const QString &uuid, const QString &data)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (manager()->currentAppUuid != uuid) {
+        sendErrorReply(msg.interface() + ".Error.AppNotRunning",
+                       "The requested app is not currently opened in the watch");
+        return;
+    }
+
+    if (!manager()->js->isJSKitAppRunning()) {
+        sendErrorReply(msg.interface() + ".Error.JSNotActive",
+                       "The requested app is not a PebbleKit JS application");
+        return;
+    }
+
+    manager()->js->handleWebviewClosed(data);
+}
+
+void PebbledProxy::UnloadApp(int slot)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (!manager()->bank->unloadApp(slot)) {
+        sendErrorReply(msg.interface() + ".Error.CannotUnload",
+                       "Cannot unload application");
+    }
+}
+
+void PebbledProxy::UploadApp(const QString &uuid, int slot)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (!manager()->bank->uploadApp(QUuid(uuid), slot)) {
+        sendErrorReply(msg.interface() + ".Error.CannotUpload",
+                       "Cannot upload application");
     }
 }

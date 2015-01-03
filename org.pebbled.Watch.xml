@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/org/pebbled/Watch">
+  <interface name="org.pebbled.Watch">
+    <property name="Name" type="s" access="read"/>
+    <property name="Address" type="s" access="read"/>
+    <property name="Connected" type="b" access="read"/>
+    <property name="AppUuid" type="s" access="read"/>
+
+    <!-- Qt does not yet support property changed signals, so we fake them. -->
+    <signal name="NameChanged"/>
+    <signal name="AddressChanged"/>
+    <signal name="ConnectedChanged"/>
+    <signal name="AppUuidChanged"/>
+
+    <method name="Disconnect"/>
+    <method name="Reconnect"/>
+    <method name="Ping">
+      <arg name="val" type="u" direction="in"/>
+    </method>
+    <method name="SyncTime"/>
+
+    <!-- The following methods resemble the official PebbleKit API -->
+    <method name="LaunchApp">
+      <arg name="uuid" type="s" direction="in"/>
+    </method>
+    <method name="CloseApp">
+      <arg name="uuid" type="s" direction="in"/>
+    </method>
+    <method name="SendAppMessage">
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="message" type="a{sv}" direction="in"/>
+      <arg name="msg_ack" type="b" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+    </method>
+    <signal name="AppOpened">
+      <arg name="uuid" type="s"/>
+    </signal>
+    <signal name="AppClosed">
+      <arg name="uuid" type="s"/>
+    </signal>
+
+    <!-- The following method are used for configuration of JSKit applications by the client app -->
+    <method name="StartAppConfiguration">
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="config_url" type="s" direction="out"/>
+    </method>
+    <method name="SendAppConfigurationData">
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="data" type="s" direction="in"/>
+    </method>
+
+    <!-- Bank management methods -->
+    <property name="AppSlots" type="as" access="read"/>
+    <signal name="AppSlotsChanged"/>
+    <method name="UnloadApp">
+      <arg name="slot" type="i" direction="in"/>
+    </method>
+    <method name="UploadApp">
+      <arg name="uuid" type="s" direction="in"/>
+      <arg name="slot" type="i" direction="in"/>
+    </method>
+
+    <!-- Installed apps (not necessarily uploaded) -->
+    <property name="AllApps" type="aa{sv}" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="QVariantList"/>
+    </property>
+    <signal name="AllAppsChanged"/>
+  </interface>
+</node>

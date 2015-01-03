@@ -13,7 +13,7 @@ Name:       pebble
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Support for Pebble watch in SailfishOS
-Version:    0.13
+Version:    0.13.js1
 Release:    1
 Group:      Qt/Qt
 License:    GPL3
@@ -30,6 +30,7 @@ BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(mlite5)
 BuildRequires:  pkgconfig(sailfishapp) >= 0.0.10
+BuildRequires:  pkgconfig(icu-i18n)
 BuildRequires:  desktop-file-utils
 
 %description
@@ -78,6 +79,8 @@ systemctl --user daemon-reload
 %defattr(-,root,root,-)
 %{_bindir}
 %{_datadir}/%{name}/qml
+%{_datadir}/%{name}/js
+%{_datadir}/%{name}/translations
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
 %{_libdir}/systemd/user/%{name}d.service

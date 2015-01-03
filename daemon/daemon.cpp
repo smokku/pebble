@@ -51,6 +51,7 @@ void signalhandler(int sig)
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    app.setApplicationName("pebble"); // Use the same appname as the UI.
 
     QStringList filterRules;
 
@@ -64,16 +65,11 @@ int main(int argc, char *argv[])
     qCDebug(l) << argv[0] << APP_VERSION;
 
     Settings settings;
-    watch::WatchConnector watch;
-    DBusConnector dbus;
-    VoiceCallManager voice(&settings);
-    NotificationManager notifications(&settings);
-    Manager manager(&watch, &dbus, &voice, &notifications, &settings);
+    Manager manager(&settings);
+    Q_UNUSED(manager);
 
     signal(SIGINT, signalhandler);
     signal(SIGTERM, signalhandler);
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(endPhoneCall()));
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &watch, SLOT(disconnect()));
 
     return app.exec();
 }
