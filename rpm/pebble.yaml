@@ -23,6 +23,7 @@ PkgConfigBR:
 - mlite5
 - sailfishapp >= 0.0.10
 - icu-i18n
+- zlib
 Requires:
 - sailfishsilica-qt5 >= 0.10.9
 - systemd-user-session-targets

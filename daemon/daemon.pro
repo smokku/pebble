@@ -4,7 +4,7 @@ CONFIG += console
 CONFIG += link_pkgconfig
 
 QT += core gui qml bluetooth dbus contacts positioning
-PKGCONFIG += mlite5 icu-i18n
+PKGCONFIG += mlite5 icu-i18n zlib
 CONFIG += c++11
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
@@ -55,6 +55,9 @@ DBUS_ADAPTORS += ../org.pebbled.Watch.xml
 
 OTHER_FILES += $$DBUS_ADAPTORS \
     js/typedarray.js
+
+DEFINES += QUAZIP_STATIC
+include(quazip/quazip.pri)
 
 INSTALLS += target systemd js
 
