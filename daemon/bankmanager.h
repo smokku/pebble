@@ -1,9 +1,14 @@
 #ifndef BANKMANAGER_H
 #define BANKMANAGER_H
 
-#include "watchconnector.h"
-#include "uploadmanager.h"
-#include "appmanager.h"
+#include <QTimer>
+#include <QUuid>
+#include <QVector>
+#include <QLoggingCategory>
+
+class WatchConnector;
+class UploadManager;
+class AppManager;
 
 class BankManager : public QObject
 {
@@ -11,6 +16,16 @@ class BankManager : public QObject
     QLoggingCategory l;
 
 public:
+    struct SlotInfo {
+        bool used;
+        quint32 id;
+        QString name;
+        QString company;
+        quint32 flags;
+        quint16 version;
+        QUuid uuid;
+    };
+
     explicit BankManager(WatchConnector *watch, UploadManager *upload, AppManager *apps, QObject *parent = 0);
 
     int numSlots() const;
@@ -44,16 +59,6 @@ private:
         BankInUse = 2,
         InvalidCommand = 3,
         GeneralFailure = 4
-    };
-
-    struct SlotInfo {
-        bool used;
-        quint32 id;
-        QString name;
-        QString company;
-        quint32 flags;
-        quint16 version;
-        QUuid uuid;
     };
 
     QVector<SlotInfo> _slots;

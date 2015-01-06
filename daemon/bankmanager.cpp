@@ -3,6 +3,9 @@
 #include "unpacker.h"
 #include "packer.h"
 #include "bankmanager.h"
+#include "watchconnector.h"
+#include "uploadmanager.h"
+#include "appmanager.h"
 
 #if 0
 // TODO -- This is how language files seems to be installed.
@@ -75,11 +78,9 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
         return false;
     }
 
-    QDir appDir(info.path());
+    qCDebug(l) << "about to install app " << info.shortName() << "into slot" << slot;
 
-    qCDebug(l) << "about to install app from" << appDir.absolutePath() << "into slot" << slot;
-
-    QFile *binaryFile = new QFile(appDir.absoluteFilePath("pebble-app.bin"), this);
+    QFile *binaryFile = new QFile(info.filePath(AppInfo::BINARY), this);
     if (!binaryFile->open(QIODevice::ReadOnly)) {
         qCWarning(l) << "failed to open" << binaryFile->fileName() << ":" << binaryFile->errorString();
         delete binaryFile;
@@ -89,10 +90,12 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     qCDebug(l) << "binary file size is" << binaryFile->size();
 
     QFile *resourceFile = 0;
-    if (appDir.exists("app_resources.pbpack")) {
-        resourceFile = new QFile(appDir.absoluteFilePath("app_resources.pbpack"), this);
+    QString resourceFileName = info.filePath(AppInfo::RESOURCES);
+    if (!resourceFileName.isEmpty()) {
+        resourceFile = new QFile(resourceFileName, this);
         if (!resourceFile->open(QIODevice::ReadOnly)) {
             qCWarning(l) << "failed to open" << resourceFile->fileName() << ":" << resourceFile->errorString();
+            delete binaryFile;
             delete resourceFile;
             return false;
         }
@@ -263,12 +266,7 @@ void BankManager::refresh()
 
            AppInfo info = apps->info(name);
            if (info.shortName() != name) {
-               info.setLocal(false);
-               info.setUuid(QUuid::createUuid());
-               info.setShortName(name);
-               info.setCompanyName(company);
-               info.setVersionCode(version);
-               info.setCapabilities(AppInfo::Capabilities(flags));
+               info = AppInfo::fromSlot(_slots[index]);
                apps->insertAppInfo(info);
            }
            QUuid uuid = info.uuid();

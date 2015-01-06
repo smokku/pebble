@@ -5,12 +5,16 @@
 #include <QUuid>
 #include <QHash>
 #include <QImage>
+#include <QLoggingCategory>
+#include "bankmanager.h"
 
 class AppInfoData;
 
 class AppInfo
 {
     Q_GADGET
+
+    static QLoggingCategory l;
 
 public:
     enum Capability {
@@ -19,18 +23,27 @@ public:
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
-    Q_PROPERTY(bool local READ isLocal WRITE setLocal)
-    Q_PROPERTY(QUuid uuid READ uuid WRITE setUuid)
-    Q_PROPERTY(QString shortName READ shortName WRITE setShortName)
-    Q_PROPERTY(QString longName READ longName WRITE setLongName)
-    Q_PROPERTY(QString companyName READ companyName WRITE setCompanyName)
-    Q_PROPERTY(int versionCode READ versionCode WRITE setVersionCode)
-    Q_PROPERTY(QString versionLabel READ versionLabel WRITE setVersionLabel)
-    Q_PROPERTY(bool watchface READ isWatchface WRITE setWatchface)
-    Q_PROPERTY(bool jskit READ isJSKit WRITE setJSKit)
-    Q_PROPERTY(Capabilities capabilities READ capabilities WRITE setCapabilities)
-    Q_PROPERTY(QImage menuIcon READ menuIcon WRITE setMenuIcon)
-    Q_PROPERTY(QString path READ path WRITE setPath)
+    enum File {
+        BINARY,
+        RESOURCES
+    };
+
+    Q_PROPERTY(bool local READ isLocal)
+    Q_PROPERTY(bool valid READ isValid)
+    Q_PROPERTY(QUuid uuid READ uuid)
+    Q_PROPERTY(QString shortName READ shortName)
+    Q_PROPERTY(QString longName READ longName)
+    Q_PROPERTY(QString companyName READ companyName)
+    Q_PROPERTY(int versionCode READ versionCode)
+    Q_PROPERTY(QString versionLabel READ versionLabel)
+    Q_PROPERTY(bool watchface READ isWatchface)
+    Q_PROPERTY(bool jskit READ isJSKit)
+    Q_PROPERTY(Capabilities capabilities READ capabilities)
+    Q_PROPERTY(bool menuIcon READ hasMenuIcon)
+    Q_PROPERTY(QImage menuIconImage READ getMenuIconImage)
+
+    static AppInfo fromPath(const QString &path);
+    static AppInfo fromSlot(const BankManager::SlotInfo &slot);
 
 public:
     AppInfo();
@@ -39,49 +52,36 @@ public:
     ~AppInfo();
 
     bool isLocal() const;
-    void setLocal(const bool local);
-
+    bool isValid() const;
     QUuid uuid() const;
-    void setUuid(const QUuid &uuid);
-
     QString shortName() const;
-    void setShortName(const QString &string);
-
     QString longName() const;
-    void setLongName(const QString &string);
-
     QString companyName() const;
-    void setCompanyName(const QString &string);
-
     int versionCode() const;
-    void setVersionCode(int code);
-
     QString versionLabel() const;
-    void setVersionLabel(const QString &string);
-
     bool isWatchface() const;
-    void setWatchface(bool b);
-
     bool isJSKit() const;
-    void setJSKit(bool b);
-
     Capabilities capabilities() const;
-    void setCapabilities(Capabilities caps);
+    bool hasMenuIcon() const;
 
     void addAppKey(const QString &key, int value);
-
     bool hasAppKeyValue(int value) const;
     QString appKeyForValue(int value) const;
 
     bool hasAppKey(const QString &key) const;
     int valueForAppKey(const QString &key) const;
 
-    QImage menuIcon() const;
-    QByteArray menuIconAsPng() const;
-    void setMenuIcon(const QImage &img);
+    QImage getMenuIconImage() const;
+    QByteArray getMenuIconPng() const;
+    QString getJSApp() const;
 
-    QString path() const;
-    void setPath(const QString &string);
+    QString filePath(enum File) const;
+
+    void setInvalid();
+
+protected:
+    QByteArray extractFromResourcePack(const QString &file, int id) const;
+    QImage decodeResourceImage(const QByteArray &data) const;
 
 private:
     QSharedDataPointer<AppInfoData> d;

@@ -79,7 +79,7 @@ void JSKitManager::handleAppStopped(const QUuid &uuid)
         }
 
         stopJsApp();
-        _curApp.setUuid(QUuid()); // Clear the uuid to force invalid app
+        _curApp.setInvalid();
     }
 }
 
@@ -162,8 +162,8 @@ void JSKitManager::startJsApp()
     // Polyfills...
     loadJsFile("/usr/share/pebble/js/typedarray.js");
 
-    // Now load the actual script
-    loadJsFile(_curApp.path() + "/pebble-js-app.js");
+    // Now the actual script
+    _engine->evaluate(_curApp.getJSApp());
 
     // Setup the message callback
     QUuid uuid = _curApp.uuid();

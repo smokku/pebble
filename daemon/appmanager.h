@@ -32,8 +32,6 @@ signals:
 
 private:
     void scanApp(const QString &path);
-    QByteArray extractFromResourcePack(const QString &file, int id) const;
-    QImage decodeResourceImage(const QByteArray &data) const;
 
 private:
     QFileSystemWatcher *_watcher;
