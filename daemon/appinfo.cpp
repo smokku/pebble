@@ -179,7 +179,7 @@ QString AppInfo::getJSApp() const
 {
     if (!isValid() || !isLocal()) return QString();
 
-    QIODevice *appJS = openFile(AppInfo::APPJS);
+    QScopedPointer<QIODevice> appJS(openFile(AppInfo::APPJS));
     if (!appJS) {
         qCWarning(l) << "cannot find app" << d->path << "app.js";
         return QString();
@@ -205,7 +205,7 @@ AppInfo AppInfo::fromPath(const QString &path)
 
     info.d->path = path;
 
-    QIODevice *appInfoJSON = info.openFile(AppInfo::INFO);
+    QScopedPointer<QIODevice> appInfoJSON(info.openFile(AppInfo::INFO));
     if (!appInfoJSON) {
         qCWarning(l) << "cannot find app" << path << "info json";
         return AppInfo();

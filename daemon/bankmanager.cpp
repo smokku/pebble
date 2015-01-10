@@ -80,41 +80,36 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
 
     qCDebug(l) << "about to install app" << info.shortName() << "into slot" << slot;
 
-    QIODevice *binaryFile = info.openFile(AppInfo::BINARY);
+    QSharedPointer<QIODevice> binaryFile(info.openFile(AppInfo::BINARY));
     if (!binaryFile->open(QIODevice::ReadOnly)) {
         qCWarning(l) << "failed to open" << info.shortName()
                      << "AppInfo::BINARY" << binaryFile->errorString();
-        delete binaryFile;
         return false;
     }
 
     qCDebug(l) << "binary file size is" << binaryFile->size();
-
-    QIODevice *resourceFile = info.openFile(AppInfo::RESOURCES);
-    if (resourceFile && !resourceFile->open(QIODevice::ReadOnly)) {
-        qCWarning(l) << "failed to open " << info.shortName()
-                     << "AppInfo::RESOURCES" << resourceFile->errorString();
-        delete binaryFile;
-        delete resourceFile;
-        return false;
-    }
 
     // Mark the slot as used, but without any app, just in case.
     _slots[slot].used = true;
     _slots[slot].name.clear();
     _slots[slot].uuid = QUuid();
 
-    upload->uploadAppBinary(slot, binaryFile,
-    [this, binaryFile, resourceFile, slot]() {
+    upload->uploadAppBinary(slot, binaryFile.data(),
+    [this, info, binaryFile, slot]() {
         qCDebug(l) << "app binary upload succesful";
-        delete binaryFile;
 
         // Proceed to upload the resource file
+        QSharedPointer<QIODevice> resourceFile(info.openFile(AppInfo::RESOURCES));
         if (resourceFile) {
-            upload->uploadAppResources(slot, resourceFile,
+            if (!resourceFile->open(QIODevice::ReadOnly)) {
+                qCWarning(l) << "failed to open" << info.shortName()
+                             << "AppInfo::RESOURCES" << resourceFile->errorString();
+                _refresh->start();
+                return;
+            }
+            upload->uploadAppResources(slot, resourceFile.data(),
             [this, resourceFile, slot]() {
                 qCDebug(l) << "app resources upload succesful";
-                delete resourceFile;
 
                 // Upload succesful
                 // Tell the watch to reload the slot
@@ -127,8 +122,6 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
                 });
             }, [this, resourceFile](int code) {
                 qCWarning(l) << "app resources upload failed" << code;
-                delete resourceFile;
-
                 _refresh->start();
             });
 
@@ -143,11 +136,8 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
                 _refresh->start();
             });
         }
-    }, [this, binaryFile, resourceFile](int code) {
+    }, [this](int code) {
         qCWarning(l) << "app binary upload failed" << code;
-        delete binaryFile;
-        delete resourceFile;
-
         _refresh->start();
     });
 
