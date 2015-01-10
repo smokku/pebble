@@ -71,6 +71,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
     connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
     connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
+    connect(apps, &AppManager::appsChanged, proxy, &PebbledProxy::AllAppsChanged);
 
     QString currentProfile = getCurrentProfile();
     defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;

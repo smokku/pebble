@@ -84,7 +84,6 @@ void AppManager::rescan()
     }
 
     qCDebug(l) << "now watching" << _watcher->directories() << _watcher->files();
-    emit appsChanged();
 }
 
 void AppManager::insertAppInfo(const AppInfo &info)
@@ -95,6 +94,7 @@ void AppManager::insertAppInfo(const AppInfo &info)
     const char *type = info.isWatchface() ? "watchface" : "app";
     const char *local = info.isLocal() ? "local" : "watch";
     qCDebug(l) << "found" << local << type << info.shortName() << info.versionCode() << "/" << info.versionLabel() << "with uuid" << info.uuid().toString();
+    emit appsChanged();
 }
 
 void AppManager::scanApp(const QString &path)
