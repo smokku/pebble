@@ -51,8 +51,21 @@ void AppManager::rescan()
     if (!watchedDirs.isEmpty()) _watcher->removePaths(watchedDirs);
     QStringList watchedFiles = _watcher->files();
     if (!watchedFiles.isEmpty()) _watcher->removePaths(watchedFiles);
-    _apps.clear();
-    _names.clear();
+    Q_FOREACH(const AppInfo &appInfo, _apps) {
+        if (appInfo.isLocal()) {
+            _apps.remove(appInfo.uuid());
+            _names.remove(appInfo.shortName());
+        }
+    }
+    Q_FOREACH(const QUuid uuid, _names) {
+        // shouldn't really be needed, but just to make sure
+        if (_apps.find(uuid) == _apps.end()) {
+            QString key = _names.key(uuid);
+            qCWarning(l) << "DESYNC! Got UUID" << uuid << "for app"
+                            << key << "with no app for UUID registered";
+            _names.remove(key);
+        }
+    }
 
     Q_FOREACH(const QString &path, appPaths()) {
         QDir dir(path);
@@ -88,5 +101,5 @@ void AppManager::scanApp(const QString &path)
 {
     qCDebug(l) << "scanning app" << path;
     const AppInfo &info = AppInfo::fromPath(path);
-    if (info.isLocal()) insertAppInfo(info);
+    if (info.isValid() && info.isLocal()) insertAppInfo(info);
 }
