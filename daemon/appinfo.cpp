@@ -179,13 +179,17 @@ QString AppInfo::getJSApp() const
 {
     if (!isValid() || !isLocal()) return QString();
 
-    QFile file(d->path + "/pebble-js-app.js");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCWarning(l) << "Failed to load JS file:" << file.fileName();
+    QIODevice *appJS = openFile(AppInfo::APPJS);
+    if (!appJS) {
+        qCWarning(l) << "cannot find app" << d->path << "app.js";
+        return QString();
+    }
+    if (!appJS->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qCWarning(l) << "cannot open app" << d->path << "app.js" << appJS->errorString();
         return QString();
     }
 
-    return QString::fromUtf8(file.readAll());
+    return QString::fromUtf8(appJS->readAll());
 
 }
 
@@ -193,25 +197,29 @@ AppInfo AppInfo::fromPath(const QString &path)
 {
     AppInfo info;
 
-    QDir appDir(path);
-    if (!appDir.isReadable()) {
-        qCWarning(l) << "app" << appDir.absolutePath() << "is not readable";
-        return info;
+    QFileInfo appPath(path);
+    if (!appPath.isReadable()) {
+        qCWarning(l) << "app" << appPath.absolutePath() << "is not readable";
+        return AppInfo();
     }
 
-    QFile appInfoFile(path + "/appinfo.json");
-    if (!appInfoFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCWarning(l) << "cannot open app info file" << appInfoFile.fileName() << ":"
-                         << appInfoFile.errorString();
-        return info;
+    info.d->path = path;
+
+    QIODevice *appInfoJSON = info.openFile(AppInfo::INFO);
+    if (!appInfoJSON) {
+        qCWarning(l) << "cannot find app" << path << "info json";
+        return AppInfo();
+    }
+    if (!appInfoJSON->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qCWarning(l) << "cannot open app" << path << "info json" << appInfoJSON->errorString();
+        return AppInfo();
     }
 
     QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(appInfoFile.readAll(), &parseError);
+    QJsonDocument doc = QJsonDocument::fromJson(appInfoJSON->readAll(), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
-        qCWarning(l) << "cannot parse app info file" << appInfoFile.fileName() << ":"
-                         << parseError.errorString();
-        return info;
+        qCWarning(l) << "cannot parse app" << path << "info json" << parseError.errorString();
+        return AppInfo();
     }
 
     const QJsonObject root = doc.object();
@@ -224,7 +232,7 @@ AppInfo AppInfo::fromPath(const QString &path)
 
     const QJsonObject watchapp = root["watchapp"].toObject();
     info.d->watchface = watchapp["watchface"].toBool();
-    info.d->jskit = appDir.exists("pebble-js-app.js");
+    info.d->jskit = appPath.exists("pebble-js-app.js");
 
     if (root.contains("capabilities")) {
         const QJsonArray capabilities = root["capabilities"].toArray();
@@ -270,10 +278,8 @@ AppInfo AppInfo::fromPath(const QString &path)
         }
     }
 
-    info.d->path = path;
-
     if (info.uuid().isNull() || info.shortName().isEmpty()) {
-        qCWarning(l) << "invalid or empty uuid/name in" << appInfoFile.fileName();
+        qCWarning(l) << "invalid or empty uuid/name in json of" << path;
         return AppInfo();
     }
 
@@ -367,11 +373,16 @@ QImage AppInfo::decodeResourceImage(const QByteArray &data) const
     return img;
 }
 
-// TODO: abstract to QIOReader
-QString AppInfo::filePath(enum AppInfo::File file) const
+QIODevice *AppInfo::openFile(enum AppInfo::File file) const
 {
     QString fileName;
     switch (file) {
+    case AppInfo::INFO:
+        fileName = "appinfo.json";
+        break;
+    case AppInfo::APPJS:
+        fileName = "pebble-js-app.js";
+        break;
     case AppInfo::BINARY:
         fileName = "pebble-app.bin";
         break;
@@ -382,8 +393,8 @@ QString AppInfo::filePath(enum AppInfo::File file) const
 
     QDir appDir(d->path);
     if (appDir.exists(fileName)) {
-        return appDir.absoluteFilePath(fileName);
+        return new QFile(appDir.absoluteFilePath(fileName));
     }
 
-    return QString();
+    return 0;
 }

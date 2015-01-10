@@ -24,8 +24,10 @@ public:
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
     enum File {
+        INFO,
         BINARY,
-        RESOURCES
+        RESOURCES,
+        APPJS
     };
 
     Q_PROPERTY(bool local READ isLocal)
@@ -75,7 +77,7 @@ public:
     QByteArray getMenuIconPng() const;
     QString getJSApp() const;
 
-    QString filePath(enum File) const;
+    QIODevice *openFile(enum File) const;
 
     void setInvalid();
 

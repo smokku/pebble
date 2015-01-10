@@ -78,27 +78,25 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
         return false;
     }
 
-    qCDebug(l) << "about to install app " << info.shortName() << "into slot" << slot;
+    qCDebug(l) << "about to install app" << info.shortName() << "into slot" << slot;
 
-    QFile *binaryFile = new QFile(info.filePath(AppInfo::BINARY), this);
+    QIODevice *binaryFile = info.openFile(AppInfo::BINARY);
     if (!binaryFile->open(QIODevice::ReadOnly)) {
-        qCWarning(l) << "failed to open" << binaryFile->fileName() << ":" << binaryFile->errorString();
+        qCWarning(l) << "failed to open" << info.shortName()
+                     << "AppInfo::BINARY" << binaryFile->errorString();
         delete binaryFile;
         return false;
     }
 
     qCDebug(l) << "binary file size is" << binaryFile->size();
 
-    QFile *resourceFile = 0;
-    QString resourceFileName = info.filePath(AppInfo::RESOURCES);
-    if (!resourceFileName.isEmpty()) {
-        resourceFile = new QFile(resourceFileName, this);
-        if (!resourceFile->open(QIODevice::ReadOnly)) {
-            qCWarning(l) << "failed to open" << resourceFile->fileName() << ":" << resourceFile->errorString();
-            delete binaryFile;
-            delete resourceFile;
-            return false;
-        }
+    QIODevice *resourceFile = info.openFile(AppInfo::RESOURCES);
+    if (resourceFile && !resourceFile->open(QIODevice::ReadOnly)) {
+        qCWarning(l) << "failed to open " << info.shortName()
+                     << "AppInfo::RESOURCES" << resourceFile->errorString();
+        delete binaryFile;
+        delete resourceFile;
+        return false;
     }
 
     // Mark the slot as used, but without any app, just in case.
