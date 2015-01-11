@@ -22,7 +22,7 @@ Dialog {
 
         delegate: ListItem {
             id: appDelegate
-            contentHeight: Theme.itemSizeSmall
+            contentHeight: modelData.isLocal ? Theme.itemSizeSmall : 0
 
             visible: modelData.isLocal
 

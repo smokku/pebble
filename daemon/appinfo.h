@@ -77,12 +77,13 @@ public:
     QByteArray getMenuIconPng() const;
     QString getJSApp() const;
 
-    QIODevice *openFile(enum File) const;
+    QIODevice *openFile(enum File, QIODevice::OpenMode = 0) const;
+    bool fileExists(enum File) const;
 
     void setInvalid();
 
 protected:
-    QByteArray extractFromResourcePack(const QString &file, int id) const;
+    QByteArray extractFromResourcePack(QIODevice *dev, int id) const;
     QImage decodeResourceImage(const QByteArray &data) const;
 
 private:

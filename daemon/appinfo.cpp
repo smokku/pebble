@@ -7,6 +7,7 @@
 #include "appinfo.h"
 #include "unpacker.h"
 #include "stm32crc.h"
+#include <quazip/quazipfile.h>
 
 namespace {
 struct ResourceEntry {
@@ -155,8 +156,8 @@ bool AppInfo::hasMenuIcon() const
 QImage AppInfo::getMenuIconImage() const
 {
     if (hasMenuIcon()) {
-        QByteArray data = extractFromResourcePack(
-                    QDir(d->path).filePath("app_resources.pbpack"), d->menuIconResource);
+        QScopedPointer<QIODevice> imageRes(openFile(AppInfo::RESOURCES));
+        QByteArray data = extractFromResourcePack(imageRes.data(), d->menuIconResource);
         if (!data.isEmpty()) {
             return decodeResourceImage(data);
         }
@@ -179,13 +180,9 @@ QString AppInfo::getJSApp() const
 {
     if (!isValid() || !isLocal()) return QString();
 
-    QScopedPointer<QIODevice> appJS(openFile(AppInfo::APPJS));
+    QScopedPointer<QIODevice> appJS(openFile(AppInfo::APPJS, QIODevice::Text));
     if (!appJS) {
         qCWarning(l) << "cannot find app" << d->path << "app.js";
-        return QString();
-    }
-    if (!appJS->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCWarning(l) << "cannot open app" << d->path << "app.js" << appJS->errorString();
         return QString();
     }
 
@@ -205,13 +202,9 @@ AppInfo AppInfo::fromPath(const QString &path)
 
     info.d->path = path;
 
-    QScopedPointer<QIODevice> appInfoJSON(info.openFile(AppInfo::INFO));
+    QScopedPointer<QIODevice> appInfoJSON(info.openFile(AppInfo::INFO, QIODevice::Text));
     if (!appInfoJSON) {
         qCWarning(l) << "cannot find app" << path << "info json";
-        return AppInfo();
-    }
-    if (!appInfoJSON->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qCWarning(l) << "cannot open app" << path << "info json" << appInfoJSON->errorString();
         return AppInfo();
     }
 
@@ -221,6 +214,7 @@ AppInfo AppInfo::fromPath(const QString &path)
         qCWarning(l) << "cannot parse app" << path << "info json" << parseError.errorString();
         return AppInfo();
     }
+    appInfoJSON->close();
 
     const QJsonObject root = doc.object();
     info.d->uuid = QUuid(root["uuid"].toString());
@@ -232,7 +226,8 @@ AppInfo AppInfo::fromPath(const QString &path)
 
     const QJsonObject watchapp = root["watchapp"].toObject();
     info.d->watchface = watchapp["watchface"].toBool();
-    info.d->jskit = appPath.exists("pebble-js-app.js");
+
+    info.d->jskit = info.fileExists(AppInfo::APPJS);
 
     if (root.contains("capabilities")) {
         const QJsonArray capabilities = root["capabilities"].toArray();
@@ -299,22 +294,22 @@ AppInfo AppInfo::fromSlot(const BankManager::SlotInfo &slot)
     return info;
 }
 
-QByteArray AppInfo::extractFromResourcePack(const QString &file, int wanted_id) const
+QByteArray AppInfo::extractFromResourcePack(QIODevice *dev, int wanted_id) const
 {
-    QFile f(file);
-    if (!f.open(QIODevice::ReadOnly)) {
-        qCWarning(l) << "cannot open resource file" << f.fileName();
+    if (!dev) {
+        qCWarning(l) << "requested resource" << wanted_id
+                     << "from NULL resource file";
         return QByteArray();
     }
 
-    QByteArray data = f.readAll();
+    QByteArray data = dev->readAll();
     Unpacker u(data);
 
     int num_files = u.readLE<quint32>();
     u.readLE<quint32>(); // crc for entire file
     u.readLE<quint32>(); // timestamp
 
-    qCDebug(l) << "reading" << num_files << "resources from" << file;
+    qCDebug(l) << "reading" << num_files << "resources";
 
     QList<ResourceEntry> table;
 
@@ -348,7 +343,7 @@ QByteArray AppInfo::extractFromResourcePack(const QString &file, int wanted_id) 
     crc.addData(res);
 
     if (crc.result() != e.crc) {
-        qCWarning(l) << "CRC failure in resource" << e.index << "on file" << file;
+        qCWarning(l) << "CRC failure in resource" << e.index << "on file" << res;
         return QByteArray();
     }
 
@@ -373,7 +368,7 @@ QImage AppInfo::decodeResourceImage(const QByteArray &data) const
     return img;
 }
 
-QIODevice *AppInfo::openFile(enum AppInfo::File file) const
+QIODevice *AppInfo::openFile(enum AppInfo::File file, QIODevice::OpenMode mode) const
 {
     QString fileName;
     switch (file) {
@@ -391,10 +386,29 @@ QIODevice *AppInfo::openFile(enum AppInfo::File file) const
         break;
     }
 
-    QDir appDir(d->path);
-    if (appDir.exists(fileName)) {
-        return new QFile(appDir.absoluteFilePath(fileName));
+    QIODevice *dev = 0;
+    QFileInfo appPath(d->path);
+    if (appPath.isDir()) {
+        QDir appDir(d->path);
+        if (appDir.exists(fileName)) {
+            dev = new QFile(appDir.absoluteFilePath(fileName));
+        }
+    } else if (appPath.isFile()) {
+        dev =  new QuaZipFile(d->path, fileName);
     }
 
-    return 0;
+    if (dev && !dev->open(QIODevice::ReadOnly | mode)) {
+        delete dev;
+        return 0;
+    }
+
+    return dev;
+}
+
+bool AppInfo::fileExists(enum AppInfo::File file) const
+{
+    QIODevice *dev = openFile(file);
+    bool exists = dev && dev->isOpen();
+    delete dev;
+    return exists;
 }

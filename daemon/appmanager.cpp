@@ -72,12 +72,15 @@ void AppManager::rescan()
         _watcher->addPath(dir.absolutePath());
         qCDebug(l) << "scanning dir" << dir.absolutePath();
         QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable | QDir::Executable);
+        entries << dir.entryList(QStringList("*.pbw"), QDir::Files | QDir::Readable);
         qCDebug(l) << "scanning dir results" << entries;
         Q_FOREACH(const QString &path, entries) {
             QString appPath = dir.absoluteFilePath(path);
             _watcher->addPath(appPath);
             if (dir.exists(path + "/appinfo.json")) {
                 _watcher->addPath(appPath + "/appinfo.json");
+                scanApp(appPath);
+            } else if (QFileInfo(appPath).isFile()) {
                 scanApp(appPath);
             }
         }
