@@ -73,7 +73,8 @@ desktop-file-install --delete-original       \
 
 %post
 # >> post
-systemctl --user daemon-reload
+su nemo -c 'systemctl --user daemon-reload'
+update-desktop-database
 # << post
 
 %files
