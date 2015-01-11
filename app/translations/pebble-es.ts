@@ -43,14 +43,28 @@
 <context>
     <name>InstallAppDialog</name>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="15"/>
         <source>Install app</source>
-        <translation>Instalar app</translation>
+        <translation type="vanished">Instalar app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="16"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="17"/>
+        <source>Select App files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="64"/>
+        <source>Install App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
         <source>Install</source>
         <translation>Instalar</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="72"/>
+        <source>Add App file...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

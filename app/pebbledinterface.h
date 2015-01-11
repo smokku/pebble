@@ -36,6 +36,8 @@ public:
     QStringList appSlots() const;
     QVariantList allApps() const;
 
+    Q_INVOKABLE static bool registerAppFile(const QString& filePath);
+
     Q_INVOKABLE QVariantMap appInfoByUuid(const QString& uuid) const;
 
     Q_INVOKABLE QUrl configureApp(const QString &uuid);

@@ -170,6 +170,22 @@ void PebbledInterface::reconnect()
     watch->Reconnect();
 }
 
+bool PebbledInterface::registerAppFile(const QString& filePath)
+{
+    if (filePath.endsWith(".pbw", Qt::CaseInsensitive)) {
+        QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        if (dataDir.mkpath("apps")) {
+            QFile pbw(filePath);
+            QFileInfo dst(pbw);
+            dst.setFile(dataDir.absoluteFilePath("apps"), dst.fileName());
+            QFile(dst.filePath()).remove();
+            return pbw.copy(dst.filePath());
+        }
+    }
+
+    return false;
+}
+
 QUrl PebbledInterface::configureApp(const QString &uuid)
 {
     qDebug() << Q_FUNC_INFO << uuid;

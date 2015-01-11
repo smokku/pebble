@@ -42,16 +42,7 @@ int main(int argc, char *argv[])
     app->setOrganizationName("");
 
     for (int i = 1; i < argc; i++) {
-        if (QString(argv[i]).endsWith(".pbw", Qt::CaseInsensitive)) {
-            QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
-            if (dataDir.mkpath("apps")) {
-                QFile pbw(argv[i]);
-                QFileInfo dst(pbw);
-                dst.setFile(dataDir.absoluteFilePath("apps"), dst.fileName());
-                QFile(dst.filePath()).remove();
-                pbw.copy(dst.filePath());
-            }
-        }
+        PebbledInterface::registerAppFile(argv[i]);
     }
 
     qmlRegisterUncreatableType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface",
