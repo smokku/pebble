@@ -1,3 +1,7 @@
+* Sun Jan 11 2015 Tomasz Sterna <tomek@xiaoka.com> 0.14
+- Watch Application management
+- Support for JavaScript companion apps
+
 * Tue Dec 23 2014 Tomasz Sterna <tomek@xiaoka.com> 0.13
 - Update for Qt 5.2
 - Logging using Qt logging categories

@@ -13,7 +13,7 @@ Name:       pebble
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Support for Pebble watch in SailfishOS
-Version:    0.13.js2
+Version:    0.14
 Release:    1
 Group:      Qt/Qt
 License:    GPL3
