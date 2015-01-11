@@ -38,6 +38,21 @@
 int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+    app->setApplicationName("pebble");
+    app->setOrganizationName("");
+
+    for (int i = 1; i < argc; i++) {
+        if (QString(argv[i]).endsWith(".pbw", Qt::CaseInsensitive)) {
+            QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+            if (dataDir.mkpath("apps")) {
+                QFile pbw(argv[i]);
+                QFileInfo dst(pbw);
+                dst.setFile(dataDir.absoluteFilePath("apps"), dst.fileName());
+                QFile(dst.filePath()).remove();
+                pbw.copy(dst.filePath());
+            }
+        }
+    }
 
     qmlRegisterUncreatableType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface",
                                                  "Please use pebbled context property");

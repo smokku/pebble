@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     app.setApplicationName("pebble"); // Use the same appname as the UI.
+    app.setOrganizationName("");
 
     QStringList filterRules;
 
