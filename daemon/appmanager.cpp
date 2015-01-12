@@ -22,7 +22,8 @@ QStringList AppManager::appPaths() const
 {
     return QStandardPaths::locateAll(QStandardPaths::DataLocation,
                                      QLatin1String("apps"),
-                                     QStandardPaths::LocateDirectory);
+                                     QStandardPaths::LocateDirectory)
+            << "/data/data/com.getpebble.android/app_jskit_installed_apps";
 }
 
 QList<QUuid> AppManager::appUuids() const
