@@ -34,6 +34,7 @@
 #include <sailfishapp.h>
 #include "pebbledinterface.h"
 #include "pebbleappiconprovider.h"
+#include "pebblestoreview.h"
 
 int main(int argc, char *argv[])
 {
@@ -47,6 +48,8 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<PebbledInterface>("org.pebbled", 0, 1, "PebbledInterface",
                                                  "Please use pebbled context property");
+
+    qmlRegisterType<PebbleStoreView>("org.pebbled", 0, 1, "PebbleStoreView");
 
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     QScopedPointer<PebbledInterface> pebbled(new PebbledInterface);

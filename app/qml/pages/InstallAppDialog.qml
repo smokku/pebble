@@ -84,6 +84,10 @@ Dialog {
                 }
 
             }
+            MenuItem {
+                text: qsTr("Pebble Appstore")
+                onClicked: pageStack.push(Qt.resolvedUrl("AppStorePage.qml"))
+            }
         }
 
         currentIndex: -1
