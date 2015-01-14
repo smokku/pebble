@@ -28,6 +28,39 @@
     </message>
 </context>
 <context>
+    <name>AppStorePage</name>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="25"/>
+        <source>Logout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="38"/>
+        <source>Pebble Appstore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="45"/>
+        <source>WatchApps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="51"/>
+        <source>WatchFaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="66"/>
+        <source>Downloading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="94"/>
+        <source>Downloading %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CoverPage</name>
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="56"/>
@@ -64,6 +97,11 @@
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="72"/>
         <source>Add App file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="88"/>
+        <source>Pebble Appstore</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

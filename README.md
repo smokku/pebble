@@ -25,6 +25,7 @@ Features
 * "org.pebbled" DBus interface
 * PebbleKit JS application partial support
  (including Pebble object, XMLHTTPRequest, localStorage, geolocation)
+* Pebble AppStore preliminary support
 
 
 

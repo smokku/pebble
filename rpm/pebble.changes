@@ -1,3 +1,7 @@
+* Wed Jan 14 2015 Tomasz Sterna <tomek@xiaoka.com> 0.15
+- Preliminary support for Pebble Appstore
+- Support for apps downloaded by Android Pebble app
+
 * Sun Jan 11 2015 Tomasz Sterna <tomek@xiaoka.com> 0.14
 - Watch Application management
 - Support for JavaScript companion apps
