@@ -65,6 +65,10 @@ Page {
                 text: qsTr("About")
                 onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
+            MenuItem {
+                text: qsTr("Pebble Appstore")
+                onClicked: pageStack.push(Qt.resolvedUrl("AppStorePage.qml"))
+            }
         }
 
         Column {
