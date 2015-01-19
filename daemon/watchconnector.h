@@ -173,6 +173,19 @@ public:
         putbytesCOMPLETE = 5
     };
 
+    enum HardwareRevision {
+        UNKNOWN = 0,
+        PEBBLE_ONE_EV1 = 1,
+        PEBBLE_ONE_EV2 = 2,
+        PEBBLE_ONE_EV2_3 = 3,
+        PEBBLE_ONE_EV2_4 = 4,
+        PEBBLE_ONE_POINT_FIVE = 5,
+        PEBBLE_TWO_POINT_ZERO = 6,
+        PEBBLE_ONE_BIGBOARD_2 = 254,
+        PEBBLE_ONE_BIGBOARD = 255
+    };
+    QMap<HardwareRevision, QString> firmwareMapping;
+
     typedef QMap<int, QVariant> Dict;
     enum DictItemType {
         typeBYTES,

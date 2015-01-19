@@ -13,6 +13,16 @@ WatchConnector::WatchConnector(QObject *parent) :
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
 
+    firmwareMapping.insert(UNKNOWN, "unknown");
+    firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
+    firmwareMapping.insert(PEBBLE_ONE_EV2, "ev2");
+    firmwareMapping.insert(PEBBLE_ONE_EV2_3, "ev2_3");
+    firmwareMapping.insert(PEBBLE_ONE_EV2_4, "ev2_4");
+    firmwareMapping.insert(PEBBLE_ONE_POINT_FIVE, "v1_5");
+    firmwareMapping.insert(PEBBLE_TWO_POINT_ZERO, "v2_0");
+    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD_2, "bb2");
+    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD, "bigboard");
+
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);
 
@@ -47,7 +57,8 @@ WatchConnector::WatchConnector(QObject *parent) :
         qCDebug(l) << "recovery version information"
                    << safe_version << safe_version_string << safe_commit
                    << safe_is_recovery << safe_hw_platform << safe_metadata_version;
-        qCDebug(l) << "hardware information" << bootLoaderTimestamp << hardwareRevision;
+        qCDebug(l) << "hardware information" << bootLoaderTimestamp << hardwareRevision
+                   << firmwareMapping.value(HardwareRevision(hw_platform));
         qCDebug(l) << "serial number" << serialNumber.left(3) << "...";
         qCDebug(l) << "bt address" << address.toHex();
 
