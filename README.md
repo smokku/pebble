@@ -44,6 +44,7 @@ Running
 Deploy as a RPM package to the device.
 
 You need to pair your Pebble in Settings -> System settings -> Bluetooth
+
 Application will try to connect to any paired device which name starts with "Pebble"
 
 
