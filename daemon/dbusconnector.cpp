@@ -1,5 +1,7 @@
 #include "dbusconnector.h"
 
+#include <QBluetoothAddress>
+#include <QBluetoothLocalDevice>
 #include <QDebug>
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -61,9 +63,13 @@ bool DBusConnector::findPebble()
         qCDebug(l) << "Found BT device:" << tmp;
         if (tmp.startsWith("Pebble")) {
             qCDebug(l) << "Found Pebble:" << tmp;
-            pebbleProps = dict;
-            emit pebbleChanged();
-            return true;
+            QBluetoothAddress addr(dict["Address"].toString());
+            QBluetoothLocalDevice dev;
+            if (dev.pairingStatus(addr) == QBluetoothLocalDevice::AuthorizedPaired) {
+                pebbleProps = dict;
+                emit pebbleChanged();
+                return true;
+            }
         }
     }
 
