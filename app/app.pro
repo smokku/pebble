@@ -33,7 +33,8 @@ OTHER_FILES += \
     translations/*.ts \
     pebble.desktop \
     pebble.png \
-    qml/pages/AppStorePage.qml
+    qml/pages/AppStorePage.qml \
+    qml/pages/WatchInfo.qml
 
 CONFIG += sailfishapp_i18n
 TRANSLATIONS += translations/pebble-es.ts

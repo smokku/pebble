@@ -1,6 +1,8 @@
 #include "pebbledinterface.h"
 #include "watch_interface.h"
 
+#include <QDBusArgument>
+
 static const QString PEBBLED_SYSTEMD_UNIT("pebbled.service");
 static const QString PEBBLED_DBUS_SERVICE("org.pebbled");
 static const QString PEBBLED_DBUS_PATH("/org/pebbled/Watch");
@@ -145,7 +147,26 @@ QString PebbledInterface::address() const
 QVariantMap PebbledInterface::info() const
 {
     qDebug() << Q_FUNC_INFO;
-    return watch->info();
+    QVariantMap info = watch->info();
+    QVariantList firmwares;
+    foreach (const QVariant &var, info.values("firmware")) {
+        const QDBusArgument &arg = var.value<QDBusArgument>();
+        arg.beginMap();
+        QVariantMap map;
+        while (!arg.atEnd()) {
+            QString key;
+            QVariant value;
+            arg.beginMapEntry();
+            arg >> key >> value;
+            arg.endMapEntry();
+            map.insert(key, value);
+        }
+        arg.endMap();
+        firmwares << map;
+    }
+    info.remove("firmware");
+    info.insert("firmware", firmwares);
+    return info;
 }
 
 QString PebbledInterface::appUuid() const

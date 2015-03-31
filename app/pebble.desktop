@@ -4,4 +4,4 @@ X-Nemo-Application-Type=silica-qt5
 Name=Pebble
 Icon=pebble
 Exec=pebble %U
-MimeType=application/zip
+MimeType=application/zip;

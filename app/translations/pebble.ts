@@ -251,49 +251,82 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     </message>
 </context>
 <context>
+    <name>WatchInfo</name>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="41"/>
+        <source>Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="49"/>
+        <source>Serial Number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="57"/>
+        <source>BootLoader</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="65"/>
+        <source>Firmware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="73"/>
+        <source>Recovery</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>WatchPage</name>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="63"/>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="69"/>
         <source>Ping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="71"/>
+        <location filename="../qml/pages/WatchPage.qml" line="75"/>
         <source>Sync Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="85"/>
+        <location filename="../qml/pages/WatchPage.qml" line="87"/>
         <source>Installed applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="121"/>
+        <location filename="../qml/pages/WatchPage.qml" line="123"/>
         <source>Uninstalling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="193"/>
+        <location filename="../qml/pages/WatchPage.qml" line="195"/>
         <source>(empty slot)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="193"/>
+        <location filename="../qml/pages/WatchPage.qml" line="195"/>
         <source>(slot in use by unknown app)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="202"/>
+        <location filename="../qml/pages/WatchPage.qml" line="204"/>
         <source>Install app...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="207"/>
+        <location filename="../qml/pages/WatchPage.qml" line="209"/>
         <source>Configure...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="212"/>
+        <location filename="../qml/pages/WatchPage.qml" line="214"/>
         <source>Uninstall</source>
         <translation type="unfinished"></translation>
     </message>

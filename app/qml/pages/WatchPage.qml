@@ -60,19 +60,21 @@ Page {
 
 
                 Button {
+                    text: qsTr("Info")
+                    width: parent.width / 3
+                    onClicked: pageStack.push(Qt.resolvedUrl("WatchInfo.qml"))
+                }
+
+                Button {
                     text: qsTr("Ping")
-                    width: parent.width / 2
-                    onClicked: {
-                        pebbled.ping(66)
-                    }
+                    width: parent.width / 3
+                    onClicked: pebbled.ping(66)
                 }
 
                 Button {
                     text: qsTr("Sync Time")
-                    width: parent.width / 2
-                    onClicked: {
-                        pebbled.time()
-                    }
+                    width: parent.width / 3
+                    onClicked: pebbled.time()
                 }
             }
 
