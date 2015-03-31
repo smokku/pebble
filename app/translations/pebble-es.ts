@@ -286,17 +286,17 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="63"/>
+        <location filename="../qml/pages/WatchPage.qml" line="42"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="69"/>
+        <location filename="../qml/pages/WatchPage.qml" line="48"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="75"/>
+        <location filename="../qml/pages/WatchPage.qml" line="54"/>
         <source>Sync Time</source>
         <translation>Ajustar hora</translation>
     </message>
@@ -306,32 +306,37 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
         <translation>Aplicaciones instaladas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="123"/>
+        <location filename="../qml/pages/WatchPage.qml" line="76"/>
+        <source>Your firmware is too old to support SDKv2 applications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="124"/>
         <source>Uninstalling</source>
         <translation>Desinstalando</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="195"/>
+        <location filename="../qml/pages/WatchPage.qml" line="196"/>
         <source>(empty slot)</source>
         <translation>(hueco libre)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="195"/>
+        <location filename="../qml/pages/WatchPage.qml" line="196"/>
         <source>(slot in use by unknown app)</source>
         <translation>(hueco en uso)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="204"/>
+        <location filename="../qml/pages/WatchPage.qml" line="205"/>
         <source>Install app...</source>
         <translation>Instalar app...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="209"/>
+        <location filename="../qml/pages/WatchPage.qml" line="210"/>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="214"/>
+        <location filename="../qml/pages/WatchPage.qml" line="215"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>
