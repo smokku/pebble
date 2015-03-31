@@ -96,12 +96,7 @@
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="72"/>
-        <source>Add App file...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="88"/>
-        <source>Pebble Appstore</source>
+        <source>Add App file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -109,148 +104,153 @@
     <name>ManagerPage</name>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="65"/>
+        <source>Pebble Appstore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ManagerPage.qml" line="69"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="76"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="80"/>
         <source>Pebble Manager</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="83"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="87"/>
         <source>Waiting for watch...
 If it can&apos;t be found please check it&apos;s available and paired in Bluetooth settings.</source>
         <translation>Buscando el reloj
 Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="104"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="108"/>
         <source>Service</source>
         <translation>Servicio</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="111"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="115"/>
         <source>Enabled</source>
         <translation>Habilitado</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="112"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="116"/>
         <source>Automatic startup</source>
         <translation>Inicio automático</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="112"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="116"/>
         <source>Manual startup</source>
         <translation>Inicio manual</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="118"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="122"/>
         <source>Active</source>
         <translation>Activo</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="119"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="123"/>
         <source>Running</source>
         <translation>Ejecutándose</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="119"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="123"/>
         <source>Dead</source>
         <translation>Detenido</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="125"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="129"/>
         <source>Connection</source>
         <translation>Conexión</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="126"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="130"/>
         <source>Connected</source>
         <translation>Conectado</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="126"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="130"/>
         <source>Disconnected</source>
         <translation>Desconectado</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="139"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="143"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="146"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
         <source>Forward phone calls</source>
         <translation>Transferir llamadas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="154"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="158"/>
         <source>Silent when connected</source>
         <translation>Modo silencio automático</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="155"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="159"/>
         <source>Sets phone profile to &quot;silent&quot; when Pebble is connected</source>
         <translation>Activa el modo silencio cuando se conecte un Pebble</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="163"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="167"/>
         <source>Transliterate messages</source>
         <translation>Transliterar mensajes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="164"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="168"/>
         <source>Messages are transliterated to ASCII before sending to Pebble</source>
         <translation>Codifica los mensajes entrates a ASCII antes de enviarlos a Pebble</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="173"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="177"/>
         <source>Notifications</source>
         <translation>Notificaciones</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="181"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="185"/>
         <source>Messaging</source>
         <translation>Mensajería</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="182"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="186"/>
         <source>SMS and IM</source>
         <translation>SMS y chat</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="191"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="195"/>
         <source>Missed call</source>
         <translation>Llamadas perdidas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="200"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="204"/>
         <source>Emails</source>
         <translation>Correos electrónicos</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="209"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="213"/>
         <source>Mitakuuluu</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="218"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="222"/>
         <source>Twitter</source>
         <translation>Twitter</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="228"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="232"/>
         <source>Facebook</source>
         <translation>Facebook</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="237"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="241"/>
         <source>Other notifications</source>
         <translation>Resto de notificaciones</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="246"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="250"/>
         <source>All notifications</source>
         <translation>Todas las notificaciones</translation>
     </message>

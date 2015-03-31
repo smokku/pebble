@@ -62,6 +62,10 @@ Page {
 
         PullDownMenu {
             MenuItem {
+                text: qsTr("Pebble Appstore")
+                onClicked: pageStack.push(Qt.resolvedUrl("AppStorePage.qml"))
+            }
+            MenuItem {
                 text: qsTr("About")
                 onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }

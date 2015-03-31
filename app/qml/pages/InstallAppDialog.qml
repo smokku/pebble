@@ -69,7 +69,7 @@ Dialog {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Add App file...")
+                text: qsTr("Add App file")
                 onClicked: {
                     var addApps = function() {
                         for(var i=0; i < picker.selectedContent.count; ++i) {
@@ -83,10 +83,6 @@ Dialog {
                     picker.selectedContentChanged.connect(addApps)
                 }
 
-            }
-            MenuItem {
-                text: qsTr("Pebble Appstore")
-                onClicked: pageStack.push(Qt.resolvedUrl("AppStorePage.qml"))
             }
         }
 
