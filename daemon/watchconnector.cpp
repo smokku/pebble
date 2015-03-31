@@ -1,11 +1,32 @@
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QDebugStateSaver>
 
 #include "unpacker.h"
 #include "watchconnector.h"
 
 static const int RECONNECT_TIMEOUT = 500; //ms
 static const bool PROTOCOL_DEBUG = false;
+
+QDebug operator<< (QDebug d, const WatchConnector::SoftwareVersion &ver) {
+    QDebugStateSaver save(d);
+    d.setAutoInsertSpaces(true);
+    d << ver.version << ver.build.toString(Qt::ISODate) << ver.commit;
+    d.nospace() << ver.hw_string << "(" << ver.hw_revision << ")";
+    d.space() << ver.metadata_version;
+    d.nospace() << (ver.is_recovery ? "recovery" : "standard");
+    return d;
+}
+
+QDebug operator<< (QDebug d, const WatchConnector::WatchVersions &ver) {
+    QDebugStateSaver save(d);
+    d.nospace() << "bootloader: " << ver.bootLoaderBuild.toString(Qt::ISODate)
+                << ", serial number: " << ver.serialNumber
+                << ", bt address: " << ver.address.toHex()
+                << ", firmware (main: " << ver.main
+                << ") (safe: " << ver.safe << ")";
+    return d;
+}
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), l(metaObject()->className()), socket(nullptr), is_connected(false)
@@ -28,41 +49,32 @@ WatchConnector::WatchConnector(QObject *parent) :
 
         u.skip(1);
 
-        quint32 version = u.read<quint32>();
-        QString version_string = u.readFixedString(32);
-        QString commit = u.readFixedString(8);
-        bool is_recovery = u.read<quint8>();
-        quint8 hw_platform = u.read<quint8>();
-        quint8 metadata_version = u.read<quint8>();
+        _versions.main.build = QDateTime::fromTime_t(u.read<quint32>());
+        _versions.main.version = u.readFixedString(32);
+        _versions.main.commit = u.readFixedString(8);
+        _versions.main.is_recovery = u.read<quint8>();
+        _versions.main.hw_revision = HardwareRevision(u.read<quint8>());
+        _versions.main.hw_string = firmwareMapping.value(_versions.main.hw_revision);
+        _versions.main.metadata_version = u.read<quint8>();
 
-        quint32 safe_version = u.read<quint32>();
-        QString safe_version_string = u.readFixedString(32);
-        QString safe_commit = u.readFixedString(8);
-        bool safe_is_recovery = u.read<quint8>();
-        quint8 safe_hw_platform = u.read<quint8>();
-        quint8 safe_metadata_version = u.read<quint8>();
+        _versions.safe.build = QDateTime::fromTime_t(u.read<quint32>());
+        _versions.safe.version = u.readFixedString(32);
+        _versions.safe.commit = u.readFixedString(8);
+        _versions.safe.is_recovery = u.read<quint8>();
+        _versions.safe.hw_revision = HardwareRevision(u.read<quint8>());
+        _versions.safe.hw_string = firmwareMapping.value(_versions.safe.hw_revision);
+        _versions.safe.metadata_version = u.read<quint8>();
 
-        quint32 bootLoaderTimestamp = u.read<quint32>();
-        QString hardwareRevision = u.readFixedString(9);
-        QString serialNumber = u.readFixedString(12);
-        QByteArray address = u.readBytes(6);
+        _versions.bootLoaderBuild = QDateTime::fromTime_t(u.read<quint32>());
+        _versions.hardwareRevision = u.readFixedString(9);
+        _versions.serialNumber = u.readFixedString(12);
+        _versions.address = u.readBytes(6);
 
         if (u.bad()) {
             qCWarning(l) << "short read while reading firmware version";
         }
 
-        qCDebug(l) << "got version information"
-                   << version << version_string << commit
-                   << is_recovery << hw_platform << metadata_version;
-        qCDebug(l) << "recovery version information"
-                   << safe_version << safe_version_string << safe_commit
-                   << safe_is_recovery << safe_hw_platform << safe_metadata_version;
-        qCDebug(l) << "hardware information" << bootLoaderTimestamp << hardwareRevision
-                   << firmwareMapping.value(HardwareRevision(hw_platform));
-        qCDebug(l) << "serial number" << serialNumber.left(3) << "...";
-        qCDebug(l) << "bt address" << address.toHex();
-
-        this->_serialNumber = serialNumber;
+        qCDebug(l) << "hardware information:" << _versions;
 
         return true;
     });
@@ -109,7 +121,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
 {
     qCDebug(l) << "handleWatch" << name << address;
     reconnectTimer.stop();
-    if (socket != nullptr && socket->isOpen()) {
+    if (socket != nullptr) {
         socket->close();
         socket->deleteLater();
     }
@@ -121,7 +133,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
 
     if (emit_name) {
         // If we've changed names, don't reuse cached serial number!
-        _serialNumber.clear();
+        _versions.serialNumber.clear();
     }
 
     qCDebug(l) << "Creating socket";
@@ -256,7 +268,7 @@ void WatchConnector::onConnected()
             qCDebug(l) << "Found" << writeData.length() << "bytes in write buffer - resending";
             sendData(writeData);
         }
-        if (_serialNumber.isEmpty()) {
+        if (_versions.serialNumber.isEmpty()) {
             // Ask for version information from the watch
             sendMessage(watchVERSION, QByteArray(1, 0));
         }

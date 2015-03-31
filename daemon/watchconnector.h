@@ -31,10 +31,12 @@
 #define WATCHCONNECTOR_H
 
 #include <functional>
+#include <QDebug>
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
 #include <QTimer>
+#include <QDateTime>
 #include <QBluetoothDeviceInfo>
 #include <QBluetoothSocket>
 #include <QBluetoothServiceInfo>
@@ -94,7 +96,8 @@ public:
         musicPREVIOUS = 5,
         musicVOLUME_UP = 6,
         musicVOLUME_DOWN = 7,
-        musicGET_NOW_PLAYING = 8
+        musicGET_NOW_PLAYING = 8,
+        musicSEND_NOW_PLAYING = 9
     };
     enum SystemMessage {
         systemFIRMWARE_AVAILABLE = 0,
@@ -186,6 +189,25 @@ public:
     };
     QMap<HardwareRevision, QString> firmwareMapping;
 
+    struct SoftwareVersion {
+        QDateTime build;
+        QString version;
+        QString commit;
+        bool is_recovery;
+        HardwareRevision hw_revision;
+        QString hw_string;
+        quint8 metadata_version;
+    };
+
+    struct WatchVersions {
+        SoftwareVersion main;
+        SoftwareVersion safe;
+        QDateTime bootLoaderBuild;
+        QString hardwareRevision;
+        QString serialNumber;
+        QByteArray address;
+    };
+
     typedef QMap<int, QVariant> Dict;
     enum DictItemType {
         typeBYTES,
@@ -201,7 +223,7 @@ public:
 
     inline bool isConnected() const { return is_connected; }
     inline QString name() const { return socket != nullptr ? socket->peerName() : ""; }
-    inline QString serialNumber() const { return _serialNumber; }
+    inline WatchVersions versions() const { return _versions; }
 
     void setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func);
     void clearEndpointHandler(uint endpoint);
@@ -259,7 +281,10 @@ private:
     QTimer reconnectTimer;
     QString _last_name;
     QString _last_address;
-    QString _serialNumber;
+    WatchVersions _versions;
 };
+
+QDebug operator<< (QDebug d, const WatchConnector::SoftwareVersion &ver);
+QDebug operator<< (QDebug d, const WatchConnector::WatchVersions &ver);
 
 #endif // WATCHCONNECTOR_H

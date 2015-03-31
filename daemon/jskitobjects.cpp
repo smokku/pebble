@@ -119,7 +119,7 @@ QString JSKitPebble::getWatchToken() const
 
     hasher.addData(token_salt, strlen(token_salt));
     hasher.addData(_appInfo.uuid().toByteArray());
-    hasher.addData(_mgr->_watch->serialNumber().toLatin1());
+    hasher.addData(_mgr->_watch->versions().serialNumber.toLatin1());
 
     QString hash = hasher.result().toHex();
     qCDebug(l) << "returning watch token" << hash;
