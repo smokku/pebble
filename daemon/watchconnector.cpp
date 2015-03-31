@@ -28,6 +28,29 @@ QDebug operator<< (QDebug d, const WatchConnector::WatchVersions &ver) {
     return d;
 }
 
+QVariantMap WatchConnector::SoftwareVersion::toMap()
+{
+    QVariantMap map;
+    map.insert("version", this->version);
+    map.insert("build", this->build.toTime_t());
+    map.insert("commit", this->commit);
+    map.insert("hardware", this->hw_string);
+    map.insert("metadata", this->metadata_version);
+    map.insert("recovery", this->is_recovery);
+    return map;
+}
+
+QVariantMap WatchConnector::WatchVersions::toMap()
+{
+    QVariantMap map;
+    map.insert("bootloader", this->bootLoaderBuild.toTime_t());
+    map.insert("serial", this->serialNumber);
+    map.insert("address", this->address.toHex());
+    map.insertMulti("firmware", this->main.toMap());
+    map.insertMulti("firmware", this->safe.toMap());
+    return map;
+}
+
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), l(metaObject()->className()), socket(nullptr), is_connected(false)
 {
@@ -72,6 +95,8 @@ WatchConnector::WatchConnector(QObject *parent) :
 
         if (u.bad()) {
             qCWarning(l) << "short read while reading firmware version";
+        } else {
+            emit versionsChanged();
         }
 
         qCDebug(l) << "hardware information:" << _versions;

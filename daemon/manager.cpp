@@ -70,6 +70,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
     connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
     connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
+    connect(watch, &WatchConnector::versionsChanged, proxy, &PebbledProxy::InfoChanged);
     connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
     connect(apps, &AppManager::appsChanged, proxy, &PebbledProxy::AllAppsChanged);
 

@@ -18,6 +18,7 @@ class PebbledInterface : public QObject
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
+    Q_PROPERTY(QVariantMap info READ info NOTIFY infoChanged)
     Q_PROPERTY(QString appUuid READ appUuid NOTIFY appUuidChanged)
 
     Q_PROPERTY(QStringList appSlots READ appSlots NOTIFY appSlotsChanged)
@@ -31,6 +32,7 @@ public:
     bool connected() const;
     QString name() const;
     QString address() const;
+    QVariantMap info() const;
     QString appUuid() const;
 
     QStringList appSlots() const;
@@ -52,6 +54,7 @@ signals:
     void connectedChanged();
     void nameChanged();
     void addressChanged();
+    void infoChanged();
     void appUuidChanged();
     void appSlotsChanged();
     void allAppsChanged();

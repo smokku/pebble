@@ -197,6 +197,8 @@ public:
         HardwareRevision hw_revision;
         QString hw_string;
         quint8 metadata_version;
+
+        QVariantMap toMap();
     };
 
     struct WatchVersions {
@@ -206,6 +208,8 @@ public:
         QString hardwareRevision;
         QString serialNumber;
         QByteArray address;
+
+        QVariantMap toMap();
     };
 
     typedef QMap<int, QVariant> Dict;
@@ -233,6 +237,7 @@ public:
 
 signals:
     void nameChanged();
+    void versionsChanged();
     void connectedChanged();
 
 public slots:

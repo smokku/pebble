@@ -4,12 +4,16 @@
   <interface name="org.pebbled.Watch">
     <property name="Name" type="s" access="read"/>
     <property name="Address" type="s" access="read"/>
+    <property name="Info" type="a{sv}" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="QVariantMap"/>
+    </property>
     <property name="Connected" type="b" access="read"/>
     <property name="AppUuid" type="s" access="read"/>
 
     <!-- Qt does not yet support property changed signals, so we fake them. -->
     <signal name="NameChanged"/>
     <signal name="AddressChanged"/>
+    <signal name="InfoChanged"/>
     <signal name="ConnectedChanged"/>
     <signal name="AppUuidChanged"/>
 

@@ -20,6 +20,8 @@ PebbledInterface::PebbledInterface(QObject *parent) :
             this, &PebbledInterface::nameChanged);
     connect(watch, &OrgPebbledWatchInterface::AddressChanged,
             this, &PebbledInterface::addressChanged);
+    connect(watch, &OrgPebbledWatchInterface::InfoChanged,
+            this, &PebbledInterface::infoChanged);
     connect(watch, &OrgPebbledWatchInterface::ConnectedChanged,
             this, &PebbledInterface::connectedChanged);
     connect(watch, &OrgPebbledWatchInterface::AppUuidChanged,
@@ -138,6 +140,12 @@ QString PebbledInterface::address() const
 {
     qDebug() << Q_FUNC_INFO;
     return watch->address();
+}
+
+QVariantMap PebbledInterface::info() const
+{
+    qDebug() << Q_FUNC_INFO;
+    return watch->info();
 }
 
 QString PebbledInterface::appUuid() const
