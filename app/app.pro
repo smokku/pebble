@@ -36,4 +36,4 @@ OTHER_FILES += \
     pebble.png
 
 CONFIG += sailfishapp_i18n
-TRANSLATIONS += translations/pebble-es.ts
+TRANSLATIONS += translations/pebble-es.ts translations/pebble-pl.ts
