@@ -28,13 +28,12 @@ OTHER_FILES += \
     qml/pages/InstallAppDialog.qml \
     qml/pages/AppConfigDialog.qml \
     qml/pages/WebItemSelDialog.qml \
+    qml/pages/AppStorePage.qml \
+    qml/pages/WatchInfo.qml \
     qml/pebble.qml \
-    qml/images/* \
     translations/*.ts \
     pebble.desktop \
-    pebble.png \
-    qml/pages/AppStorePage.qml \
-    qml/pages/WatchInfo.qml
+    pebble.png
 
 CONFIG += sailfishapp_i18n
 TRANSLATIONS += translations/pebble-es.ts

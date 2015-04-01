@@ -21,7 +21,7 @@ Page {
                 title: "pebbled"
             }
             Label {
-                text: qsTr("Version ") + APP_VERSION
+                text: qsTr("Version") + " " + APP_VERSION
                 horizontalAlignment: Text.AlignRight
                 anchors {
                     left: parent.left
@@ -33,7 +33,7 @@ Page {
                 color: Theme.highlightColor
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                text: "© 2014 Tomasz Sterna / Xiaoka.com\nAll Rights Reserved."
+                text: "© 2014 Tomasz Sterna / Xiaoka.com\n" + qsTr("All Rights Reserved.")
             }
             Label {
                 wrapMode: Text.Wrap
@@ -44,7 +44,7 @@ Page {
                 }
                 font.pixelSize: Theme.fontSizeTiny
                 horizontalAlignment: Text.AlignJustify
-                text: qsTr(
+                text: (
 "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND "+
 "ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED "+
 "WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE "+
@@ -56,14 +56,30 @@ Page {
 "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS "+
 "SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.")
             }
-            IconButton {
+            Label {
+                text: qsTr("Support")
+                font.family: Theme.fontFamilyHeading
+                color: Theme.highlightColor
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.paddingMedium
+            }
+            Label {
                 anchors {
                     left: parent.left
                     right: parent.right
-                    margins: Theme.paddingMedium
+                    margins: Theme.paddingLarge
                 }
-                icon.source: "../images/btn_donate.png"
-                height: icon.height - Theme.paddingLarge
+                font.pixelSize: Theme.fontSizeSmall
+                wrapMode: Text.Wrap
+                text: qsTr("Your donations help justify development time.")
+            }
+            Button {
+                text: qsTr("PayPal Donate")
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge * 2
+                }
                 onClicked: Qt.openUrlExternally("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MAGN86VCARBSA")
             }
 
@@ -75,20 +91,29 @@ Page {
                 anchors.rightMargin: Theme.paddingMedium
             }
             Button {
-                text: "Open Bug Tracker"
+                text: qsTr("Open Bug Tracker")
                 anchors {
                     left: parent.left
                     right: parent.right
-                    margins: Theme.paddingLarge
+                    margins: Theme.paddingLarge * 2
                 }
                 onClicked: Qt.openUrlExternally("https://github.com/smokku/pebble/issues")
             }
             Button {
-                text: "Send issue e-mail to developer"
+                text: qsTr("Forum Thread")
                 anchors {
                     left: parent.left
                     right: parent.right
-                    margins: Theme.paddingLarge
+                    margins: Theme.paddingLarge * 2
+                }
+                onClicked: Qt.openUrlExternally("http://talk.maemo.org/showthread.php?t=93399")
+            }
+            Button {
+                text: qsTr("Send issue e-mail to developer")
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge * 2
                 }
                 onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=describe your issue here")
             }
