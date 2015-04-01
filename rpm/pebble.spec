@@ -74,6 +74,7 @@ desktop-file-install --delete-original       \
 %post
 # >> post
 su nemo -c 'systemctl --user daemon-reload'
+su nemo -c 'systemctl --user try-restart pebbled.service'
 update-desktop-database
 # << post
 
