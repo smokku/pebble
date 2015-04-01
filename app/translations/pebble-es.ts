@@ -332,11 +332,16 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="210"/>
+        <source>Companion app missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="223"/>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="215"/>
+        <location filename="../qml/pages/WatchPage.qml" line="228"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>

@@ -174,7 +174,7 @@ Page {
                                 color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
                             }
                             color: "transparent"
-                            visible: (isEmptySlot || !isLocalApp) && !slotBusy.running
+                            visible: isEmptySlot && !slotBusy.running
                         }
 
                         BusyIndicator {
@@ -194,7 +194,7 @@ Page {
                             verticalCenter: parent.verticalCenter
                         }
                         text: isEmptySlot ? qsTr("(empty slot)") : (isKnownApp ? (isLocalApp ? appInfo.longName : appInfo.shortName) : qsTr("(slot in use by unknown app)"))
-                        color: slotDelegate.highlighted ? Theme.highlightColor : Theme.primaryColor
+                        color: slotDelegate.highlighted ? Theme.highlightColor : (isLocalApp ? Theme.primaryColor : Theme.secondaryColor )
                         onTextChanged: slotDelegate.busy = false;
                     }
 
@@ -205,6 +205,19 @@ Page {
                                 text: qsTr("Install app...")
                                 visible: isEmptySlot
                                 onClicked: install();
+                            }
+                            Label {
+                                text: qsTr("Companion app missing")
+                                color: Theme.secondaryColor
+                                horizontalAlignment: Text.Center
+                                font.pixelSize: Theme.fontSizeSmall
+                                visible: !isEmptySlot && !isLocalApp
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                height: Theme.itemSizeSmall
+                                verticalAlignment : Text.AlignVCenter
                             }
                             MenuItem {
                                 text: qsTr("Configure...")
