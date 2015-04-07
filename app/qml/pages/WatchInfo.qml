@@ -5,19 +5,6 @@ import Sailfish.Silica 1.0
 Page {
     id: watchInfoPage
 
-    property string firmwareVersion
-    property string recoveryVersion
-
-    Component.onCompleted: {
-        pebbled.info.firmware.forEach(function(firmware){
-            if (firmware.recovery) {
-                recoveryVersion = firmware.version
-            } else {
-                firmwareVersion = firmware.version
-            }
-        })
-    }
-
     Column {
         id: column
         width: watchInfoPage.width
@@ -65,7 +52,7 @@ Page {
                 text: qsTr("Firmware")
             }
             Label {
-                text: firmwareVersion
+                text: app.firmwareVersion
             }
 
             Label {
@@ -73,8 +60,43 @@ Page {
                 text: qsTr("Recovery")
             }
             Label {
-                text: recoveryVersion
+                text: app.recoveryVersion
             }
+        }
+
+        Label {
+            text: qsTr("Firmware")
+            font.family: Theme.fontFamilyHeading
+            color: Theme.highlightColor
+            anchors.right: parent.right
+            anchors.rightMargin: Theme.paddingMedium
+        }
+        Grid {
+            columns: 2
+            spacing: Theme.paddingMedium
+            anchors {
+                left: parent.left
+                right: parent.right
+                margins: Theme.paddingLarge
+            }
+
+            Label {
+                color: Theme.highlightColor
+                text: qsTr("Latest")
+            }
+            Label {
+                text: app.firmwareLatest || qsTr("unknown")
+            }
+        }
+        Button {
+            visible: app.firmwareLatest && app.firmwareVersion && app.firmwareVersion !== app.firmwareLatest
+            text: qsTr("Upgrade Firmware")
+            anchors {
+                left: parent.left
+                right: parent.right
+                margins: Theme.paddingLarge * 2
+            }
+            onClicked: pageStack.push(Qt.resolvedUrl("FirmwareUpgrade.qml"))
         }
     }
 }

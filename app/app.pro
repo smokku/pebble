@@ -11,12 +11,14 @@ SOURCES += \
     pebble.cpp \
     pebbledinterface.cpp \
     pebbleappiconprovider.cpp \
-    pebblestoreview.cpp
+    pebblestoreview.cpp \
+    pebblefirmware.cpp
 
 HEADERS += \
     pebbledinterface.h \
     pebbleappiconprovider.h \
-    pebblestoreview.h
+    pebblestoreview.h \
+    pebblefirmware.h
 
 DBUS_INTERFACES += ../org.pebbled.Watch.xml
 

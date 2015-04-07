@@ -34,6 +34,7 @@
 #include <sailfishapp.h>
 #include "pebbledinterface.h"
 #include "pebbleappiconprovider.h"
+#include "pebblefirmware.h"
 #include "pebblestoreview.h"
 
 int main(int argc, char *argv[])
@@ -54,9 +55,11 @@ int main(int argc, char *argv[])
     QScopedPointer<QQuickView> view(SailfishApp::createView());
     QScopedPointer<PebbledInterface> pebbled(new PebbledInterface);
     QScopedPointer<PebbleAppIconProvider> appicons(new PebbleAppIconProvider(pebbled.data()));
+    QScopedPointer<PebbleFirmware> firmware(new PebbleFirmware);
 
     view->rootContext()->setContextProperty("APP_VERSION", APP_VERSION);
     view->rootContext()->setContextProperty("pebbled", pebbled.data());
+    view->rootContext()->setContextProperty("pebbleFirmware", firmware.data());
     view->engine()->addImageProvider("pebble-app-icon", appicons.data());
     view->setSource(SailfishApp::pathTo("qml/pebble.qml"));
     view->show();

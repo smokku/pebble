@@ -70,5 +70,11 @@
       <annotation name="org.qtproject.QtDBus.QtTypeName" value="QVariantList"/>
     </property>
     <signal name="AllAppsChanged"/>
+
+    <!-- Firmware management methods -->
+    <method name="UploadFirmware">
+      <arg name="recovery" type="b" direction="in"/>
+      <arg name="file" type="s" direction="in"/>
+    </method>
   </interface>
 </node>

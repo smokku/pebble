@@ -51,10 +51,7 @@ HEADERS += \
     uploadmanager.h \
     stm32crc.h
 
-DBUS_ADAPTORS += ../org.pebbled.Watch.xml
-
-OTHER_FILES += $$DBUS_ADAPTORS \
-    js/typedarray.js
+OTHER_FILES += js/typedarray.js
 
 DEFINES += QUAZIP_STATIC
 include(quazip/quazip.pri)
