@@ -304,16 +304,17 @@ QVariantMap PebbledInterface::appInfoByUuid(const QString &uuid) const
     }
 }
 
+void PebbledInterface::notifyFirmware(bool ok)
+{
+    qDebug() << Q_FUNC_INFO << ok;
+    watch->NotifyFirmware(ok);
+}
+
 void PebbledInterface::uploadFirmware(const QString &file)
 {
     qDebug() << Q_FUNC_INFO << file;
     QDBusPendingReply<> reply = watch->UploadFirmware(false, file);
     reply.waitForFinished();
-}
-
-void PebbledInterface::notifyFirmware(const QString &version)
-{
-    qDebug() << Q_FUNC_INFO << version;
 }
 
 void PebbledInterface::onWatchConnectedChanged()

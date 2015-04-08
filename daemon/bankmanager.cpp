@@ -96,6 +96,7 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     upload->uploadAppBinary(slot, binaryFile.data(),
     [this, info, binaryFile, slot]() {
         qCDebug(l) << "app binary upload succesful";
+        binaryFile->close();
 
         // Proceed to upload the resource file
         QSharedPointer<QIODevice> resourceFile(info.openFile(AppInfo::RESOURCES));
@@ -103,7 +104,7 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
             upload->uploadAppResources(slot, resourceFile.data(),
             [this, resourceFile, slot]() {
                 qCDebug(l) << "app resources upload succesful";
-
+                resourceFile->close();
                 // Upload succesful
                 // Tell the watch to reload the slot
                 refreshWatchApp(slot, [this]() {
@@ -114,10 +115,10 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
                     _refresh->start();
                 });
             }, [this, resourceFile](int code) {
+                resourceFile->close();
                 qCWarning(l) << "app resources upload failed" << code;
                 _refresh->start();
             });
-
         } else {
             // No resource file
             // Tell the watch to reload the slot
@@ -129,7 +130,8 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
                 _refresh->start();
             });
         }
-    }, [this](int code) {
+    }, [this, binaryFile](int code) {
+        binaryFile->close();
         qCWarning(l) << "app binary upload failed" << code;
         _refresh->start();
     });

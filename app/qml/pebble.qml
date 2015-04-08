@@ -32,8 +32,8 @@ ApplicationWindow
 
     function notifyNewFirmware() {
         firmwareLatest = pebbleFirmware.latest.friendlyVersion || ""
-        if (firmwareLatest && firmwareVersion && firmwareVersion !== firmwareLatest) {
-            pebbled.notifyFirmware(firmwareLatest);
+        if (firmwareLatest && firmwareVersion) {
+            pebbled.notifyFirmware(firmwareVersion === firmwareLatest);
         }
     }
 

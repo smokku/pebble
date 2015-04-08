@@ -328,62 +328,62 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="42"/>
+        <location filename="../qml/pages/WatchPage.qml" line="34"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="48"/>
+        <location filename="../qml/pages/WatchPage.qml" line="40"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="54"/>
+        <location filename="../qml/pages/WatchPage.qml" line="46"/>
         <source>Sync Time</source>
         <translation>Synch.Czas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <location filename="../qml/pages/WatchPage.qml" line="78"/>
         <source>Installed applications</source>
         <translation>Zainstalowane aplikacje</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="76"/>
+        <location filename="../qml/pages/WatchPage.qml" line="68"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>Twój firmware jest zbyt stary aby obsłużyć aplikacje SDKv2</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="124"/>
+        <location filename="../qml/pages/WatchPage.qml" line="115"/>
         <source>Uninstalling</source>
         <translation>Odinstalowywanie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="187"/>
         <source>(empty slot)</source>
         <translation>(pusty slot)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="187"/>
         <source>(slot in use by unknown app)</source>
         <translation>(slot w użyciu przez nieznaną aplikację)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="205"/>
+        <location filename="../qml/pages/WatchPage.qml" line="196"/>
         <source>Install app...</source>
         <translation>Zainstaluj aplikację...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="210"/>
+        <location filename="../qml/pages/WatchPage.qml" line="201"/>
         <source>Companion app missing</source>
         <translation>Brakuje companion app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="223"/>
+        <location filename="../qml/pages/WatchPage.qml" line="214"/>
         <source>Configure...</source>
         <translation>Konfiguruj...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="228"/>
+        <location filename="../qml/pages/WatchPage.qml" line="219"/>
         <source>Uninstall</source>
         <translation>Odinstaluj</translation>
     </message>

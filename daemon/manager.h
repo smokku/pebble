@@ -71,6 +71,8 @@ public:
     QString findPersonByNumber(QString number);
     QString getCurrentProfile() const;
 
+    bool uploadFirmware(bool recovery, const QString &file);
+
 protected:
     void transliterateMessage(const QString &text);
 
@@ -146,6 +148,9 @@ public slots:
 
     void UnloadApp(int slot);
     void UploadApp(const QString &uuid, int slot);
+
+    void NotifyFirmware(bool ok);
+    void UploadFirmware(bool recovery, const QString &file);
 
 signals:
     void NameChanged();

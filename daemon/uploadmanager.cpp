@@ -73,6 +73,16 @@ uint UploadManager::uploadFile(const QString &filename, QIODevice *device, Succe
     return upload(WatchConnector::uploadFILE, 0, filename, device, -1, successCallback, errorCallback, progressCallback);
 }
 
+uint UploadManager::uploadFirmwareBinary(bool recovery, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+{
+    return upload(recovery ? WatchConnector::uploadRECOVERY : WatchConnector::uploadFIRMWARE, 0, QString(), device, -1, successCallback, errorCallback, progressCallback);
+}
+
+uint UploadManager::uploadFirmwareResources(QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+{
+    return upload(WatchConnector::uploadSYS_RESOURCES, 0, QString(), device, -1, successCallback, errorCallback, progressCallback);
+}
+
 void UploadManager::cancel(uint id, int code)
 {
     if (_pending.empty()) {

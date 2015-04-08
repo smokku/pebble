@@ -72,6 +72,9 @@
     <signal name="AllAppsChanged"/>
 
     <!-- Firmware management methods -->
+    <method name="NotifyFirmware">
+        <arg name="ok" type="b" direction="in"/>
+    </method>
     <method name="UploadFirmware">
       <arg name="recovery" type="b" direction="in"/>
       <arg name="file" type="s" direction="in"/>

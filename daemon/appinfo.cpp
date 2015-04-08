@@ -7,7 +7,6 @@
 #include "appinfo.h"
 #include "unpacker.h"
 #include "stm32crc.h"
-#include <quazip/quazipfile.h>
 
 namespace {
 struct ResourceEntry {
@@ -32,12 +31,11 @@ struct AppInfoData : public QSharedData {
     QHash<int, QString> keyNames;
     bool menuIcon;
     int menuIconResource;
-    QString path;
 };
 
 QLoggingCategory AppInfo::l("AppInfo");
 
-AppInfo::AppInfo() : d(new AppInfoData)
+AppInfo::AppInfo() : Bundle(), d(new AppInfoData)
 {
     d->versionCode = 0;
     d->watchface = false;
@@ -47,9 +45,11 @@ AppInfo::AppInfo() : d(new AppInfoData)
     d->menuIconResource = -1;
 }
 
-AppInfo::AppInfo(const AppInfo &rhs) : d(rhs.d)
-{
-}
+AppInfo::AppInfo(const AppInfo &rhs) : Bundle(rhs), d(rhs.d)
+{}
+
+AppInfo::AppInfo(const Bundle &rhs) : Bundle(rhs), d(new AppInfoData)
+{}
 
 AppInfo &AppInfo::operator=(const AppInfo &rhs)
 {
@@ -59,12 +59,11 @@ AppInfo &AppInfo::operator=(const AppInfo &rhs)
 }
 
 AppInfo::~AppInfo()
-{
-}
+{}
 
 bool AppInfo::isLocal() const
 {
-    return ! d->path.isEmpty();
+    return ! path().isEmpty();
 }
 
 bool AppInfo::isValid() const
@@ -182,7 +181,7 @@ QString AppInfo::getJSApp() const
 
     QScopedPointer<QIODevice> appJS(openFile(AppInfo::APPJS, QIODevice::Text));
     if (!appJS) {
-        qCWarning(l) << "cannot find app" << d->path << "app.js";
+        qCWarning(l) << "cannot find app" << d->shortName << "app.js";
         return QString();
     }
 
@@ -192,15 +191,11 @@ QString AppInfo::getJSApp() const
 
 AppInfo AppInfo::fromPath(const QString &path)
 {
-    AppInfo info;
+    AppInfo info(Bundle::fromPath(path));
 
-    QFileInfo appPath(path);
-    if (!appPath.isReadable()) {
-        qCWarning(l) << "app" << appPath.absolutePath() << "is not readable";
+    if (!info.isValid()) {
         return AppInfo();
     }
-
-    info.d->path = path;
 
     QScopedPointer<QIODevice> appInfoJSON(info.openFile(AppInfo::INFO, QIODevice::Text));
     if (!appInfoJSON) {
@@ -366,49 +361,4 @@ QImage AppInfo::decodeResourceImage(const QByteArray &data) const
     }
 
     return img;
-}
-
-QIODevice *AppInfo::openFile(enum AppInfo::File file, QIODevice::OpenMode mode) const
-{
-    QString fileName;
-    switch (file) {
-    case AppInfo::INFO:
-        fileName = "appinfo.json";
-        break;
-    case AppInfo::APPJS:
-        fileName = "pebble-js-app.js";
-        break;
-    case AppInfo::BINARY:
-        fileName = "pebble-app.bin";
-        break;
-    case AppInfo::RESOURCES:
-        fileName = "app_resources.pbpack";
-        break;
-    }
-
-    QIODevice *dev = 0;
-    QFileInfo appPath(d->path);
-    if (appPath.isDir()) {
-        QDir appDir(d->path);
-        if (appDir.exists(fileName)) {
-            dev = new QFile(appDir.absoluteFilePath(fileName));
-        }
-    } else if (appPath.isFile()) {
-        dev =  new QuaZipFile(d->path, fileName);
-    }
-
-    if (dev && !dev->open(QIODevice::ReadOnly | mode)) {
-        delete dev;
-        return 0;
-    }
-
-    return dev;
-}
-
-bool AppInfo::fileExists(enum AppInfo::File file) const
-{
-    QIODevice *dev = openFile(file);
-    bool exists = dev && dev->isOpen();
-    delete dev;
-    return exists;
 }

@@ -6,11 +6,12 @@
 #include <QHash>
 #include <QImage>
 #include <QLoggingCategory>
+#include "bundle.h"
 #include "bankmanager.h"
 
 class AppInfoData;
 
-class AppInfo
+class AppInfo : public Bundle
 {
     Q_GADGET
 
@@ -22,13 +23,6 @@ public:
         Configurable = 1 << 2
     };
     Q_DECLARE_FLAGS(Capabilities, Capability)
-
-    enum File {
-        INFO,
-        BINARY,
-        RESOURCES,
-        APPJS
-    };
 
     Q_PROPERTY(bool local READ isLocal)
     Q_PROPERTY(bool valid READ isValid)
@@ -50,6 +44,7 @@ public:
 public:
     AppInfo();
     AppInfo(const AppInfo &);
+    AppInfo(const Bundle &);
     AppInfo &operator=(const AppInfo &);
     ~AppInfo();
 
@@ -76,9 +71,6 @@ public:
     QImage getMenuIconImage() const;
     QByteArray getMenuIconPng() const;
     QString getJSApp() const;
-
-    QIODevice *openFile(enum File, QIODevice::OpenMode = 0) const;
-    bool fileExists(enum File) const;
 
     void setInvalid();
 

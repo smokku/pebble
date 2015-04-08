@@ -4,6 +4,7 @@
 
 #include "manager.h"
 #include "watch_adaptor.h"
+#include "bundle.h"
 
 Manager::Manager(Settings *settings, QObject *parent) :
     QObject(parent), l(metaObject()->className()), settings(settings),
@@ -348,6 +349,67 @@ void Manager::onAppClosed(const QUuid &uuid)
     emit proxy->AppUuidChanged();
 }
 
+bool Manager::uploadFirmware(bool recovery, const QString &file)
+{
+    qCDebug(l) << "about to upload" << (recovery ? "recovery" : "normal")
+               << "firmware:" << file;
+
+    Bundle bundle(Bundle::fromPath(file));
+    if (!bundle.isValid()) {
+        qCWarning(l) << file << "is invalid bundle";
+        return false;
+    }
+
+    if (!bundle.fileExists(Bundle::BINARY) || !bundle.fileExists(Bundle::RESOURCES)) {
+        qCWarning(l) << file << "is missing binary or resource";
+        return false;
+    }
+
+    watch->systemMessage(WatchConnector::systemFIRMWARE_START,
+                         [this, recovery, bundle](const QByteArray &data) {
+        qCDebug(l) << "got response to firmware start" << data.toHex();
+
+        QSharedPointer<QIODevice> resourceFile(bundle.openFile(Bundle::RESOURCES));
+        if (!resourceFile) {
+            qCWarning(l) << "failed to open" << bundle.path() << "resource";
+            watch->systemMessage(WatchConnector::systemFIRMWARE_FAIL);
+            return true;
+        }
+
+        upload->uploadFirmwareResources(resourceFile.data(),
+        [this, recovery, bundle, resourceFile]() {
+            qCDebug(l) << "firmware resource upload succesful";
+            resourceFile->close();
+            // Proceed to upload the resource file
+            QSharedPointer<QIODevice> binaryFile(bundle.openFile(Bundle::BINARY));
+            if (binaryFile) {
+                upload->uploadFirmwareBinary(recovery, binaryFile.data(),
+                [this, binaryFile]() {
+                    binaryFile->close();
+                    qCDebug(l) << "firmware binary upload succesful";
+                    // Upload succesful
+                    watch->systemMessage(WatchConnector::systemFIRMWARE_COMPLETE);
+                }, [this, binaryFile](int code) {
+                    binaryFile->close();
+                    qCWarning(l) << "firmware binary upload failed" << code;
+                    watch->systemMessage(WatchConnector::systemFIRMWARE_FAIL);
+                });
+            } else {
+                qCWarning(l) << "failed to open" << bundle.path() << "binary";
+                watch->systemMessage(WatchConnector::systemFIRMWARE_FAIL);
+            }
+        }, [this, resourceFile](int code) {
+            resourceFile->close();
+            qCWarning(l) << "firmware resource upload failed" << code;
+            watch->systemMessage(WatchConnector::systemFIRMWARE_FAIL);
+        });
+
+        return true;
+    });
+
+    return true;
+}
+
 QStringList PebbledProxy::AppSlots() const
 {
     const int num_slots = manager()->bank->numSlots();
@@ -510,5 +572,22 @@ void PebbledProxy::UploadApp(const QString &uuid, int slot)
     if (!manager()->bank->uploadApp(QUuid(uuid), slot)) {
         sendErrorReply(msg.interface() + ".Error.CannotUpload",
                        "Cannot upload application");
+    }
+}
+
+void PebbledProxy::NotifyFirmware(bool ok)
+{
+    Q_ASSERT(calledFromDBus());
+    manager()->watch->sendFirmwareState(ok);
+}
+
+void PebbledProxy::UploadFirmware(bool recovery, const QString &file)
+{
+    Q_ASSERT(calledFromDBus());
+    const QDBusMessage msg = message();
+
+    if (!manager()->uploadFirmware(recovery, file)) {
+        sendErrorReply(msg.interface() + ".Error.CannotUpload",
+                       "Cannot upload firmware");
     }
 }

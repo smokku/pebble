@@ -433,15 +433,23 @@ void WatchConnector::sendPhoneVersion()
     sendMessage(watchPHONE_VERSION, res);
 }
 
-void WatchConnector::ping(uint val)
+void WatchConnector::systemMessage(SystemMessage msg, const EndpointHandlerFunc &callback)
+{
+    QByteArray res;
+    res.append((char)0);
+    res.append((char)msg);
+    sendMessage(watchSYSTEM_MESSAGE, res, callback);
+}
+
+void WatchConnector::ping(uint cookie)
 {
     QByteArray res;
     res.append((char)0);
 
-    res.append((char)((val >> 24) & 0xff));
-    res.append((char)((val >> 16) & 0xff));
-    res.append((char)((val >> 8) & 0xff));
-    res.append((char)(val & 0xff));
+    res.append((char)((cookie >> 24) & 0xff));
+    res.append((char)((cookie >> 16) & 0xff));
+    res.append((char)((cookie >> 8) & 0xff));
+    res.append((char)(cookie & 0xff));
 
     sendMessage(watchPING, res);
 }
@@ -511,6 +519,11 @@ void WatchConnector::sendMusicNowPlaying(QString track, QString album, QString a
     QByteArray res = buildMessageData(leadNOW_PLAYING_DATA, tmp);
 
     sendMessage(watchMUSIC_CONTROL, res);
+}
+
+void WatchConnector::sendFirmwareState(bool ok)
+{
+    systemMessage(ok ? systemFIRMWARE_UP_TO_DATE : systemFIRMWARE_OUT_OF_DATE);
 }
 
 void WatchConnector::phoneControl(char act, uint cookie, QStringList datas)

@@ -28,7 +28,8 @@ SOURCES += \
     packer.cpp \
     bankmanager.cpp \
     uploadmanager.cpp \
-    stm32crc.cpp
+    stm32crc.cpp \
+    bundle.cpp
 
 HEADERS += \
     manager.h \
@@ -49,7 +50,10 @@ HEADERS += \
     packer.h \
     bankmanager.h \
     uploadmanager.h \
-    stm32crc.h
+    stm32crc.h \
+    bundle.h
+
+DBUS_ADAPTORS += ../org.pebbled.Watch.xml
 
 OTHER_FILES += js/typedarray.js
 

@@ -73,8 +73,8 @@ public slots:
     void uploadApp(const QString &uuid, int slot);
     void unloadApp(int slot);
 
+    void notifyFirmware(bool ok);
     void uploadFirmware(const QString &file);
-    void notifyFirmware(const QString &version);
 
 private slots:
     void onWatchConnectedChanged();

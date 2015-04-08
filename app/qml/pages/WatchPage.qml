@@ -5,15 +5,7 @@ import Sailfish.Silica 1.0
 Page {
     id: watchPage
 
-    property bool firmwareVersionOK: false
-
-    Component.onCompleted: {
-        pebbled.info.firmware.forEach(function(firmware){
-            if (!firmware.recovery) {
-                firmwareVersionOK = (firmware.version.indexOf("v1.") !== 0)
-            }
-        })
-    }
+    property bool firmwareVersionOK: app.firmwareVersion && app.firmwareVersion.indexOf("v1.") !== 0
 
     SilicaFlickable {
         id: flickable
@@ -78,7 +70,6 @@ Page {
                     from: Theme.primaryColor; to: Theme.highlightColor
                     duration: 2500
                     loops: Animation.Infinite
-                    easing: { type: Easing.InOutQuint }
                 }
             }
 

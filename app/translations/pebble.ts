@@ -327,62 +327,62 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="42"/>
+        <location filename="../qml/pages/WatchPage.qml" line="34"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="48"/>
+        <location filename="../qml/pages/WatchPage.qml" line="40"/>
         <source>Ping</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="54"/>
+        <location filename="../qml/pages/WatchPage.qml" line="46"/>
         <source>Sync Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <location filename="../qml/pages/WatchPage.qml" line="78"/>
         <source>Installed applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="76"/>
+        <location filename="../qml/pages/WatchPage.qml" line="68"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="124"/>
+        <location filename="../qml/pages/WatchPage.qml" line="115"/>
         <source>Uninstalling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="187"/>
         <source>(empty slot)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="187"/>
         <source>(slot in use by unknown app)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="205"/>
+        <location filename="../qml/pages/WatchPage.qml" line="196"/>
         <source>Install app...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="210"/>
+        <location filename="../qml/pages/WatchPage.qml" line="201"/>
         <source>Companion app missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="223"/>
+        <location filename="../qml/pages/WatchPage.qml" line="214"/>
         <source>Configure...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="228"/>
+        <location filename="../qml/pages/WatchPage.qml" line="219"/>
         <source>Uninstall</source>
         <translation type="unfinished"></translation>
     </message>
