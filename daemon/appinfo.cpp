@@ -192,7 +192,8 @@ AppInfo AppInfo::fromPath(const QString &path)
 {
     AppInfo info(Bundle::fromPath(path));
 
-    if (!info.isValid()) {
+    if (!static_cast<Bundle>(info).isValid()) {
+        qCWarning(l) << "bundle" << path << "is not valid";
         return AppInfo();
     }
 
