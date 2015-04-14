@@ -6,7 +6,6 @@
 #include <QJsonArray>
 #include "appinfo.h"
 #include "unpacker.h"
-#include "stm32crc.h"
 
 namespace {
 struct ResourceEntry {
@@ -332,17 +331,7 @@ QByteArray AppInfo::extractFromResourcePack(QIODevice *dev, int wanted_id) const
 
     int offset = 12 + 256 * 16 + e.offset;
 
-    QByteArray res = data.mid(offset, e.length);
-
-    Stm32Crc crc;
-    crc.addData(res);
-
-    if (crc.result() != e.crc) {
-        qCWarning(l) << "CRC failure in resource" << e.index << "on file" << res;
-        return QByteArray();
-    }
-
-    return res;
+    return data.mid(offset, e.length);
 }
 
 QImage AppInfo::decodeResourceImage(const QByteArray &data) const

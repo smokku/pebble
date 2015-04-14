@@ -1,7 +1,6 @@
 #include "uploadmanager.h"
 #include "unpacker.h"
 #include "packer.h"
-#include "stm32crc.h"
 
 static const int CHUNK_SIZE = 2000;
 using std::function;
@@ -21,7 +20,7 @@ UploadManager::UploadManager(WatchConnector *watch, QObject *parent) :
     });
 }
 
-uint UploadManager::upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size,
+uint UploadManager::upload(WatchConnector::UploadType type, int index, const QString &filename, QIODevice *device, int size, quint32 crc,
                            SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
     PendingUpload upload;
@@ -36,6 +35,7 @@ uint UploadManager::upload(WatchConnector::UploadType type, int index, const QSt
         upload.size = size;
     }
     upload.remaining = upload.size;
+    upload.crc = crc;
     upload.successCallback = successCallback;
     upload.errorCallback = errorCallback;
     upload.progressCallback = progressCallback;
@@ -57,30 +57,30 @@ uint UploadManager::upload(WatchConnector::UploadType type, int index, const QSt
     return upload.id;
 }
 
-uint UploadManager::uploadAppBinary(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+uint UploadManager::uploadAppBinary(int slot, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(WatchConnector::uploadBINARY, slot, QString(), device, -1, successCallback, errorCallback, progressCallback);
+    return upload(WatchConnector::uploadBINARY, slot, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadAppResources(int slot, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+uint UploadManager::uploadAppResources(int slot, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, successCallback, errorCallback, progressCallback);
+    return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadFile(const QString &filename, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+uint UploadManager::uploadFile(const QString &filename, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
     Q_ASSERT(!filename.isEmpty());
-    return upload(WatchConnector::uploadFILE, 0, filename, device, -1, successCallback, errorCallback, progressCallback);
+    return upload(WatchConnector::uploadFILE, 0, filename, device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadFirmwareBinary(bool recovery, QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+uint UploadManager::uploadFirmwareBinary(bool recovery, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(recovery ? WatchConnector::uploadRECOVERY : WatchConnector::uploadFIRMWARE, 0, QString(), device, -1, successCallback, errorCallback, progressCallback);
+    return upload(recovery ? WatchConnector::uploadRECOVERY : WatchConnector::uploadFIRMWARE, 0, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
-uint UploadManager::uploadFirmwareResources(QIODevice *device, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+uint UploadManager::uploadFirmwareResources(QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
-    return upload(WatchConnector::uploadSYS_RESOURCES, 0, QString(), device, -1, successCallback, errorCallback, progressCallback);
+    return upload(WatchConnector::uploadSYS_RESOURCES, 0, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
 void UploadManager::cancel(uint id, int code)
@@ -146,7 +146,11 @@ void UploadManager::startNextUpload()
         p.writeCString(upload.filename);
     }
 
-    qCDebug(l) << "starting new upload, size:" << upload.remaining << ", type:" << upload.type << ", slot:" << upload.index;
+    qCDebug(l).nospace() << "starting new upload " << upload.id
+                         << ", size:" << upload.remaining
+                         << ", type:" << upload.type
+                         << ", slot:" << upload.index
+                         << ", crc:" << qPrintable(QString("0x%1").arg(upload.crc, 0, 16));
 
     _state = StateWaitForToken;
     watch->sendMessage(WatchConnector::watchPUTBYTES, msg);
@@ -267,7 +271,6 @@ bool UploadManager::uploadNextChunk(PendingUpload &upload)
     watch->sendMessage(WatchConnector::watchPUTBYTES, msg);
 
     upload.remaining -= chunk.size();
-    upload.crc.addData(chunk);
 
     qCDebug(l) << "remaining" << upload.remaining << "/" << upload.size << "bytes";
 
@@ -283,10 +286,9 @@ bool UploadManager::commit(PendingUpload &upload)
     Packer p(&msg);
     p.write<quint8>(WatchConnector::putbytesCOMMIT);
     p.write<quint32>(_token);
-    p.write<quint32>(upload.crc.result());
+    p.write<quint32>(upload.crc);
 
-    qCDebug(l) << "commiting upload" << upload.id
-                      << "with crc" << qPrintable(QString("0x%1").arg(upload.crc.result(), 0, 16));
+    qCDebug(l) << "commiting upload" << upload.id;
 
     watch->sendMessage(WatchConnector::watchPUTBYTES, msg);
 

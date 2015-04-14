@@ -93,7 +93,7 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     _slots[slot].name.clear();
     _slots[slot].uuid = QUuid();
 
-    upload->uploadAppBinary(slot, binaryFile.data(),
+    upload->uploadAppBinary(slot, binaryFile.data(), info.crcFile(AppInfo::BINARY),
     [this, info, binaryFile, slot]() {
         qCDebug(l) << "app binary upload succesful";
         binaryFile->close();
@@ -101,7 +101,7 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
         // Proceed to upload the resource file
         QSharedPointer<QIODevice> resourceFile(info.openFile(AppInfo::RESOURCES));
         if (resourceFile) {
-            upload->uploadAppResources(slot, resourceFile.data(),
+            upload->uploadAppResources(slot, resourceFile.data(), info.crcFile(AppInfo::RESOURCES),
             [this, resourceFile, slot]() {
                 qCDebug(l) << "app resources upload succesful";
                 resourceFile->close();

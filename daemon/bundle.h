@@ -36,6 +36,7 @@ public:
 
     QIODevice *openFile(enum File, QIODevice::OpenMode = 0) const;
     bool fileExists(enum File) const;
+    quint32 crcFile(enum File) const;
 
 private:
     QSharedDataPointer<BundleData> b;

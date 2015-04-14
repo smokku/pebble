@@ -127,3 +127,21 @@ bool Bundle::fileExists(enum Bundle::File file) const
     delete dev;
     return exists;
 }
+
+quint32 Bundle::crcFile(enum Bundle::File file) const
+{
+    quint32 ret = 0;
+
+    switch (file) {
+    case Bundle::BINARY:
+        ret = b->manifest.value(type()).toObject().value("crc").toDouble();
+        break;
+    case Bundle::RESOURCES:
+        ret = b->manifest.value("resources").toObject().value("crc").toDouble();
+        break;
+    default:
+        qCWarning(l) << "Unsupported CRC for" << file;
+    }
+
+    return ret;
+}

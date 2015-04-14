@@ -376,14 +376,14 @@ bool Manager::uploadFirmware(bool recovery, const QString &file)
             return true;
         }
 
-        upload->uploadFirmwareResources(resourceFile.data(),
+        upload->uploadFirmwareResources(resourceFile.data(), bundle.crcFile(Bundle::RESOURCES),
         [this, recovery, bundle, resourceFile]() {
             qCDebug(l) << "firmware resource upload succesful";
             resourceFile->close();
             // Proceed to upload the resource file
             QSharedPointer<QIODevice> binaryFile(bundle.openFile(Bundle::BINARY));
             if (binaryFile) {
-                upload->uploadFirmwareBinary(recovery, binaryFile.data(),
+                upload->uploadFirmwareBinary(recovery, binaryFile.data(), bundle.crcFile(Bundle::BINARY),
                 [this, binaryFile]() {
                     binaryFile->close();
                     qCDebug(l) << "firmware binary upload succesful";

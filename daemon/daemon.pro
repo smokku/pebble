@@ -28,7 +28,6 @@ SOURCES += \
     packer.cpp \
     bankmanager.cpp \
     uploadmanager.cpp \
-    stm32crc.cpp \
     bundle.cpp
 
 HEADERS += \
@@ -50,7 +49,6 @@ HEADERS += \
     packer.h \
     bankmanager.h \
     uploadmanager.h \
-    stm32crc.h \
     bundle.h
 
 DBUS_ADAPTORS += ../org.pebbled.Watch.xml
