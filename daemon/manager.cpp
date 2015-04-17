@@ -436,7 +436,7 @@ QVariantList PebbledProxy::AllApps() const
     QVariantList l;
 
     foreach (const QUuid &uuid, uuids) {
-        const AppInfo &info = manager()->apps->info(uuid);
+        AppInfo info = manager()->apps->info(uuid);
         QVariantMap m;
         m.insert("local", QVariant::fromValue(info.isLocal()));
         m.insert("uuid", QVariant::fromValue(info.uuid().toString()));
@@ -445,6 +445,7 @@ QVariantList PebbledProxy::AllApps() const
         m.insert("company-name", QVariant::fromValue(info.companyName()));
         m.insert("version-label", QVariant::fromValue(info.versionLabel()));
         m.insert("is-watchface", QVariant::fromValue(info.isWatchface()));
+        m.insert("configurable", QVariant::fromValue(info.capabilities().testFlag(AppInfo::Capability::Configurable)));
 
         if (!info.getMenuIconImage().isNull()) {
             m.insert("menu-icon", QVariant::fromValue(info.getMenuIconPng()));

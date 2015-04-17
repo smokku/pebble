@@ -357,37 +357,37 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="115"/>
+        <location filename="../qml/pages/WatchPage.qml" line="116"/>
         <source>Uninstalling</source>
         <translation>Desinstalando</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="187"/>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(empty slot)</source>
         <translation>(hueco libre)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="187"/>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(slot in use by unknown app)</source>
         <translation>(hueco en uso)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="197"/>
         <source>Install app...</source>
         <translation>Instalar app...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="201"/>
+        <location filename="../qml/pages/WatchPage.qml" line="202"/>
         <source>Companion app missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="214"/>
+        <location filename="../qml/pages/WatchPage.qml" line="215"/>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="219"/>
+        <location filename="../qml/pages/WatchPage.qml" line="220"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>

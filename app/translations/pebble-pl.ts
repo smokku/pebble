@@ -353,37 +353,37 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
         <translation>Twój firmware jest zbyt stary aby obsłużyć aplikacje SDKv2</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="115"/>
+        <location filename="../qml/pages/WatchPage.qml" line="116"/>
         <source>Uninstalling</source>
         <translation>Odinstalowywanie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="187"/>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(empty slot)</source>
         <translation>(pusty slot)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="187"/>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(slot in use by unknown app)</source>
         <translation>(slot w użyciu przez nieznaną aplikację)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="196"/>
+        <location filename="../qml/pages/WatchPage.qml" line="197"/>
         <source>Install app...</source>
         <translation>Zainstaluj aplikację...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="201"/>
+        <location filename="../qml/pages/WatchPage.qml" line="202"/>
         <source>Companion app missing</source>
         <translation>Brakuje companion app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="214"/>
+        <location filename="../qml/pages/WatchPage.qml" line="215"/>
         <source>Configure...</source>
         <translation>Konfiguruj...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="219"/>
+        <location filename="../qml/pages/WatchPage.qml" line="220"/>
         <source>Uninstall</source>
         <translation>Odinstaluj</translation>
     </message>

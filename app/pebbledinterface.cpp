@@ -358,6 +358,7 @@ void PebbledInterface::refreshAllApps()
         m.insert("companyName", orig.value("company-name"));
         m.insert("versionLabel", orig.value("version-label"));
         m.insert("isWatchface", orig.value("is-watchface"));
+        m.insert("isConfigurable", orig.value("configurable"));
 
         QByteArray pngIcon = orig.value("menu-icon").toByteArray();
         if (!pngIcon.isEmpty()) {

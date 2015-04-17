@@ -96,6 +96,7 @@ Page {
                     property var appInfo: pebbled.appInfoByUuid(modelData)
                     property bool isKnownApp: appInfo.hasOwnProperty("uuid")
                     property bool isLocalApp: appInfo.hasOwnProperty("isLocal") && appInfo.isLocal
+                    property bool isConfigurable: appInfo.hasOwnProperty("isConfigurable") && appInfo.isConfigurable
                     property bool busy: false
 
                     function configure() {
@@ -212,7 +213,7 @@ Page {
                             }
                             MenuItem {
                                 text: qsTr("Configure...")
-                                visible: !isEmptySlot && isLocalApp
+                                visible: !isEmptySlot && isLocalApp && isConfigurable
                                 onClicked: configure();
                             }
                             MenuItem {
