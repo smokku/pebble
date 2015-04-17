@@ -80,7 +80,7 @@ Page {
                     right: parent.right
                     margins: Theme.paddingLarge * 2
                 }
-                onClicked: Qt.openUrlExternally("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MAGN86VCARBSA")
+                onClicked: Qt.openUrlExternally(donate.url)
             }
 
             Label {

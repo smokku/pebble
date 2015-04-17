@@ -104,6 +104,71 @@
     </message>
 </context>
 <context>
+    <name>Disclaimer</name>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="21"/>
+        <source>Feature unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="31"/>
+        <source>This feature is available for supporters only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="44"/>
+        <source>Supporter?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="51"/>
+        <source>Send me my code!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="61"/>
+        <source>Activation code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="obsolete">Wersja</translation>
+    </message>
+    <message>
+        <source>All Rights Reserved.</source>
+        <translation type="obsolete">Wszelkie prawa zastrzeżone.</translation>
+    </message>
+    <message>
+        <source>Support</source>
+        <translation type="obsolete">Wsparcie</translation>
+    </message>
+    <message>
+        <source>Your donations help justify development time.</source>
+        <translation type="obsolete">Dotacje pomagają uzasadnić czas poświęcony na rozwój aplikacji.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="34"/>
+        <source>PayPal Donate</source>
+        <translation type="unfinished">Dotacja PayPal</translation>
+    </message>
+    <message>
+        <source>Bugs?</source>
+        <translation type="obsolete">Błędy?</translation>
+    </message>
+    <message>
+        <source>Open Bug Tracker</source>
+        <translation type="obsolete">Otwórz Bug Tracker</translation>
+    </message>
+    <message>
+        <source>Forum Thread</source>
+        <translation type="obsolete">Wątek na forum</translation>
+    </message>
+    <message>
+        <source>Send issue e-mail to developer</source>
+        <translation type="obsolete">Wyślij zgłoszenie e-mail do developera</translation>
+    </message>
+</context>
+<context>
     <name>InstallAppDialog</name>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="17"/>

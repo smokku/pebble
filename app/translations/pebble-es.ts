@@ -104,6 +104,47 @@
     </message>
 </context>
 <context>
+    <name>Disclaimer</name>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="21"/>
+        <source>Feature unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="31"/>
+        <source>This feature is available for supporters only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="44"/>
+        <source>Supporter?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="51"/>
+        <source>Send me my code!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="61"/>
+        <source>Activation code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="obsolete">Versión</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/Disclaimer.qml" line="34"/>
+        <source>PayPal Donate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bugs?</source>
+        <translation type="obsolete">¿Errores?</translation>
+    </message>
+</context>
+<context>
     <name>InstallAppDialog</name>
     <message>
         <source>Install app</source>

@@ -96,7 +96,7 @@ Page {
                 right: parent.right
                 margins: Theme.paddingLarge * 2
             }
-            onClicked: pageStack.push(Qt.resolvedUrl("FirmwareUpgrade.qml"))
+            onClicked: pageStack.push(Qt.resolvedUrl(donate.active ? "FirmwareUpgrade.qml" : "Disclaimer.qml"))
         }
     }
 }

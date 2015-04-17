@@ -32,6 +32,7 @@ OTHER_FILES += \
     qml/pages/WebItemSelDialog.qml \
     qml/pages/AppStorePage.qml \
     qml/pages/WatchInfo.qml \
+    qml/pages/Disclaimer.qml \
     qml/pebble.qml \
     translations/*.ts \
     pebble.desktop \
