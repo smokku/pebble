@@ -24,9 +24,13 @@ AppMsgManager::AppMsgManager(AppManager *apps, WatchConnector *watch, QObject *p
         case WatchConnector::appmsgPUSH:
             handleLauncherPushMessage(data);
             break;
+
+        // TODO we ignore those for now.
         case WatchConnector::appmsgACK:
+            qCDebug(l) << "Watch accepted application launch";
+            break;
         case WatchConnector::appmsgNACK:
-            // TODO we ignore those for now.
+            qCDebug(l) << "Watch denied application launch";
             break;
         }
 

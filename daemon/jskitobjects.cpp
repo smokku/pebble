@@ -10,8 +10,8 @@
 
 static const char *token_salt = "0feeb7416d3c4546a19b04bccd8419b1";
 
-JSKitPebble::JSKitPebble(const AppInfo &info, JSKitManager *mgr)
-    : QObject(mgr), l(metaObject()->className()), _appInfo(info), _mgr(mgr)
+JSKitPebble::JSKitPebble(const AppInfo &info, JSKitManager *mgr, QObject *parent)
+    : QObject(parent), l(metaObject()->className()), _appInfo(info), _mgr(mgr)
 {
 }
 
@@ -167,8 +167,8 @@ void JSKitPebble::invokeCallbacks(const QString &type, const QJSValueList &args)
     }
 }
 
-JSKitConsole::JSKitConsole(JSKitManager *mgr)
-    : QObject(mgr), l(metaObject()->className())
+JSKitConsole::JSKitConsole(QObject *parent)
+    : QObject(parent), l(metaObject()->className())
 {
 }
 
@@ -177,8 +177,8 @@ void JSKitConsole::log(const QString &msg)
     qCDebug(l) << msg;
 }
 
-JSKitLocalStorage::JSKitLocalStorage(const QUuid &uuid, JSKitManager *mgr)
-    : QObject(mgr), _storage(new QSettings(getStorageFileFor(uuid), QSettings::IniFormat, this))
+JSKitLocalStorage::JSKitLocalStorage(const QUuid &uuid, QObject *parent)
+    : QObject(parent), _storage(new QSettings(getStorageFileFor(uuid), QSettings::IniFormat, this))
 {
     _len = _storage->allKeys().size();
 }
@@ -517,8 +517,8 @@ void JSKitXMLHttpRequest::handleAuthenticationRequired(QNetworkReply *reply, QAu
     }
 }
 
-JSKitGeolocation::JSKitGeolocation(JSKitManager *mgr)
-    : QObject(mgr), l(metaObject()->className()),
+JSKitGeolocation::JSKitGeolocation(JSKitManager *mgr, QObject *parent)
+    : QObject(parent), l(metaObject()->className()),
       _mgr(mgr), _source(0), _lastWatchId(0)
 {
 }

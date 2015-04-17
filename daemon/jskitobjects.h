@@ -14,7 +14,7 @@ class JSKitPebble : public QObject
     QLoggingCategory l;
 
 public:
-    explicit JSKitPebble(const AppInfo &appInfo, JSKitManager *mgr);
+    explicit JSKitPebble(const AppInfo &appInfo, JSKitManager *mgr, QObject *parent=0);
 
     Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
     Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
@@ -47,7 +47,7 @@ class JSKitConsole : public QObject
     QLoggingCategory l;
 
 public:
-    explicit JSKitConsole(JSKitManager *mgr);
+    explicit JSKitConsole(QObject *parent=0);
 
     Q_INVOKABLE void log(const QString &msg);
 };
@@ -59,7 +59,7 @@ class JSKitLocalStorage : public QObject
     Q_PROPERTY(int length READ length NOTIFY lengthChanged)
 
 public:
-    explicit JSKitLocalStorage(const QUuid &uuid, JSKitManager *mgr);
+    explicit JSKitLocalStorage(const QUuid &uuid, QObject *parent=0);
 
     int length() const;
 
@@ -173,7 +173,7 @@ class JSKitGeolocation : public QObject
     struct Watcher;
 
 public:
-    explicit JSKitGeolocation(JSKitManager *mgr);
+    explicit JSKitGeolocation(JSKitManager *mgr, QObject *parent=0);
 
     enum PositionError {
         PERMISSION_DENIED = 1,

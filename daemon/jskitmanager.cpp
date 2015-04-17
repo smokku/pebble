@@ -132,12 +132,12 @@ void JSKitManager::startJsApp()
     }
 
     _engine = new QJSEngine(this);
-    _jspebble = new JSKitPebble(_curApp, this);
-    _jsconsole = new JSKitConsole(this);
-    _jsstorage = new JSKitLocalStorage(_curApp.uuid(), this);
-    _jsgeo = new JSKitGeolocation(this);
+    _jspebble = new JSKitPebble(_curApp, this, _engine);
+    _jsconsole = new JSKitConsole(_engine);
+    _jsstorage = new JSKitLocalStorage(_curApp.uuid(), _engine);
+    _jsgeo = new JSKitGeolocation(this, _engine);
 
-    qCDebug(l) << "starting JS app";
+    qCDebug(l) << "starting JS app" << _curApp.shortName();
 
     QJSValue globalObj = _engine->globalObject();
 
@@ -196,10 +196,4 @@ void JSKitManager::stopJsApp()
 
     _engine->deleteLater();
     _engine = 0;
-    _jsstorage->deleteLater();
-    _jsstorage = 0;
-    _jsgeo->deleteLater();
-    _jsgeo = 0;
-    _jspebble->deleteLater();
-    _jspebble = 0;
 }
