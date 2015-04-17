@@ -46,22 +46,6 @@ Page {
             Label {
                 text: new Date(pebbled.info.bootloader * 1000).toLocaleString(Qt.locale(), Locale.ShortFormat)
             }
-
-            Label {
-                color: Theme.highlightColor
-                text: qsTr("Firmware")
-            }
-            Label {
-                text: app.firmwareVersion
-            }
-
-            Label {
-                color: Theme.highlightColor
-                text: qsTr("Recovery")
-            }
-            Label {
-                text: app.recoveryVersion
-            }
         }
 
         Label {
@@ -78,6 +62,22 @@ Page {
                 left: parent.left
                 right: parent.right
                 margins: Theme.paddingLarge
+            }
+
+            Label {
+                color: Theme.highlightColor
+                text: qsTr("Recovery")
+            }
+            Label {
+                text: app.recoveryVersion
+            }
+
+            Label {
+                color: Theme.highlightColor
+                text: qsTr("Running")
+            }
+            Label {
+                text: app.firmwareVersion
             }
 
             Label {

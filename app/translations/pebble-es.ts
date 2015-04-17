@@ -304,14 +304,18 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="52"/>
-        <location filename="../qml/pages/WatchInfo.qml" line="68"/>
         <source>Firmware</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchInfo.qml" line="60"/>
+        <location filename="../qml/pages/WatchInfo.qml" line="69"/>
         <source>Recovery</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="77"/>
+        <source>Running</source>
+        <translation type="unfinished">Ejecutándose</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="85"/>

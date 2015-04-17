@@ -169,7 +169,7 @@ public:
         QString hw_string;
         quint8 metadata_version;
 
-        QVariantMap toMap();
+        QVariantMap toMap() const;
     };
 
     struct WatchVersions {
@@ -180,7 +180,9 @@ public:
         QString serialNumber;
         QByteArray address;
 
-        QVariantMap toMap();
+        QVariantMap toMap() const;
+        void clear();
+        bool isEmpty() const;
     };
 
     typedef QMap<int, QVariant> Dict;

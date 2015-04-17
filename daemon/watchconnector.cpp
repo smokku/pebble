@@ -28,7 +28,7 @@ QDebug operator<< (QDebug d, const WatchConnector::WatchVersions &ver) {
     return d;
 }
 
-QVariantMap WatchConnector::SoftwareVersion::toMap()
+QVariantMap WatchConnector::SoftwareVersion::toMap() const
 {
     QVariantMap map;
     map.insert("version", this->version);
@@ -40,15 +40,27 @@ QVariantMap WatchConnector::SoftwareVersion::toMap()
     return map;
 }
 
-QVariantMap WatchConnector::WatchVersions::toMap()
+QVariantMap WatchConnector::WatchVersions::toMap() const
 {
     QVariantMap map;
-    map.insert("bootloader", this->bootLoaderBuild.toTime_t());
-    map.insert("serial", this->serialNumber);
-    map.insert("address", this->address.toHex());
-    map.insertMulti("firmware", this->main.toMap());
-    map.insertMulti("firmware", this->safe.toMap());
+    if (!isEmpty()) {
+        map.insert("bootloader", this->bootLoaderBuild.toTime_t());
+        map.insert("serial", this->serialNumber);
+        map.insert("address", this->address.toHex());
+        map.insertMulti("firmware", this->main.toMap());
+        map.insertMulti("firmware", this->safe.toMap());
+    }
     return map;
+}
+void WatchConnector::WatchVersions::clear()
+{
+    serialNumber.clear();
+    address.clear();
+}
+
+bool WatchConnector::WatchVersions::isEmpty() const
+{
+    return serialNumber.isEmpty() || address.isEmpty();
 }
 
 WatchConnector::WatchConnector(QObject *parent) :
@@ -151,15 +163,9 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
         socket->deleteLater();
     }
 
-    bool emit_name = (_last_name != name);
     _last_name = name;
     _last_address = address;
-    if (emit_name) emit nameChanged();
-
-    if (emit_name) {
-        // If we've changed names, don't reuse cached serial number!
-        _versions.serialNumber.clear();
-    }
+    _versions.clear();
 
     qCDebug(l) << "Creating socket";
     socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
@@ -293,11 +299,9 @@ void WatchConnector::onConnected()
             qCDebug(l) << "Found" << writeData.length() << "bytes in write buffer - resending";
             sendData(writeData);
         }
-        if (_versions.serialNumber.isEmpty()) {
-            // Ask for version information from the watch
-            sendMessage(watchVERSION, QByteArray(1, 0));
-        }
+        sendMessage(watchVERSION, QByteArray(1, 0));
         emit connectedChanged();
+        if (name() != _last_name) emit nameChanged();
     }
 }
 

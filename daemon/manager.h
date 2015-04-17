@@ -124,8 +124,7 @@ public:
 
     inline QString Name() const { return pebble()["Name"].toString(); }
     inline QString Address() const { return pebble()["Address"].toString(); }
-    inline QVariantMap Info() const { return manager()->watch->versions().serialNumber.isEmpty()
-                ? QVariantMap() : manager()->watch->versions().toMap(); }
+    inline QVariantMap Info() const { return manager()->watch->versions().toMap(); }
     inline bool Connected() const { return manager()->watch->isConnected(); }
     inline QString AppUuid() const { return manager()->currentAppUuid.toString(); }
 

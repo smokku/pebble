@@ -300,14 +300,18 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="52"/>
-        <location filename="../qml/pages/WatchInfo.qml" line="68"/>
         <source>Firmware</source>
         <translation>Firmware</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchInfo.qml" line="60"/>
+        <location filename="../qml/pages/WatchInfo.qml" line="69"/>
         <source>Recovery</source>
         <translation>Recovery</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="77"/>
+        <source>Running</source>
+        <translation type="unfinished">Pracuje</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="85"/>
