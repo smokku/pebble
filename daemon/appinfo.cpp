@@ -52,6 +52,7 @@ AppInfo::AppInfo(const Bundle &rhs) : Bundle(rhs), d(new AppInfoData)
 
 AppInfo &AppInfo::operator=(const AppInfo &rhs)
 {
+    Bundle::operator=(rhs);
     if (this != &rhs)
         d.operator=(rhs.d);
     return *this;
@@ -185,7 +186,6 @@ QString AppInfo::getJSApp() const
     }
 
     return QString::fromUtf8(appJS->readAll());
-
 }
 
 AppInfo AppInfo::fromPath(const QString &path)
