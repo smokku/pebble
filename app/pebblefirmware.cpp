@@ -26,6 +26,7 @@ void PebbleFirmware::fetchFirmware(QString type)
     QNetworkRequest req;
     req.setUrl(_latest.value(type).toObject().value("url").toString());
     req.setRawHeader("Cache-Control", "no-cache");
+    qDebug() << "Fetching firmware" << req.url();
     nm->get(req);
 }
 
@@ -35,15 +36,15 @@ void PebbleFirmware::onNetworkReplyFinished(QNetworkReply* rep)
 
     if (rep->request().url().toString().endsWith("/latest.json")) {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(rep->readAll());
-        QJsonObject jsonObject = jsonResponse.object();
-        if (!jsonObject.isEmpty()) {
-            qDebug() << "Latest firmware" << jsonObject;
-            _latest = jsonObject.value("normal").toObject();
+        _latest = jsonResponse.object();
+        if (!_latest.isEmpty()) {
+            qDebug() << "Latest firmware" << _latest;
             emit latestChanged();
         }
     } else if (rep->url().toString().endsWith(".pbz")) {
         QDir downDir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
-        QFileInfo name(rep->url().toLocalFile());
+        QFileInfo name(rep->url().toString(QUrl::FullyDecoded|QUrl::NormalizePathSegments|
+                                           QUrl::RemoveQuery|QUrl::RemoveFragment));
         QFile file(downDir.absoluteFilePath(name.fileName()));
         file.open(QIODevice::WriteOnly|QIODevice::Truncate);
         if (file.write(rep->readAll()) == -1) {

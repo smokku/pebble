@@ -11,7 +11,7 @@ class PebbleFirmware : public QObject
     Q_OBJECT
     Q_PROPERTY(QJsonObject latest READ latest NOTIFY latestChanged)
 
-    QJsonObject latest() { return _latest; }
+    QJsonObject latest() { return _latest.value("normal").toObject(); }
 
 public:
     explicit PebbleFirmware(QObject *parent = 0);
