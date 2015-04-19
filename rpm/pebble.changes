@@ -1,3 +1,11 @@
+* Sun Apr 19 2015 Tomasz Sterna <tomek@xiaoka.com> 1.0
+- Restart pebbled.service in RPM post install
+- Checking for latest firmware version
+- Firmware Upgrade support
+- Better JSKit memory management
+- Support for direct PulseAudio volume control
+- Music volume controls alter the system volume
+
 * Wed Apr 1 2015 Tomasz Sterna <tomek@xiaoka.com> 0.16
 - Connect paired Pebbles only
 - Watch Info page
