@@ -33,7 +33,7 @@ Page {
                 color: Theme.highlightColor
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                text: "© 2014 Tomasz Sterna / Xiaoka.com\n" + qsTr("All Rights Reserved.")
+                text: "© 2014-2015 Tomasz Sterna / Xiaoka.com\n" + qsTr("All Rights Reserved.")
             }
             Label {
                 wrapMode: Text.Wrap
@@ -72,6 +72,19 @@ Page {
                 font.pixelSize: Theme.fontSizeSmall
                 wrapMode: Text.Wrap
                 text: qsTr("Your donations help justify development time.")
+            }
+            Label {
+                visible: !!donate.active
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge
+                }
+                font.pixelSize: Theme.fontSizeLarge
+                font.italic: true
+                color: Theme.highlightColor
+                wrapMode: Text.Wrap
+                text: qsTr("Thank you for your support!!!")
             }
             Button {
                 text: qsTr("PayPal Donate")

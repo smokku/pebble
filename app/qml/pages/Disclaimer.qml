@@ -1,9 +1,16 @@
 import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 
 Page {
     id: page
+
+    ConfigurationGroup {
+        id: settings
+        path: "/org/pebbled/settings"
+        property string donationCode: ""
+    }
 
     SilicaFlickable {
         id: flickable
@@ -54,7 +61,7 @@ Page {
                     right: parent.right
                     margins: Theme.paddingLarge * 2
                 }
-                onClicked: Qt.openUrlExternally("mailto:support@xiaoka.com?subject=pebbled code request - "+
+                onClicked: Qt.openUrlExternally("mailto:support@pebbled.org?subject=pebbled code request - "+
                                                 donate.id + "&body=My paypal id is: ")
             }
             Label {
@@ -72,7 +79,14 @@ Page {
                     margins: Theme.paddingMedium
                 }
                 focus: true
+                text: settings.donationCode
+                onTextChanged: settings.donationCode = text
             }
         }
+    }
+
+    Connections {
+        target: donate
+        onActiveChanged: if(donate.active) pageStack.pop()
     }
 }

@@ -26,6 +26,7 @@ Features
 * PebbleKit JS application partial support
  (including Pebble object, XMLHTTPRequest, localStorage, geolocation)
 * Pebble AppStore preliminary support
+* Firmware check and upgrade
 
 
 

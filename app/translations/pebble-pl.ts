@@ -24,27 +24,32 @@
         <translation>Dotacje pomagają uzasadnić czas poświęcony na rozwój aplikacji.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="77"/>
+        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <source>Thank you for your support!!!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="90"/>
         <source>PayPal Donate</source>
         <translation>Dotacja PayPal</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <location filename="../qml/pages/AboutPage.qml" line="100"/>
         <source>Bugs?</source>
         <translation>Błędy?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="94"/>
+        <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Open Bug Tracker</source>
         <translation>Otwórz Bug Tracker</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="103"/>
+        <location filename="../qml/pages/AboutPage.qml" line="116"/>
         <source>Forum Thread</source>
         <translation>Wątek na forum</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="112"/>
+        <location filename="../qml/pages/AboutPage.qml" line="125"/>
         <source>Send issue e-mail to developer</source>
         <translation>Wyślij zgłoszenie e-mail do developera</translation>
     </message>
@@ -106,27 +111,27 @@
 <context>
     <name>Disclaimer</name>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="21"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="28"/>
         <source>Feature unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="31"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="38"/>
         <source>This feature is available for supporters only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="44"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="51"/>
         <source>Supporter?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="51"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="58"/>
         <source>Send me my code!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="61"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="68"/>
         <source>Activation code</source>
         <translation type="unfinished"></translation>
     </message>
@@ -147,7 +152,7 @@
         <translation type="obsolete">Dotacje pomagają uzasadnić czas poświęcony na rozwój aplikacji.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/Disclaimer.qml" line="34"/>
+        <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
         <translation type="unfinished">Dotacja PayPal</translation>
     </message>
@@ -166,6 +171,19 @@
     <message>
         <source>Send issue e-mail to developer</source>
         <translation type="obsolete">Wyślij zgłoszenie e-mail do developera</translation>
+    </message>
+</context>
+<context>
+    <name>FirmwareUpgrade</name>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
+        <source>Firmware upgrade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
+        <source>Begin upgrade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
