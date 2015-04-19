@@ -26,7 +26,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="87"/>
         <source>Thank you for your support!!!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziękuję za twoje wsparcie!!!</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="90"/>
@@ -113,27 +113,27 @@
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="28"/>
         <source>Feature unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Funkcja niedostępna</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="38"/>
         <source>This feature is available for supporters only.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta funkcja jest dostępna wyłącznie dla wspierających użytkowników.</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="51"/>
         <source>Supporter?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wspierasz?</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="58"/>
         <source>Send me my code!</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyślij mi mój kod!</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="68"/>
         <source>Activation code</source>
-        <translation type="unfinished"></translation>
+        <translation>Kod aktywacyjny</translation>
     </message>
     <message>
         <source>Version</source>
@@ -154,7 +154,7 @@
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
-        <translation type="unfinished">Dotacja PayPal</translation>
+        <translation>Dotacja PayPal</translation>
     </message>
     <message>
         <source>Bugs?</source>
@@ -178,12 +178,12 @@
     <message>
         <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
         <source>Firmware upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizacja firmware</translation>
     </message>
     <message>
         <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
         <source>Begin upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpocznij aktualizację</translation>
     </message>
 </context>
 <context>
@@ -306,12 +306,12 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="137"/>
         <source>Control main volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Steruj głośnością główną</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="138"/>
         <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
-        <translation type="unfinished"></translation>
+        <translation>Guziki zmiany głośności na Pebble będą zmieniać głośność bezpośrednio, a nie za pomocą odtwarzacza muzyki.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="146"/>
@@ -404,22 +404,22 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="77"/>
         <source>Running</source>
-        <translation type="unfinished">Pracuje</translation>
+        <translation>Uruchomiony</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="85"/>
         <source>Latest</source>
-        <translation type="unfinished"></translation>
+        <translation>Najnowszy</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="88"/>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>nie wiadomo</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="93"/>
         <source>Upgrade Firmware</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizuj Firmware</translation>
     </message>
 </context>
 <context>
