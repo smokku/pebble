@@ -11,6 +11,7 @@ Page {
         path: "/org/pebbled/settings"
         property bool silentWhenConnected: false
         property bool transliterateMessage: false
+        property bool useSystemVolume: true
         property bool incomingCallNotification: true
         property bool notificationsCommhistoryd: true
         property bool notificationsMissedCall: true
@@ -130,6 +131,15 @@ Page {
                 automaticCheck: false
                 onClicked: {
                     settings.silentWhenConnected = !settings.silentWhenConnected;
+                }
+            }
+            TextSwitch {
+                text: qsTr("Control main volume")
+                description: qsTr("Pebble music volume buttons change the main phone volume directly instead of through the music player.")
+                checked: settings.useSystemVolume
+                automaticCheck: true
+                onClicked: {
+                    settings.useSystemVolume = !settings.useSystemVolume;
                 }
             }
             TextSwitch {

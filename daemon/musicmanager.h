@@ -5,6 +5,7 @@
 #include <QDBusContext>
 #include <QDBusServiceWatcher>
 #include "watchconnector.h"
+#include "settings.h"
 
 class MusicManager : public QObject, protected QDBusContext
 {
@@ -12,7 +13,8 @@ class MusicManager : public QObject, protected QDBusContext
     QLoggingCategory l;
 
 public:
-    explicit MusicManager(WatchConnector *watch, QObject *parent = 0);
+    explicit MusicManager(WatchConnector *watch, Settings *settings, QObject *parent = 0);
+    virtual ~MusicManager();
 
 private:
     void switchToService(const QString &service);
@@ -31,6 +33,9 @@ private:
     QDBusServiceWatcher *_watcher;
     QString _curService;
     QVariantMap _curMetadata;
+    QDBusConnection *_pulseBus;
+    Settings *settings;
+    uint _maxVolume;
 };
 
 #endif // MUSICMANAGER_H
