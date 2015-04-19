@@ -16,7 +16,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     bank(new BankManager(watch, upload, apps, this)),
     voice(new VoiceCallManager(settings, this)),
     notifications(new NotificationManager(settings, this)),
-    music(new MusicManager(watch, this)),
+    music(new MusicManager(watch, settings, this)),
     datalog(new DataLogManager(watch, this)),
     appmsg(new AppMsgManager(apps, watch, this)),
     js(new JSKitManager(watch, apps, appmsg, settings, this)),
