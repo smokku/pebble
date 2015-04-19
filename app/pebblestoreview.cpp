@@ -65,9 +65,44 @@ void PebbleStoreView::fetchData(QUrl url)
     this->m_networkManager->get(request);
 }
 
+void PebbleStoreView::addToLocker(QJsonObject data)
+{
+    QUrl url(data.value("links").toObject().value("add").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->post(request, "");
+}
+
+void PebbleStoreView::removeFromLocker(QJsonObject data)
+{
+    QUrl url(data.value("links").toObject().value("remove").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->post(request, "");
+}
+
+void PebbleStoreView::showLocker()
+{
+    QUrl url(this->storeConfigObject.value("links").toObject().value("users/app_locker").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->get(request);
+}
+
 void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
 {
-    qDebug()<<"Download finished";
+    qDebug()<<"Download finished"<<reply->request().url();
+
+    //Config url
     if (reply->request().url() == this->m_configUrl) {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObject = jsonResponse.object();
@@ -78,7 +113,16 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
         } else {
             setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("onboarding/get_some_apps").toString()));
         }
-    } else {
+    //Add download to locker
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("links").toObject().value("add").toString()) {
+        qDebug()<<reply->readAll();
+        this->m_downloadInProgress = false;
+        emit downloadInProgressChanged();
+    //Remove from locker
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("links").toObject().value("remove").toString()) {
+        qDebug()<<reply->readAll();
+    //PBW file
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("pbw_file").toString()) {
         QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
         QFile file(dataDir.absoluteFilePath("apps") + "/" + this->downloadObject.value("uuid").toString() + ".pbw");
         file.open(QIODevice::WriteOnly);
@@ -86,9 +130,12 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
         file.close();
 
         qDebug()<<this->downloadObject;
-
-        this->m_downloadInProgress = false;
-        emit downloadInProgressChanged();
+        this->addToLocker(this->downloadObject);
+    //Locker
+    } else if (reply->request().url() == this->storeConfigObject.value("links").toObject().value("users/app_locker").toString()) {
+        qDebug()<<reply->readAll();
+    } else {
+        qDebug()<<"Unknown download finished!";
     }
 }
 

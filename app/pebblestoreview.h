@@ -47,6 +47,9 @@ private:
 
     QUrl prepareUrl(QString baseUrl);
     void fetchData(QUrl url);
+    void addToLocker(QJsonObject data);
+    void removeFromLocker(QJsonObject data);
+    void showLocker();
 };
 
 #endif // PEBBLESTOREVIEW_H
