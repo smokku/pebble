@@ -216,7 +216,7 @@ signals:
 
 public slots:
     void deviceConnect(const QString &name, const QString &address);
-    void setIncreasedReconnectTimer();
+    void scheduleReconnect();
     void disconnect();
     void reconnect();
 

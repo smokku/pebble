@@ -164,7 +164,7 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
     bool btOff = host.hostMode() == QBluetoothLocalDevice::HostPoweredOff;
     if (btOff) {
         qCDebug(l) << "Bluetooth switched off.";
-        setIncreasedReconnectTimer();
+        scheduleReconnect();
         return;
     }
 
@@ -333,11 +333,11 @@ void WatchConnector::onDisconnected()
         writeData.clear(); // 3rd time around - user is not here, do not bother with resending last message
     }
 
-    setIncreasedReconnectTimer();
+    scheduleReconnect();
 
 }
 
-void WatchConnector::setIncreasedReconnectTimer()
+void WatchConnector::scheduleReconnect()
 {
     if (reconnectTimer.interval() < 10 * RECONNECT_TIMEOUT) {
         reconnectTimer.setInterval(reconnectTimer.interval() + RECONNECT_TIMEOUT);
