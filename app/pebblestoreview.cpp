@@ -57,6 +57,14 @@ void PebbleStoreView::gotoWatchApps()
     setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("appstore/watchapps").toString()));
 }
 
+void PebbleStoreView::searchQuery(QString query)
+{
+    QString baseUrl = this->storeConfigObject.value("webviews").toObject().value("appstore/search/query").toString();
+    baseUrl = baseUrl.replace("?q", "?query"); //fix wrong param name
+    baseUrl = baseUrl.replace("$$query$$", query);
+    setUrl(prepareUrl(baseUrl));
+}
+
 void PebbleStoreView::fetchData(QUrl url)
 {
     QNetworkRequest request;
@@ -90,6 +98,17 @@ void PebbleStoreView::removeFromLocker(QJsonObject data)
 void PebbleStoreView::showLocker()
 {
     QUrl url(this->storeConfigObject.value("links").toObject().value("users/app_locker").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->get(request);
+}
+
+void PebbleStoreView::showMe()
+{
+    QUrl url(this->storeConfigObject.value("links").toObject().value("users/me").toString());
     QString token("Bearer " + this->accessToken());
     QNetworkRequest request;
     request.setUrl(url);
@@ -134,6 +153,9 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
     //Locker
     } else if (reply->request().url() == this->storeConfigObject.value("links").toObject().value("users/app_locker").toString()) {
         qDebug()<<reply->readAll();
+    //Me
+    } else if (reply->request().url() == this->storeConfigObject.value("links").toObject().value("users/me").toString()) {
+        qDebug()<<reply->readAll();
     } else {
         qDebug()<<"Unknown download finished!";
     }
@@ -174,10 +196,10 @@ void PebbleStoreView::onNavigationRequested(QWebNavigationRequest* request)
             if (reg.indexIn(urlStr) > -1) {
                 QString methodStr = reg.cap(1);
                 QString argsStr = QUrl::fromPercentEncoding(reg.cap(2).toUtf8());
-                emit call(methodStr, argsStr);
+                QJsonDocument jsonResponse = QJsonDocument::fromJson(argsStr.toUtf8());
+                QJsonObject jsonObject = jsonResponse.object();
+                qDebug()<<"Call"<<methodStr<<jsonObject;
                 if (methodStr == "loadAppToDeviceAndLocker") {
-                    QJsonDocument jsonResponse = QJsonDocument::fromJson(argsStr.toUtf8());
-                    QJsonObject jsonObject = jsonResponse.object();
                     QJsonObject data = jsonObject.value("data").toObject();
                     qDebug()<<"download"<<data.value("title").toString()<<data.value("pbw_file").toString();
                     this->downloadObject = data;;
@@ -185,6 +207,9 @@ void PebbleStoreView::onNavigationRequested(QWebNavigationRequest* request)
                     emit downloadInProgressChanged();
                     fetchData(QUrl(data.value("pbw_file").toString()));
                     emit downloadPebbleApp(data.value("title").toString(), data.value("pbw_file").toString());
+                } else if (methodStr == "setNavBarTitle") {
+                    QJsonObject data = jsonObject.value("data").toObject();
+                    emit titleChanged(data.value("title").toString());
                 }
             }
         }
