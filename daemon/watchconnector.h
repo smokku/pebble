@@ -228,7 +228,7 @@ public slots:
     void sendEmailNotification(QString sender, QString data, QString subject);
     void sendFacebookNotification(QString sender, QString data);
     void sendTwitterNotification(QString sender, QString data);
-    void sendMusicNowPlaying(QString track, QString album, QString artist);
+    void sendMusicNowPlaying(QString artist, QString album, QString track);
     void sendPhoneVersion();
     void sendFirmwareState(bool ok);
 
