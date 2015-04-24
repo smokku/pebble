@@ -24,7 +24,9 @@ Page {
             MenuItem {
                 text: qsTr("Logout")
                 onClicked: {
-                    webview.logout();
+                    remorse.execute(qsTr("Logging out..."), function() {
+                        webview.logout();
+                    });
                 }
             }
         }
@@ -72,6 +74,10 @@ Page {
                     size: BusyIndicatorSize.Large
                 }
             }
+        }
+
+        RemorsePopup {
+            id: remorse
         }
 
         PebbleStoreView  {
