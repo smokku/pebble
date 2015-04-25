@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QDateTime>
 #include <QBluetoothDeviceInfo>
+#include <QBluetoothLocalDevice>
 #include <QBluetoothSocket>
 #include <QBluetoothServiceInfo>
 #include <QLoggingCategory>
@@ -215,6 +216,7 @@ signals:
 
 public slots:
     void deviceConnect(const QString &name, const QString &address);
+    void scheduleReconnect();
     void disconnect();
     void reconnect();
 
