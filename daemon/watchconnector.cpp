@@ -513,13 +513,12 @@ void WatchConnector::sendEmailNotification(QString sender, QString data, QString
     sendNotification(leadEMAIL, sender, data, subject);
 }
 
-void WatchConnector::sendMusicNowPlaying(QString track, QString album, QString artist)
+void WatchConnector::sendMusicNowPlaying(QString artist, QString album, QString track)
 {
     QStringList tmp;
-    tmp.append(track.left(30));
-    tmp.append(album.left(30));
     tmp.append(artist.left(30));
-
+    tmp.append(album.left(30));
+    tmp.append(track.left(30));
     QByteArray res = buildMessageData(leadNOW_PLAYING_DATA, tmp);
 
     sendMessage(watchMUSIC_CONTROL, res);

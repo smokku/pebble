@@ -116,13 +116,13 @@ void MusicManager::sendCurrentMprisMetadata()
 {
     Q_ASSERT(watch->isConnected());
 
-    QString track = _curMetadata.value("xesam:title").toString().left(30);
-    QString album = _curMetadata.value("xesam:album").toString().left(30);
     QString artist = _curMetadata.value("xesam:artist").toString().left(30);
+    QString album = _curMetadata.value("xesam:album").toString().left(30);
+    QString track = _curMetadata.value("xesam:title").toString().left(30);
 
-    qCDebug(l) << "sending mpris metadata:" << track << album << artist;
+    qCDebug(l) << "sending mpris metadata:" << artist << album << track;
 
-    watch->sendMusicNowPlaying(track, album, artist);
+    watch->sendMusicNowPlaying(artist, album, track);
 }
 
 void MusicManager::callMprisMethod(const QString &method)
