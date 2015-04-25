@@ -57,6 +57,14 @@ void PebbleStoreView::gotoWatchApps()
     setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("appstore/watchapps").toString()));
 }
 
+void PebbleStoreView::searchQuery(QString query)
+{
+    QString baseUrl = this->storeConfigObject.value("webviews").toObject().value("appstore/search/query").toString();
+    baseUrl = baseUrl.replace("?q", "?query"); //fix wrong param name
+    baseUrl = baseUrl.replace("$$query$$", query);
+    setUrl(prepareUrl(baseUrl));
+}
+
 void PebbleStoreView::fetchData(QUrl url)
 {
     QNetworkRequest request;
@@ -65,9 +73,55 @@ void PebbleStoreView::fetchData(QUrl url)
     this->m_networkManager->get(request);
 }
 
+void PebbleStoreView::addToLocker(QJsonObject data)
+{
+    QUrl url(data.value("links").toObject().value("add").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->post(request, "");
+}
+
+void PebbleStoreView::removeFromLocker(QJsonObject data)
+{
+    QUrl url(data.value("links").toObject().value("remove").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->post(request, "");
+}
+
+void PebbleStoreView::showLocker()
+{
+    QUrl url(this->storeConfigObject.value("links").toObject().value("users/app_locker").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->get(request);
+}
+
+void PebbleStoreView::showMe()
+{
+    QUrl url(this->storeConfigObject.value("links").toObject().value("users/me").toString());
+    QString token("Bearer " + this->accessToken());
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setRawHeader("Cache-Control", "no-cache");
+    request.setRawHeader("Authorization", token.toUtf8());
+    this->m_networkManager->get(request);
+}
+
 void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
 {
-    qDebug()<<"Download finished";
+    qDebug()<<"Download finished"<<reply->request().url();
+
+    //Config url
     if (reply->request().url() == this->m_configUrl) {
         QJsonDocument jsonResponse = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObject = jsonResponse.object();
@@ -78,7 +132,16 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
         } else {
             setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("onboarding/get_some_apps").toString()));
         }
-    } else {
+    //Add download to locker
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("links").toObject().value("add").toString()) {
+        qDebug()<<reply->readAll();
+        this->m_downloadInProgress = false;
+        emit downloadInProgressChanged();
+    //Remove from locker
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("links").toObject().value("remove").toString()) {
+        qDebug()<<reply->readAll();
+    //PBW file
+    } else if (!this->downloadObject.isEmpty() && reply->request().url() == this->downloadObject.value("pbw_file").toString()) {
         QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
         QFile file(dataDir.absoluteFilePath("apps") + "/" + this->downloadObject.value("uuid").toString() + ".pbw");
         file.open(QIODevice::WriteOnly);
@@ -86,9 +149,15 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
         file.close();
 
         qDebug()<<this->downloadObject;
-
-        this->m_downloadInProgress = false;
-        emit downloadInProgressChanged();
+        this->addToLocker(this->downloadObject);
+    //Locker
+    } else if (reply->request().url() == this->storeConfigObject.value("links").toObject().value("users/app_locker").toString()) {
+        qDebug()<<reply->readAll();
+    //Me
+    } else if (reply->request().url() == this->storeConfigObject.value("links").toObject().value("users/me").toString()) {
+        qDebug()<<reply->readAll();
+    } else {
+        qDebug()<<"Unknown download finished!";
     }
 }
 
@@ -127,10 +196,10 @@ void PebbleStoreView::onNavigationRequested(QWebNavigationRequest* request)
             if (reg.indexIn(urlStr) > -1) {
                 QString methodStr = reg.cap(1);
                 QString argsStr = QUrl::fromPercentEncoding(reg.cap(2).toUtf8());
-                emit call(methodStr, argsStr);
+                QJsonDocument jsonResponse = QJsonDocument::fromJson(argsStr.toUtf8());
+                QJsonObject jsonObject = jsonResponse.object();
+                qDebug()<<"Call"<<methodStr<<jsonObject;
                 if (methodStr == "loadAppToDeviceAndLocker") {
-                    QJsonDocument jsonResponse = QJsonDocument::fromJson(argsStr.toUtf8());
-                    QJsonObject jsonObject = jsonResponse.object();
                     QJsonObject data = jsonObject.value("data").toObject();
                     qDebug()<<"download"<<data.value("title").toString()<<data.value("pbw_file").toString();
                     this->downloadObject = data;;
@@ -138,6 +207,9 @@ void PebbleStoreView::onNavigationRequested(QWebNavigationRequest* request)
                     emit downloadInProgressChanged();
                     fetchData(QUrl(data.value("pbw_file").toString()));
                     emit downloadPebbleApp(data.value("title").toString(), data.value("pbw_file").toString());
+                } else if (methodStr == "setNavBarTitle") {
+                    QJsonObject data = jsonObject.value("data").toObject();
+                    emit titleChanged(data.value("title").toString());
                 }
             }
         }

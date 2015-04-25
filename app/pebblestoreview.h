@@ -25,6 +25,7 @@ public:
 public slots:
     void gotoWatchFaces();
     void gotoWatchApps();
+    void searchQuery(QString query);
     void logout();
 
 private slots:
@@ -35,7 +36,7 @@ signals:
     void accessTokenChanged(const QString & accessToken);
     void downloadPebbleApp(const QString & downloadTitle, const QString & downloadUrl);
     void downloadInProgressChanged();
-    void call(const QString &, const QString &);
+    void titleChanged(const QString & title);
 
 private:
     QNetworkAccessManager* m_networkManager;
@@ -47,6 +48,10 @@ private:
 
     QUrl prepareUrl(QString baseUrl);
     void fetchData(QUrl url);
+    void addToLocker(QJsonObject data);
+    void removeFromLocker(QJsonObject data);
+    void showLocker();
+    void showMe();
 };
 
 #endif // PEBBLESTOREVIEW_H
