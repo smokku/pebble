@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
 import org.nemomobile.configuration 1.0
+import org.nemomobile.dbus 2.0
 
 Page {
     id: page
@@ -9,7 +10,8 @@ Page {
     ConfigurationGroup {
         id: settings
         path: "/org/pebbled/settings"
-        property bool silentWhenConnected: false
+        property string profileWhenConnected: ""
+        property string profileWhenDisconnected: ""
         property bool transliterateMessage: false
         property bool useSystemVolume: true
         property bool incomingCallNotification: true
@@ -22,6 +24,25 @@ Page {
         property bool notificationsOther: true
         property bool notificationsAll: false
     }
+
+    DBusInterface {
+        id: profiled
+
+        service: 'com.nokia.profiled'
+        iface: 'com.nokia.profiled'
+        path: '/com/nokia/profiled'
+
+        property var profiles
+    }
+
+    Component.onCompleted: {
+        profiled.typedCall('get_profiles', [], function (result) {
+            console.log('Got profiles: ' + result);
+            profiled.profiles = result;
+        });
+    }
+
+
 
     SilicaFlickable {
         id: flickable
@@ -125,15 +146,6 @@ Page {
                 }
             }
             TextSwitch {
-                text: qsTr("Silent when connected")
-                description: qsTr("Sets phone profile to \"silent\" when Pebble is connected")
-                checked: settings.silentWhenConnected
-                automaticCheck: false
-                onClicked: {
-                    settings.silentWhenConnected = !settings.silentWhenConnected;
-                }
-            }
-            TextSwitch {
                 text: qsTr("Control main volume")
                 description: qsTr("Pebble music volume buttons change the main phone volume directly instead of through the music player.")
                 checked: settings.useSystemVolume
@@ -232,6 +244,56 @@ Page {
                 enabled: settings.notificationsOther
                 onClicked: {
                     settings.notificationsAll = !settings.notificationsAll;
+                }
+            }
+
+            Label {
+                text: qsTr("Profiles")
+                font.family: Theme.fontFamilyHeading
+                color: Theme.highlightColor
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.paddingMedium
+            }
+
+            ComboBox {
+                label: qsTr("Connected")
+                menu: ContextMenu {
+                    MenuItem {
+                        text: qsTr("no change")
+                        font.capitalization: Font.SmallCaps
+                    }
+                    Repeater {
+                        model: profiled.profiles
+                        delegate: MenuItem {
+                            text: modelData
+                            down: modelData === settings.profileWhenConnected
+                        }
+                    }
+                }
+                value: settings.profileWhenConnected || qsTr("no change")
+                onCurrentIndexChanged: {
+                    settings.profileWhenConnected = currentIndex ? currentItem.text : ""
+                }
+            }
+
+            ComboBox {
+                label: qsTr("Disconnected")
+                menu: ContextMenu {
+                    MenuItem {
+                        text: qsTr("no change")
+                        font.capitalization: Font.SmallCaps
+                    }
+                    Repeater {
+                        model: profiled.profiles
+                        delegate: MenuItem {
+                            text: modelData
+                            down: modelData === settings.profileWhenDisconnected
+                        }
+                    }
+                }
+                value: settings.profileWhenDisconnected || qsTr("no change")
+                onCurrentIndexChanged: {
+                    settings.profileWhenDisconnected = currentIndex ? currentItem.text : ""
                 }
             }
         }

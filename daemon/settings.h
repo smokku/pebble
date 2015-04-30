@@ -7,7 +7,8 @@ class Settings : public MDConfGroup
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool silentWhenConnected MEMBER silentWhenConnected NOTIFY silentWhenConnectedChanged)
+    Q_PROPERTY(QString profileWhenConnected MEMBER profileWhenConnected NOTIFY profileWhenConnectedChanged)
+    Q_PROPERTY(QString profileWhenDisconnected MEMBER profileWhenDisconnected NOTIFY profileWhenDisconnectedChanged)
     Q_PROPERTY(bool transliterateMessage MEMBER transliterateMessage NOTIFY transliterateMessageChanged)
     Q_PROPERTY(bool useSystemVolume MEMBER useSystemVolume NOTIFY useSystemVolumeChanged)
     Q_PROPERTY(bool incomingCallNotification MEMBER incomingCallNotification NOTIFY incomingCallNotificationChanged)
@@ -21,7 +22,8 @@ class Settings : public MDConfGroup
     Q_PROPERTY(bool notificationsAll MEMBER notificationsAll NOTIFY notificationsAllChanged)
     Q_PROPERTY(QString accountToken MEMBER accountToken NOTIFY accountTokenChanged)
 
-    bool silentWhenConnected;
+    QString profileWhenConnected;
+    QString profileWhenDisconnected;
     bool transliterateMessage;
     bool useSystemVolume;
     bool incomingCallNotification;
@@ -41,7 +43,8 @@ public:
     { resolveMetaObject(); }
 
 signals:
-    void silentWhenConnectedChanged();
+    void profileWhenConnectedChanged();
+    void profileWhenDisconnectedChanged();
     void transliterateMessageChanged();
     void useSystemVolumeChanged();
     void incomingCallNotificationChanged();

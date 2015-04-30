@@ -24,7 +24,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
 {
     connect(settings, SIGNAL(valueChanged(QString)), SLOT(onSettingChanged(const QString&)));
     connect(settings, SIGNAL(valuesChanged()), SLOT(onSettingsChanged()));
-    //connect(settings, SIGNAL(silentWhenConnectedChanged(bool)), SLOT(onSilentWhenConnectedChanged(bool)));
 
     // We don't need to handle presence changes, so report them separately and ignore them
     QMap<QString, QString> parameters;
@@ -75,8 +74,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
     connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
     connect(apps, &AppManager::appsChanged, proxy, &PebbledProxy::AllAppsChanged);
 
-    QString currentProfile = getCurrentProfile();
-    defaultProfile = currentProfile.isEmpty() ? "ambience" : currentProfile;
     connect(watch, SIGNAL(connectedChanged()), SLOT(applyProfile()));
 
     // Set BT icon for notification
@@ -259,38 +256,11 @@ void Manager::onEmailNotify(const QString &sender, const QString &data,const QSt
     watch->sendEmailNotification(sender, data, subject);
 }
 
-QString Manager::getCurrentProfile() const
-{
-    QDBusReply<QString> profile = QDBusConnection::sessionBus().call(
-                QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "get_profile"));
-    if (profile.isValid()) {
-        QString currentProfile = profile.value();
-        qCDebug(l) << "Got profile" << currentProfile;
-        return currentProfile;
-    }
-
-    qCCritical(l) << profile.error().message();
-    return QString();
-}
-
 void Manager::applyProfile()
 {
-    QString currentProfile = getCurrentProfile();
-    QString newProfile;
-
-    if (settings->property("silentWhenConnected").toBool()) {
-        if (watch->isConnected() && currentProfile != "silent") {
-            newProfile = "silent";
-            defaultProfile = currentProfile;
-        }
-        if (!watch->isConnected() && currentProfile == "silent" && defaultProfile != "silent") {
-            newProfile = defaultProfile;
-        }
-    }
-    else if (currentProfile != defaultProfile) {
-        newProfile = defaultProfile;
-    }
-
+    QString newProfile = settings->property(
+                watch->isConnected() ? "profileWhenConnected"
+                                     : "profileWhenDisconnected").toString();
     if (!newProfile.isEmpty()) {
         QDBusReply<bool> res = QDBusConnection::sessionBus().call(
                     QDBusMessage::createMethodCall("com.nokia.profiled", "/com/nokia/profiled", "com.nokia.profiled", "set_profile")

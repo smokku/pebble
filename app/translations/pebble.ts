@@ -65,32 +65,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="25"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
         <source>Logout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="38"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <source>Logging out...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <source>Hide search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <source>Show search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
         <source>Pebble Appstore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="45"/>
-        <source>WatchApps</source>
+        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <source>Apps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="51"/>
-        <source>WatchFaces</source>
+        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <source>Faces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="66"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
         <source>Downloading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="94"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
         <source>Downloading %1...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -142,19 +157,6 @@
     </message>
 </context>
 <context>
-    <name>FirmwareUpgrade</name>
-    <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
-        <source>Firmware upgrade</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
-        <source>Begin upgrade</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstallAppDialog</name>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="17"/>
@@ -180,163 +182,168 @@
 <context>
     <name>ManagerPage</name>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="35"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="56"/>
         <source>Pebble Appstore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="39"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="60"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="50"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="71"/>
         <source>Pebble Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="57"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="78"/>
         <source>Waiting for watch...
 If it can&apos;t be found please check it&apos;s available and paired in Bluetooth settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="78"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="99"/>
         <source>Service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="85"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="106"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="86"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="107"/>
         <source>Automatic startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="86"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="107"/>
         <source>Manual startup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="92"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="113"/>
         <source>Active</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="93"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="114"/>
         <source>Running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="93"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="114"/>
         <source>Dead</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="99"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="120"/>
         <source>Connection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="100"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="121"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="259"/>
         <source>Connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="100"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="121"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="280"/>
         <source>Disconnected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="113"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="134"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="120"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="141"/>
         <source>Forward phone calls</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="128"/>
-        <source>Silent when connected</source>
+        <location filename="../qml/pages/ManagerPage.qml" line="251"/>
+        <source>Profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="129"/>
-        <source>Sets phone profile to &quot;silent&quot; when Pebble is connected</source>
+        <location filename="../qml/pages/ManagerPage.qml" line="262"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="273"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="283"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="294"/>
+        <source>no change</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="137"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="138"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
         <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="146"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="158"/>
         <source>Transliterate messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="147"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="159"/>
         <source>Messages are transliterated to ASCII before sending to Pebble</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="156"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="168"/>
         <source>Notifications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="164"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="176"/>
         <source>Messaging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="165"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="177"/>
         <source>SMS and IM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="174"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="186"/>
         <source>Missed call</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="183"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="195"/>
         <source>Emails</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="192"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="204"/>
         <source>Mitakuuluu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="201"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="213"/>
         <source>Twitter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="211"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="223"/>
         <source>Facebook</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="220"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="232"/>
         <source>Other notifications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="229"/>
+        <location filename="../qml/pages/ManagerPage.qml" line="241"/>
         <source>All notifications</source>
         <translation type="unfinished"></translation>
     </message>

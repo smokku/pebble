@@ -22,6 +22,7 @@ Source0:    %{name}-%{version}.tar.xz
 Source100:  pebble.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   systemd-user-session-targets
+Requires:   nemo-qml-plugin-dbus-qt5
 BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  pkgconfig(Qt5Bluetooth)
 BuildRequires:  pkgconfig(Qt5Contacts)

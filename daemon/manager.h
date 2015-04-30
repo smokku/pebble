@@ -58,8 +58,6 @@ class Manager : public QObject, protected QDBusContext
     QContactManager *contacts;
     QContactDetailFilter numberFilter;
 
-    QString defaultProfile;
-
     QUuid currentAppUuid;
 
     QScopedPointer<icu::Transliterator> transliterator;
@@ -69,7 +67,6 @@ public:
     ~Manager();
 
     QString findPersonByNumber(QString number);
-    QString getCurrentProfile() const;
 
     bool uploadFirmware(bool recovery, const QString &file);
 
