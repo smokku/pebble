@@ -1,3 +1,12 @@
+* Mon May 11 2015 Tomasz Sterna <tomek@xiaoka.com> 1.1
+- Do not reconnect to the watch if Bluetooth is switched off
+- AppStore logout remorse timer
+- AppStore search, back button and busy indicator
+- Fixed music track detail fields order
+- Improved profile changes on watch (dis)connection
+- Filter *.pbw files while listing local apps from Downloads
+- Option to remove app from local list
+
 * Sun Apr 19 2015 Tomasz Sterna <tomek@xiaoka.com> 1.0
 - Restart pebbled.service in RPM post install
 - Checking for latest firmware version
