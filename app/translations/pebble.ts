@@ -157,25 +157,43 @@
     </message>
 </context>
 <context>
+    <name>FirmwareUpgrade</name>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
+        <source>Firmware upgrade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
+        <source>Begin upgrade</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstallAppDialog</name>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="17"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="18"/>
         <source>Select App files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="64"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
         <source>Install App</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="66"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="72"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="73"/>
         <source>Add App file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="143"/>
+        <source>Delete App file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

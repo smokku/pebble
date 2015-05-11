@@ -72,17 +72,17 @@
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="29"/>
         <source>Logging out...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wylogowywanie...</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="36"/>
         <source>Hide search</source>
-        <translation type="unfinished"></translation>
+        <translation>Schowaj wyszukiwanie</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="36"/>
         <source>Show search</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż wyszukiwanie</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="49"/>
@@ -92,12 +92,12 @@
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="78"/>
         <source>Apps</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacje</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="86"/>
         <source>Faces</source>
-        <translation type="unfinished"></translation>
+        <translation>Cyferblaty</translation>
     </message>
     <message>
         <source>WatchApps</source>
@@ -199,35 +199,42 @@
 <context>
     <name>FirmwareUpgrade</name>
     <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
         <source>Firmware upgrade</source>
-        <translation type="vanished">Aktualizacja firmware</translation>
+        <translation>Aktualizacja firmware</translation>
     </message>
     <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
         <source>Begin upgrade</source>
-        <translation type="vanished">Rozpocznij aktualizację</translation>
+        <translation>Rozpocznij aktualizację</translation>
     </message>
 </context>
 <context>
     <name>InstallAppDialog</name>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="17"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="18"/>
         <source>Select App files</source>
         <translation>Wybieranie plików Aplikacji</translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="64"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
         <source>Install App</source>
         <translation>Instalacja Aplikacji</translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="66"/>
         <source>Install</source>
         <translation>Zainstaluj</translation>
     </message>
     <message>
-        <location filename="../qml/pages/InstallAppDialog.qml" line="72"/>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="73"/>
         <source>Add App file</source>
         <translation>Dodaj plik Aplikacji</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/InstallAppDialog.qml" line="143"/>
+        <source>Delete App file</source>
+        <translation>Skasuj plik Aplikacji</translation>
     </message>
 </context>
 <context>
@@ -319,7 +326,7 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="262"/>
@@ -327,7 +334,7 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
         <location filename="../qml/pages/ManagerPage.qml" line="283"/>
         <location filename="../qml/pages/ManagerPage.qml" line="294"/>
         <source>no change</source>
-        <translation type="unfinished"></translation>
+        <translation>bez zmiany</translation>
     </message>
     <message>
         <source>Silent when connected</source>
