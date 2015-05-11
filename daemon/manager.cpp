@@ -416,6 +416,7 @@ QVariantList PebbledProxy::AllApps() const
         m.insert("version-label", QVariant::fromValue(info.versionLabel()));
         m.insert("is-watchface", QVariant::fromValue(info.isWatchface()));
         m.insert("configurable", QVariant::fromValue(info.capabilities().testFlag(AppInfo::Capability::Configurable)));
+        m.insert("path", QVariant::fromValue(info.path()));
 
         if (!info.getMenuIconImage().isNull()) {
             m.insert("menu-icon", QVariant::fromValue(info.getMenuIconPng()));

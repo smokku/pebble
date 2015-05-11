@@ -215,6 +215,19 @@ bool PebbledInterface::registerAppFile(const QString& filePath)
     return false;
 }
 
+bool PebbledInterface::unregisterAppFile(const QString& filePath)
+{
+    if (filePath.endsWith(".pbw", Qt::CaseInsensitive)) {
+        QDir dataDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+        if (filePath.startsWith(dataDir.absolutePath())) {
+            QFile pbw(filePath);
+            return pbw.remove();
+        }
+    }
+
+    return false;
+}
+
 QUrl PebbledInterface::configureApp(const QString &uuid)
 {
     qDebug() << Q_FUNC_INFO << uuid;
@@ -359,6 +372,7 @@ void PebbledInterface::refreshAllApps()
         m.insert("versionLabel", orig.value("version-label"));
         m.insert("isWatchface", orig.value("is-watchface"));
         m.insert("isConfigurable", orig.value("configurable"));
+        m.insert("path", orig.value("path"));
 
         QByteArray pngIcon = orig.value("menu-icon").toByteArray();
         if (!pngIcon.isEmpty()) {

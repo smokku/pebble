@@ -39,6 +39,7 @@ public:
     QVariantList allApps() const;
 
     Q_INVOKABLE static bool registerAppFile(const QString& filePath);
+    Q_INVOKABLE static bool unregisterAppFile(const QString& filePath);
 
     Q_INVOKABLE QVariantMap appInfoByUuid(const QString& uuid) const;
 

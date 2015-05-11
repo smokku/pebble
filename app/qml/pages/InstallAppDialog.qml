@@ -11,6 +11,7 @@ Dialog {
 
     Component {
         id: appPicker
+        // Copied+modified from /usr/lib/qt5/qml/Sailfish/Pickers/MultiDocumentPickerDialog.qml
 
         PickerDialog {
             id: appPickerDialog
@@ -27,9 +28,9 @@ Dialog {
                 DocumentModel {
                     id: documentModel
                     selectedModel: _selectedModel
-                    contentFilter: GalleryStartsWithFilter {
-                        property: "filePath"
-                        value: StandardPaths.documents + "/../Downloads"
+                    contentFilter: GalleryFilterIntersection {
+                        GalleryStartsWithFilter { property: "filePath"; value: StandardPaths.documents + "/../Downloads" }
+                        GalleryEndsWithFilter { property: "fileName"; value: ".pbw" }
                     }
                 }
 
@@ -134,6 +135,17 @@ Dialog {
                 if (!alreadyInstalled) {
                     selectedUuid = uuid
                     accept();
+                }
+            }
+
+            menu: ContextMenu {
+                MenuItem {
+                    text: qsTr("Delete App file")
+                    onClicked: {
+                        remorseAction(qsTr("Deleting " + modelData.shortName), function() {
+                            pebbled.unregisterAppFile(modelData.path)
+                        });
+                    }
                 }
             }
         }
