@@ -68,6 +68,9 @@ WatchConnector::WatchConnector(QObject *parent) :
 {
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+    timeSyncTimer.setSingleShot(true);
+    connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
+    timeSyncTimer.setInterval(14400000);
 
     firmwareMapping.insert(UNKNOWN, "unknown");
     firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
@@ -151,6 +154,7 @@ void WatchConnector::disconnect()
     socket->close();
     socket->deleteLater();
     reconnectTimer.stop();
+    timeSyncTimer.stop();
     qCDebug(l) << "stopped reconnect timer";
 }
 
@@ -312,6 +316,7 @@ void WatchConnector::onConnected()
         sendMessage(watchVERSION, QByteArray(1, 0));
         emit connectedChanged();
         if (name() != _last_name) emit nameChanged();
+        time();
     }
 }
 
@@ -476,6 +481,7 @@ void WatchConnector::ping(uint cookie)
 
 void WatchConnector::time()
 {
+    timeSyncTimer.stop();
     QByteArray res;
     QDateTime UTC(QDateTime::currentDateTimeUtc());
     QDateTime local(UTC.toLocalTime());
@@ -489,6 +495,7 @@ void WatchConnector::time()
     res.append((char)((val >> 8) & 0xff));
     res.append((char)(val & 0xff));
     sendMessage(watchTIME, res);
+    timeSyncTimer.start();
 }
 
 QString WatchConnector::timeStamp()
