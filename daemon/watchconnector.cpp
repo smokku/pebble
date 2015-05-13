@@ -155,7 +155,7 @@ void WatchConnector::disconnect()
     socket->deleteLater();
     reconnectTimer.stop();
     timeSyncTimer.stop();
-    qCDebug(l) << "stopped reconnect timer";
+    qCDebug(l) << "stopped timers";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
@@ -337,7 +337,7 @@ void WatchConnector::onDisconnected()
     if (not writeData.isEmpty() && reconnectTimer.interval() > RECONNECT_TIMEOUT) {
         writeData.clear(); // 3rd time around - user is not here, do not bother with resending last message
     }
-
+    timeSyncTimer.stop();
     scheduleReconnect();
 
 }
@@ -481,6 +481,7 @@ void WatchConnector::ping(uint cookie)
 
 void WatchConnector::time()
 {
+    qCDebug(l) << "Synchronizing time";
     timeSyncTimer.stop();
     QByteArray res;
     QDateTime UTC(QDateTime::currentDateTimeUtc());
