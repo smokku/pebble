@@ -70,7 +70,7 @@ WatchConnector::WatchConnector(QObject *parent) :
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
     timeSyncTimer.setSingleShot(true);
     connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
-    timeSyncTimer.setInterval(14400000);
+    timeSyncTimer.setInterval(4 * 60 * 60 * 1000); // sync time every 4 hours
 
     firmwareMapping.insert(UNKNOWN, "unknown");
     firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
