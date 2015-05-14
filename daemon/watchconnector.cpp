@@ -68,6 +68,9 @@ WatchConnector::WatchConnector(QObject *parent) :
 {
     reconnectTimer.setSingleShot(true);
     connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+    timeSyncTimer.setSingleShot(true);
+    connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
+    timeSyncTimer.setInterval(4 * 60 * 60 * 1000); // sync time every 4 hours
 
     firmwareMapping.insert(UNKNOWN, "unknown");
     firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
@@ -151,7 +154,8 @@ void WatchConnector::disconnect()
     socket->close();
     socket->deleteLater();
     reconnectTimer.stop();
-    qCDebug(l) << "stopped reconnect timer";
+    timeSyncTimer.stop();
+    qCDebug(l) << "stopped timers";
 }
 
 void WatchConnector::handleWatch(const QString &name, const QString &address)
@@ -312,6 +316,7 @@ void WatchConnector::onConnected()
         sendMessage(watchVERSION, QByteArray(1, 0));
         emit connectedChanged();
         if (name() != _last_name) emit nameChanged();
+        time();
     }
 }
 
@@ -332,7 +337,7 @@ void WatchConnector::onDisconnected()
     if (not writeData.isEmpty() && reconnectTimer.interval() > RECONNECT_TIMEOUT) {
         writeData.clear(); // 3rd time around - user is not here, do not bother with resending last message
     }
-
+    timeSyncTimer.stop();
     scheduleReconnect();
 
 }
@@ -476,6 +481,8 @@ void WatchConnector::ping(uint cookie)
 
 void WatchConnector::time()
 {
+    qCDebug(l) << "Synchronizing time";
+    timeSyncTimer.stop();
     QByteArray res;
     QDateTime UTC(QDateTime::currentDateTimeUtc());
     QDateTime local(UTC.toLocalTime());
@@ -489,6 +496,7 @@ void WatchConnector::time()
     res.append((char)((val >> 8) & 0xff));
     res.append((char)(val & 0xff));
     sendMessage(watchTIME, res);
+    timeSyncTimer.start();
 }
 
 QString WatchConnector::timeStamp()

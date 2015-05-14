@@ -261,6 +261,7 @@ private:
     bool is_connected;
     QByteArray writeData;
     QTimer reconnectTimer;
+    QTimer timeSyncTimer;
     QString _last_name;
     QString _last_address;
     WatchVersions _versions;
