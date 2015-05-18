@@ -126,8 +126,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     setDelayedReply(true);
 
     if (app_name == "messageserver5") {
-        QVariant notificationsEmails = settings->property("notificationsEmails");
-        if (!notificationsEmails.isValid() || !notificationsEmails.toBool()) {
+        if (!settings->property("notificationsEmails").toBool()) {
             qCDebug(l) << "Ignoring email notification because of setting!";
             return 0;
         }
@@ -149,14 +148,12 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
             QString category = hints.value("category", "").toString();
 
             if (category == "x-nemo.call.missed") {
-                QVariant notificationsMissedCall = settings->property("notificationsMissedCall");
-                if (notificationsMissedCall.isValid() && !notificationsMissedCall.toBool()) {
+                if (!settings->property("notificationsMissedCall").toBool()) {
                     qCDebug(l) << "Ignoring MissedCall notification because of setting!";
                     return 0;
                 }
             } else {
-                QVariant notificationsCommhistoryd = settings->property("notificationsCommhistoryd");
-                if (notificationsCommhistoryd.isValid() && !notificationsCommhistoryd.toBool()) {
+                if (!settings->property("notificationsCommhistoryd").toBool()) {
                     qCDebug(l) << "Ignoring commhistoryd notification because of setting!";
                     return 0;
                 }
@@ -166,8 +163,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                                 );
         }
     } else if (app_name == "harbour-mitakuuluu2-server") {
-        QVariant notificationsMitakuuluu = settings->property("notificationsMitakuuluu");
-        if (notificationsMitakuuluu.isValid() && !notificationsMitakuuluu.toBool()) {
+        if (!settings->property("notificationsMitakuuluu").toBool()) {
             qCDebug(l) << "Ignoring mitakuuluu notification because of setting!";
             return 0;
         }
@@ -176,8 +172,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                              hints.value("x-nemo-preview-summary", "default").toString()
                             );
     } else if (app_name == "twitter-notifications-client") {
-        QVariant notificationsTwitter = settings->property("notificationsTwitter");
-        if (notificationsTwitter.isValid() && !notificationsTwitter.toBool()) {
+        if (!settings->property("notificationsTwitter").toBool()) {
             qCDebug(l) << "Ignoring twitter notification because of setting!";
             return 0;
         }
@@ -195,14 +190,12 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
 
         qCDebug(l) << "MSG Prio:" << prio;
 
-        QVariant notificationsAll = settings->property("notificationsAll");
-        if ((!notificationsAll.isValid() || !notificationsAll.toBool()) && prio <= 10) {
+        if (!settings->property("notificationsAll").toBool() && prio <= 10) {
             qCDebug(l) << "Ignoring notification because of setting! (all)";
             return 0;
         }
 
-        QVariant notificationsOther = settings->property("notificationsOther");
-        if (notificationsOther.isValid() && !notificationsOther.toBool() && prio < 90) {
+        if (!settings->property("notificationsOther").toBool() && prio < 90) {
             qCDebug(l) << "Ignoring notification because of setting! (other)";
             return 0;
         }

@@ -130,8 +130,7 @@ void Manager::onActiveVoiceCallChanged()
 {
     qCDebug(l) << "Manager::onActiveVoiceCallChanged()";
 
-    QVariant incomingCallNotification = settings->property("incomingCallNotification");
-    if (incomingCallNotification.isValid() && !incomingCallNotification.toBool()) {
+    if (!settings->property("incomingCallNotification").toBool()) {
         qCDebug(l) << "Ignoring ActiveVoiceCallChanged because of setting!";
         return;
     }

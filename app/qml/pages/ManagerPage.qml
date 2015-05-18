@@ -12,17 +12,17 @@ Page {
         path: "/org/pebbled/settings"
         property string profileWhenConnected: ""
         property string profileWhenDisconnected: ""
-        property bool transliterateMessage: false
-        property bool useSystemVolume: true
-        property bool incomingCallNotification: true
-        property bool notificationsCommhistoryd: true
-        property bool notificationsMissedCall: true
-        property bool notificationsEmails: false
-        property bool notificationsMitakuuluu: true
-        property bool notificationsTwitter: true
-        property bool notificationsFacebook: true
-        property bool notificationsOther: true
-        property bool notificationsAll: false
+        property bool transliterateMessage
+        property bool useSystemVolume
+        property bool incomingCallNotification
+        property bool notificationsCommhistoryd
+        property bool notificationsMissedCall
+        property bool notificationsEmails
+        property bool notificationsMitakuuluu
+        property bool notificationsTwitter
+        property bool notificationsFacebook
+        property bool notificationsOther
+        property bool notificationsAll
     }
 
     DBusInterface {

@@ -148,11 +148,9 @@ void MusicManager::callMprisMethod(const QString &method)
 void MusicManager::handleMusicControl(WatchConnector::MusicControl operation)
 {
     qCDebug(l) << "operation from watch:" << operation;
-    QVariant useSystemVolumeVar = settings->property("useSystemVolume");
-    bool useSystemVolume = (useSystemVolumeVar.isValid() && useSystemVolumeVar.toBool());
 
     // System volume controls
-    if (useSystemVolume && _pulseBus != NULL &&
+    if (settings->property("useSystemVolume").toBool() && _pulseBus != NULL &&
             (operation == WatchConnector::musicVOLUME_UP || operation == WatchConnector::musicVOLUME_DOWN)) {
         // Query current volume
         QDBusMessage call = QDBusMessage::createMethodCall("com.Meego.MainVolume2", "/com/meego/mainvolume2",

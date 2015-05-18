@@ -39,8 +39,23 @@ class Settings : public MDConfGroup
 
 public:
     explicit Settings(QObject *parent = 0) :
-        MDConfGroup("/org/pebbled/settings", parent, BindProperties)
-    { resolveMetaObject(); }
+        MDConfGroup("/org/pebbled/settings", parent, BindProperties),
+        transliterateMessage(false),
+        useSystemVolume(true),
+        incomingCallNotification(true),
+        notificationsCommhistoryd(true),
+        notificationsMissedCall(true),
+        notificationsEmails(false),
+        notificationsMitakuuluu(true),
+        notificationsTwitter(true),
+        notificationsFacebook(true),
+        notificationsOther(true),
+        notificationsAll(false)
+    {
+        resolveMetaObject();
+        QMetaObject::invokeMethod(this, "propertyChanged", Qt::DirectConnection);
+        sync();
+    }
 
 signals:
     void profileWhenConnectedChanged();
