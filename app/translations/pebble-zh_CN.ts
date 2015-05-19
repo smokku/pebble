@@ -438,6 +438,11 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation>已安装应用</translation>
     </message>
     <message>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <source>(slot in use by unknown app)</source>
+        <translation>(插槽在被不明应用程序使用中)</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/WatchPage.qml" line="68"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>你的固件太老不支持SDK v2版本的应用</translation>
@@ -451,11 +456,6 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(empty slot)</source>
         <translation>(空槽)</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
-        <source>(插槽在被不明应用程序使用中)</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="197"/>
