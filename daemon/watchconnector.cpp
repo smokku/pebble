@@ -73,14 +73,18 @@ WatchConnector::WatchConnector(QObject *parent) :
     timeSyncTimer.setInterval(4 * 60 * 60 * 1000); // sync time every 4 hours
 
     firmwareMapping.insert(UNKNOWN, "unknown");
-    firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
-    firmwareMapping.insert(PEBBLE_ONE_EV2, "ev2");
-    firmwareMapping.insert(PEBBLE_ONE_EV2_3, "ev2_3");
-    firmwareMapping.insert(PEBBLE_ONE_EV2_4, "ev2_4");
-    firmwareMapping.insert(PEBBLE_ONE_POINT_FIVE, "v1_5");
-    firmwareMapping.insert(PEBBLE_TWO_POINT_ZERO, "v2_0");
-    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD_2, "bb2");
-    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD, "bigboard");
+    firmwareMapping.insert(TINTIN_EV1, "ev1");
+    firmwareMapping.insert(TINTIN_EV2, "ev2");
+    firmwareMapping.insert(TINTIN_EV2_3, "ev2_3");
+    firmwareMapping.insert(TINTIN_EV2_4, "ev2_4");
+    firmwareMapping.insert(TINTIN_V1_5, "v1_5");
+    firmwareMapping.insert(BIANCA, "v2_0");
+    firmwareMapping.insert(SNOWY_EVT2, "snowy_evt2");
+    firmwareMapping.insert(SNOWY_DVT, "snowy_dvt");
+    firmwareMapping.insert(TINTIN_BB, "bigboard");
+    firmwareMapping.insert(TINTIN_BB2, "bb2");
+    firmwareMapping.insert(SNOWY_BB, "snowy_bb");
+    firmwareMapping.insert(SNOWY_BB2, "snowy_bb2");
 
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);

@@ -16,7 +16,7 @@ PebbleFirmware::PebbleFirmware(QObject *parent) :
 void PebbleFirmware::updateLatest(QString hw)
 {
     QNetworkRequest req;
-    req.setUrl(firmwareURL.arg(hw).arg("release-v2"));
+    req.setUrl(firmwareURL.arg(hw).arg(hw.startsWith("snowy_") ? "release-v3" : "release-v2"));
     req.setRawHeader("Cache-Control", "no-cache");
     nm->get(req);
 }

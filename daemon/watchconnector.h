@@ -150,14 +150,19 @@ public:
 
     enum HardwareRevision {
         UNKNOWN = 0,
-        PEBBLE_ONE_EV1 = 1,
-        PEBBLE_ONE_EV2 = 2,
-        PEBBLE_ONE_EV2_3 = 3,
-        PEBBLE_ONE_EV2_4 = 4,
-        PEBBLE_ONE_POINT_FIVE = 5,
-        PEBBLE_TWO_POINT_ZERO = 6,
-        PEBBLE_ONE_BIGBOARD_2 = 254,
-        PEBBLE_ONE_BIGBOARD = 255
+        TINTIN_EV1 = 1,
+        TINTIN_EV2 = 2,
+        TINTIN_EV2_3 = 3,
+        TINTIN_EV2_4 = 4,
+        TINTIN_V1_5 = 5,
+        BIANCA = 6,
+        SNOWY_EVT2 = 7,
+        SNOWY_DVT = 8,
+
+        TINTIN_BB = 0xFF,
+        TINTIN_BB2 = 0xFE,
+        SNOWY_BB = 0xFD,
+        SNOWY_BB2 = 0xFC
     };
     QMap<HardwareRevision, QString> firmwareMapping;
 
