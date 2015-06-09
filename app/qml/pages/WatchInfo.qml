@@ -28,7 +28,7 @@ Page {
                 text: qsTr("Address")
             }
             Label {
-                text: pebbled.info.address
+                text: pebbled.info.address || ""
             }
 
             Label {
@@ -36,7 +36,7 @@ Page {
                 text: qsTr("Serial Number")
             }
             Label {
-                text: pebbled.info.serial
+                text: pebbled.info.serial || ""
             }
 
             Label {
@@ -69,7 +69,7 @@ Page {
                 text: qsTr("Recovery")
             }
             Label {
-                text: app.recoveryVersion
+                text: app.recoveryVersion || qsTr("unknown")
             }
 
             Label {
@@ -77,7 +77,7 @@ Page {
                 text: qsTr("Running")
             }
             Label {
-                text: app.firmwareVersion
+                text: app.firmwareVersion || qsTr("unknown")
             }
 
             Label {
@@ -89,7 +89,7 @@ Page {
             }
         }
         Button {
-            visible: app.firmwareLatest && app.firmwareVersion && app.firmwareVersion !== app.firmwareLatest
+            visible: app.firmwareLatest && app.firmwareVersion !== app.firmwareLatest
             text: qsTr("Upgrade Firmware")
             anchors {
                 left: parent.left

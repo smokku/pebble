@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="zh_CN">
 <context>
     <name>AboutPage</name>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="24"/>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>版本</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="36"/>
         <source>All Rights Reserved.</source>
-        <translation type="unfinished"></translation>
+        <translation>版权所有.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="60"/>
         <source>Support</source>
-        <translation type="unfinished"></translation>
+        <translation>支持</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="74"/>
         <source>Your donations help justify development time.</source>
-        <translation type="unfinished"></translation>
+        <translation>你的捐款帮助证明了开发时间.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="87"/>
         <source>Thank you for your support!!!</source>
-        <translation type="unfinished"></translation>
+        <translation>感谢你的支持!!!</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="90"/>
         <source>PayPal Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>贝宝捐助</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="100"/>
         <source>Bugs?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bugs?</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Open Bug Tracker</source>
-        <translation type="unfinished"></translation>
+        <translation>打开的Bug追踪器</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="116"/>
         <source>Forum Thread</source>
-        <translation type="unfinished"></translation>
+        <translation>论坛主题</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="125"/>
         <source>Send issue e-mail to developer</source>
-        <translation type="unfinished"></translation>
+        <translation>给开发者发送问题邮件</translation>
     </message>
 </context>
 <context>
@@ -59,7 +59,7 @@
     <message>
         <location filename="../qml/pages/AppConfigDialog.qml" line="75"/>
         <source>No configuration settings available</source>
-        <translation type="unfinished"></translation>
+        <translation>没有可用的配置设置</translation>
     </message>
 </context>
 <context>
@@ -67,47 +67,47 @@
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="27"/>
         <source>Logout</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="29"/>
         <source>Logging out...</source>
-        <translation type="unfinished"></translation>
+        <translation>退出中...</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="36"/>
         <source>Hide search</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏搜索框</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="36"/>
         <source>Show search</source>
-        <translation type="unfinished"></translation>
+        <translation>显示搜索框</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="49"/>
         <source>Pebble Appstore</source>
-        <translation type="unfinished"></translation>
+        <translation>Pebble 应用商店</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="78"/>
         <source>Apps</source>
-        <translation type="unfinished"></translation>
+        <translation>应用</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="86"/>
         <source>Faces</source>
-        <translation type="unfinished"></translation>
+        <translation>表情</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="109"/>
         <source>Downloading...</source>
-        <translation type="unfinished"></translation>
+        <translation>下载中...</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="141"/>
         <source>Downloading %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>下载 %1...</translation>
     </message>
 </context>
 <context>
@@ -115,12 +115,12 @@
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="56"/>
         <source>connected</source>
-        <translation type="unfinished"></translation>
+        <translation>已连接</translation>
     </message>
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="56"/>
         <source>disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>已断开</translation>
     </message>
 </context>
 <context>
@@ -128,32 +128,32 @@
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="28"/>
         <source>Feature unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>功能不可用</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="38"/>
         <source>This feature is available for supporters only.</source>
-        <translation type="unfinished"></translation>
+        <translation>此功能适用于仅支持者.</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="51"/>
         <source>Supporter?</source>
-        <translation type="unfinished"></translation>
+        <translation>支持者?</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="58"/>
         <source>Send me my code!</source>
-        <translation type="unfinished"></translation>
+        <translation>发送给我的代码！</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="68"/>
         <source>Activation code</source>
-        <translation type="unfinished"></translation>
+        <translation>激活码</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Paypal捐助</translation>
     </message>
 </context>
 <context>
@@ -161,12 +161,12 @@
     <message>
         <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
         <source>Firmware upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>固件升级</translation>
     </message>
     <message>
         <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
         <source>Begin upgrade</source>
-        <translation type="unfinished"></translation>
+        <translation>开始升级</translation>
     </message>
 </context>
 <context>
@@ -174,27 +174,27 @@
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="18"/>
         <source>Select App files</source>
-        <translation type="unfinished"></translation>
+        <translation>选择应用文件</translation>
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
         <source>Install App</source>
-        <translation type="unfinished"></translation>
+        <translation>安装应用</translation>
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="66"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>安装</translation>
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="73"/>
         <source>Add App file</source>
-        <translation type="unfinished"></translation>
+        <translation>添加应用文件</translation>
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="143"/>
         <source>Delete App file</source>
-        <translation type="unfinished"></translation>
+        <translation>删除应用文件</translation>
     </message>
 </context>
 <context>
@@ -202,90 +202,91 @@
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="56"/>
         <source>Pebble Appstore</source>
-        <translation type="unfinished"></translation>
+        <translation>Pebble 应用商店</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="60"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="71"/>
         <source>Pebble Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Pebble管理</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="78"/>
         <source>Waiting for watch...
 If it can&apos;t be found please check it&apos;s available and paired in Bluetooth settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>等待观看...
+        如果无法找到，请检查它的提供配对的蓝牙设置。</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="99"/>
         <source>Service</source>
-        <translation type="unfinished"></translation>
+        <translation>服务</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="106"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>已启用</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="107"/>
         <source>Automatic startup</source>
-        <translation type="unfinished"></translation>
+        <translation>自动启动</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="107"/>
         <source>Manual startup</source>
-        <translation type="unfinished"></translation>
+        <translation>手动启动</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="113"/>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>激活</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="114"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>运行中</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="114"/>
         <source>Dead</source>
-        <translation type="unfinished"></translation>
+        <translation>挂了</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="120"/>
         <source>Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>连接</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="121"/>
         <location filename="../qml/pages/ManagerPage.qml" line="259"/>
         <source>Connected</source>
-        <translation type="unfinished"></translation>
+        <translation>已连接</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="121"/>
         <location filename="../qml/pages/ManagerPage.qml" line="280"/>
         <source>Disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>已断开</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="134"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>设置</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="141"/>
         <source>Forward phone calls</source>
-        <translation type="unfinished"></translation>
+        <translation>前置通话</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>个性化</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="262"/>
@@ -293,77 +294,77 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <location filename="../qml/pages/ManagerPage.qml" line="283"/>
         <location filename="../qml/pages/ManagerPage.qml" line="294"/>
         <source>no change</source>
-        <translation type="unfinished"></translation>
+        <translation>未改变</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
-        <translation type="unfinished"></translation>
+        <translation>控制主音量</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="150"/>
         <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pebble音量键直接改变手机主音量，而不是通过音乐播放器</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="158"/>
         <source>Transliterate messages</source>
-        <translation type="unfinished"></translation>
+        <translation>音译消息</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="159"/>
         <source>Messages are transliterated to ASCII before sending to Pebble</source>
-        <translation type="unfinished"></translation>
+        <translation>在发送到Pebble之前消息已转换成ASCII码</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="168"/>
         <source>Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>通知</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="176"/>
         <source>Messaging</source>
-        <translation type="unfinished"></translation>
+        <translation>消息</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="177"/>
         <source>SMS and IM</source>
-        <translation type="unfinished"></translation>
+        <translation>短信和即时消息</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="186"/>
         <source>Missed call</source>
-        <translation type="unfinished"></translation>
+        <translation>漏接电话</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="195"/>
         <source>Emails</source>
-        <translation type="unfinished"></translation>
+        <translation>邮件</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="204"/>
         <source>Mitakuuluu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitakuuluu</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="213"/>
         <source>Twitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Twitter</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="223"/>
         <source>Facebook</source>
-        <translation type="unfinished"></translation>
+        <translation>Facebook</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="232"/>
         <source>Other notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>其他通知</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="241"/>
         <source>All notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>所有通知</translation>
     </message>
 </context>
 <context>
@@ -371,49 +372,49 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="28"/>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation>地址</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="36"/>
         <source>Serial Number</source>
-        <translation type="unfinished"></translation>
+        <translation>序列号</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="44"/>
         <source>BootLoader</source>
-        <translation type="unfinished"></translation>
+        <translation>BootLoader</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="52"/>
         <source>Firmware</source>
-        <translation type="unfinished"></translation>
+        <translation>固件</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="69"/>
         <source>Recovery</source>
-        <translation type="unfinished"></translation>
+        <translation>恢复模式</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="77"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>运行中</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="85"/>
         <source>Latest</source>
-        <translation type="unfinished"></translation>
+        <translation>最新</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="72"/>
         <location filename="../qml/pages/WatchInfo.qml" line="80"/>
         <location filename="../qml/pages/WatchInfo.qml" line="88"/>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>未知</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchInfo.qml" line="93"/>
         <source>Upgrade Firmware</source>
-        <translation type="unfinished"></translation>
+        <translation>升级固件</translation>
     </message>
 </context>
 <context>
@@ -421,62 +422,62 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="34"/>
         <source>Info</source>
-        <translation type="unfinished"></translation>
+        <translation>信息</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="40"/>
         <source>Ping</source>
-        <translation type="unfinished"></translation>
+        <translation>Ping</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="46"/>
         <source>Sync Time</source>
-        <translation type="unfinished"></translation>
+        <translation>同步时间</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="78"/>
         <source>Installed applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/WatchPage.qml" line="68"/>
-        <source>Your firmware is too old to support SDKv2 applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/WatchPage.qml" line="116"/>
-        <source>Uninstalling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
-        <source>(empty slot)</source>
-        <translation type="unfinished"></translation>
+        <translation>已安装应用</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(slot in use by unknown app)</source>
-        <translation type="unfinished"></translation>
+        <translation>(插槽在被不明应用程序使用中)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="68"/>
+        <source>Your firmware is too old to support SDKv2 applications</source>
+        <translation>你的固件太老不支持SDK v2版本的应用</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="116"/>
+        <source>Uninstalling</source>
+        <translation>卸载中...</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <source>(empty slot)</source>
+        <translation>(空槽)</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="197"/>
         <source>Install app...</source>
-        <translation type="unfinished"></translation>
+        <translation>安装应用...</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="202"/>
         <source>Companion app missing</source>
-        <translation type="unfinished"></translation>
+        <translation>配套应用缺失</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="215"/>
         <source>Configure...</source>
-        <translation type="unfinished"></translation>
+        <translation>配置...</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="220"/>
         <source>Uninstall</source>
-        <translation type="unfinished"></translation>
+        <translation>卸载</translation>
     </message>
 </context>
 </TS>

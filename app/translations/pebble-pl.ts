@@ -453,6 +453,8 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
         <translation>Najnowszy</translation>
     </message>
     <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="72"/>
+        <location filename="../qml/pages/WatchInfo.qml" line="80"/>
         <location filename="../qml/pages/WatchInfo.qml" line="88"/>
         <source>unknown</source>
         <translation>nie wiadomo</translation>

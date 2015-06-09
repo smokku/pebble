@@ -8,10 +8,8 @@
 #include <QStringList>
 #include <QTimer>
 #include <QDateTime>
-#include <QBluetoothDeviceInfo>
-#include <QBluetoothLocalDevice>
 #include <QBluetoothSocket>
-#include <QBluetoothServiceInfo>
+#include <QBluetoothAddress>
 #include <QLoggingCategory>
 
 class WatchConnector : public QObject
@@ -21,7 +19,7 @@ class WatchConnector : public QObject
 
     Q_ENUMS(Endpoint)
 
-    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString name READ name NOTIFY pebbleChanged)
     Q_PROPERTY(QString connected READ isConnected NOTIFY connectedChanged)
 
 public:
@@ -150,14 +148,19 @@ public:
 
     enum HardwareRevision {
         UNKNOWN = 0,
-        PEBBLE_ONE_EV1 = 1,
-        PEBBLE_ONE_EV2 = 2,
-        PEBBLE_ONE_EV2_3 = 3,
-        PEBBLE_ONE_EV2_4 = 4,
-        PEBBLE_ONE_POINT_FIVE = 5,
-        PEBBLE_TWO_POINT_ZERO = 6,
-        PEBBLE_ONE_BIGBOARD_2 = 254,
-        PEBBLE_ONE_BIGBOARD = 255
+        TINTIN_EV1 = 1,
+        TINTIN_EV2 = 2,
+        TINTIN_EV2_3 = 3,
+        TINTIN_EV2_4 = 4,
+        TINTIN_V1_5 = 5,
+        BIANCA = 6,
+        SNOWY_EVT2 = 7,
+        SNOWY_DVT = 8,
+
+        TINTIN_BB = 0xFF,
+        TINTIN_BB2 = 0xFE,
+        SNOWY_BB = 0xFD,
+        SNOWY_BB2 = 0xFC
     };
     QMap<HardwareRevision, QString> firmwareMapping;
 
@@ -200,7 +203,8 @@ public:
     virtual ~WatchConnector();
 
     inline bool isConnected() const { return is_connected; }
-    inline QString name() const { return socket != nullptr ? socket->peerName() : ""; }
+    inline QString name() const { return pebbles.keys(address()).at(0); }
+    inline QBluetoothAddress address() const { return socket != nullptr ? socket->peerAddress() : QBluetoothAddress(); }
     inline WatchVersions versions() const { return _versions; }
 
     void setEndpointHandler(uint endpoint, const EndpointHandlerFunc &func);
@@ -210,15 +214,15 @@ public:
     static QString decodeEndpoint(uint val);
 
 signals:
-    void nameChanged();
+    void pebbleChanged();
     void versionsChanged();
     void connectedChanged();
 
 public slots:
-    void deviceConnect(const QString &name, const QString &address);
+    bool findPebbles();
     void scheduleReconnect();
+    void connect();
     void disconnect();
-    void reconnect();
 
     void sendMessage(uint endpoint, const QByteArray &data, const EndpointHandlerFunc &callback = EndpointHandlerFunc());
     void ping(uint cookie);
@@ -243,8 +247,6 @@ public slots:
     void endPhoneCall(uint cookie=0);
 
 private slots:
-    void deviceDiscovered(const QBluetoothDeviceInfo&);
-    void handleWatch(const QString &name, const QString &address);
     void onReadSocket();
     void onBytesWritten(qint64);
     void onConnected();
@@ -262,8 +264,9 @@ private:
     QByteArray writeData;
     QTimer reconnectTimer;
     QTimer timeSyncTimer;
-    QString _last_name;
-    QString _last_address;
+    QMap<QString,QBluetoothAddress> pebbles;
+    int currentPebble;
+    quint64 _last_address;
     WatchVersions _versions;
 };
 

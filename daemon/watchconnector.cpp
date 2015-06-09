@@ -1,6 +1,12 @@
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QDebugStateSaver>
+#include <QBluetoothLocalDevice>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusReply>
+#include <QDBusArgument>
+#include <QDBusObjectPath>
 
 #include "unpacker.h"
 #include "watchconnector.h"
@@ -64,23 +70,28 @@ bool WatchConnector::WatchVersions::isEmpty() const
 }
 
 WatchConnector::WatchConnector(QObject *parent) :
-    QObject(parent), l(metaObject()->className()), socket(nullptr), is_connected(false)
+    QObject(parent), l(metaObject()->className()),
+    socket(nullptr), is_connected(false), currentPebble(0), _last_address(0)
 {
     reconnectTimer.setSingleShot(true);
-    connect(&reconnectTimer, SIGNAL(timeout()), SLOT(reconnect()));
+    QObject::connect(&reconnectTimer, SIGNAL(timeout()), SLOT(connect()));
     timeSyncTimer.setSingleShot(true);
-    connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
+    QObject::connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
     timeSyncTimer.setInterval(4 * 60 * 60 * 1000); // sync time every 4 hours
 
     firmwareMapping.insert(UNKNOWN, "unknown");
-    firmwareMapping.insert(PEBBLE_ONE_EV1, "ev1");
-    firmwareMapping.insert(PEBBLE_ONE_EV2, "ev2");
-    firmwareMapping.insert(PEBBLE_ONE_EV2_3, "ev2_3");
-    firmwareMapping.insert(PEBBLE_ONE_EV2_4, "ev2_4");
-    firmwareMapping.insert(PEBBLE_ONE_POINT_FIVE, "v1_5");
-    firmwareMapping.insert(PEBBLE_TWO_POINT_ZERO, "v2_0");
-    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD_2, "bb2");
-    firmwareMapping.insert(PEBBLE_ONE_BIGBOARD, "bigboard");
+    firmwareMapping.insert(TINTIN_EV1, "ev1");
+    firmwareMapping.insert(TINTIN_EV2, "ev2");
+    firmwareMapping.insert(TINTIN_EV2_3, "ev2_3");
+    firmwareMapping.insert(TINTIN_EV2_4, "ev2_4");
+    firmwareMapping.insert(TINTIN_V1_5, "v1_5");
+    firmwareMapping.insert(BIANCA, "v2_0");
+    firmwareMapping.insert(SNOWY_EVT2, "snowy_evt2");
+    firmwareMapping.insert(SNOWY_DVT, "snowy_dvt");
+    firmwareMapping.insert(TINTIN_BB, "bigboard");
+    firmwareMapping.insert(TINTIN_BB2, "bb2");
+    firmwareMapping.insert(SNOWY_BB, "snowy_bb");
+    firmwareMapping.insert(SNOWY_BB2, "snowy_bb2");
 
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);
@@ -124,28 +135,71 @@ WatchConnector::~WatchConnector()
 {
 }
 
-void WatchConnector::deviceDiscovered(const QBluetoothDeviceInfo &device)
+//dbus-send --system --dest=org.bluez --print-reply / org.bluez.Manager.ListAdapters
+//dbus-send --system --dest=org.bluez --print-reply $path org.bluez.Adapter.GetProperties
+//dbus-send --system --dest=org.bluez --print-reply $devpath org.bluez.Device.GetProperties
+//dbus-send --system --dest=org.bluez --print-reply $devpath org.bluez.Input.Connect
+bool WatchConnector::findPebbles()
 {
-    //FIXME TODO: Configurable
-    if (device.name().startsWith("Pebble")) {
-        qCDebug(l) << "Found Pebble:" << device.name() << '(' << device.address().toString() << ')';
-        handleWatch(device.name(), device.address().toString());
-    } else {
-        qCDebug(l) << "Found other device:" << device.name() << '(' << device.address().toString() << ')';
-    }
-}
+    pebbles.clear();
+    currentPebble = 0;
 
-void WatchConnector::deviceConnect(const QString &name, const QString &address)
-{
-    if (name.startsWith("Pebble")) handleWatch(name, address);
-}
+    QDBusConnection system = QDBusConnection::systemBus();
 
-void WatchConnector::reconnect()
-{
-    qCDebug(l) << "reconnect" << _last_name;
-    if (!_last_name.isEmpty() && !_last_address.isEmpty()) {
-        deviceConnect(_last_name, _last_address);
+    QDBusReply<QList<QDBusObjectPath>> ListAdaptersReply = system.call(
+                QDBusMessage::createMethodCall("org.bluez", "/", "org.bluez.Manager",
+                                               "ListAdapters"));
+    if (not ListAdaptersReply.isValid()) {
+        qCCritical(l) << ListAdaptersReply.error().message();
+        return false;
     }
+
+    QList<QDBusObjectPath> adapters = ListAdaptersReply.value();
+
+    if (adapters.isEmpty()) {
+        qCDebug(l) << "No BT adapters found";
+        return false;
+    }
+
+    QDBusReply<QVariantMap> AdapterPropertiesReply = system.call(
+                QDBusMessage::createMethodCall("org.bluez", adapters[0].path(), "org.bluez.Adapter",
+                                               "GetProperties"));
+    if (not AdapterPropertiesReply.isValid()) {
+        qCCritical(l) << AdapterPropertiesReply.error().message();
+        return false;
+    }
+
+    QList<QDBusObjectPath> devices;
+    AdapterPropertiesReply.value()["Devices"].value<QDBusArgument>() >> devices;
+
+    foreach (QDBusObjectPath path, devices) {
+        QDBusReply<QVariantMap> DevicePropertiesReply = system.call(
+                    QDBusMessage::createMethodCall("org.bluez", path.path(), "org.bluez.Device",
+                                                   "GetProperties"));
+        if (not DevicePropertiesReply.isValid()) {
+            qCCritical(l) << DevicePropertiesReply.error().message();
+            continue;
+        }
+
+        const QVariantMap &dict = DevicePropertiesReply.value();
+
+        QString tmp = dict["Name"].toString();
+        qCDebug(l) << "Found BT device:" << tmp;
+        if (tmp.startsWith("Pebble")) {
+            qCDebug(l) << "Found Pebble:" << tmp;
+            QBluetoothAddress addr(dict["Address"].toString());
+            QBluetoothLocalDevice dev;
+            if (dev.pairingStatus(addr) == QBluetoothLocalDevice::AuthorizedPaired) {
+                pebbles.insert(dict["Name"].toString(), addr);
+            }
+        }
+    }
+
+    if (pebbles.size()) {
+        scheduleReconnect();
+    }
+
+    return true;
 }
 
 void WatchConnector::disconnect()
@@ -158,10 +212,22 @@ void WatchConnector::disconnect()
     qCDebug(l) << "stopped timers";
 }
 
-void WatchConnector::handleWatch(const QString &name, const QString &address)
+void WatchConnector::connect()
 {
-    qCDebug(l) << "handleWatch" << name << address;
+    if (currentPebble >= pebbles.count()) {
+        currentPebble = 0;
+    }
+
+    QString _name = pebbles.keys().at(currentPebble);
+    QBluetoothAddress _address = pebbles.value(_name);
+
+    qCDebug(l) << "connect watch" << currentPebble << _name << _address.toString();
     reconnectTimer.stop();
+
+    if (_address.isNull()) {
+        qCWarning(l) << "No known pebble";
+        return;
+    }
 
     // Check if bluetooth is on
     QBluetoothLocalDevice host;
@@ -177,20 +243,18 @@ void WatchConnector::handleWatch(const QString &name, const QString &address)
         socket->deleteLater();
     }
 
-    _last_name = name;
-    _last_address = address;
     _versions.clear();
 
     qCDebug(l) << "Creating socket";
     socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-    connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
-    connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
-    connect(socket, SIGNAL(connected()), SLOT(onConnected()));
-    connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
-    connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
+    QObject::connect(socket, SIGNAL(readyRead()), SLOT(onReadSocket()));
+    QObject::connect(socket, SIGNAL(bytesWritten(qint64)), SLOT(onBytesWritten(qint64)));
+    QObject::connect(socket, SIGNAL(connected()), SLOT(onConnected()));
+    QObject::connect(socket, SIGNAL(disconnected()), SLOT(onDisconnected()));
+    QObject::connect(socket, SIGNAL(error(QBluetoothSocket::SocketError)), this, SLOT(onError(QBluetoothSocket::SocketError)));
 
     // FIXME: Assuming port 1 (with Pebble)
-    socket->connectToService(QBluetoothAddress(address), 1);
+    socket->connectToService(_address, 1);
 }
 
 QString WatchConnector::decodeEndpoint(uint val)
@@ -315,7 +379,9 @@ void WatchConnector::onConnected()
         }
         sendMessage(watchVERSION, QByteArray(1, 0));
         emit connectedChanged();
-        if (name() != _last_name) emit nameChanged();
+        quint64 new_address = address().toUInt64();
+        if (new_address != _last_address) emit pebbleChanged();
+        _last_address = new_address;
         time();
     }
 }
@@ -354,7 +420,11 @@ void WatchConnector::scheduleReconnect()
 void WatchConnector::onError(QBluetoothSocket::SocketError error)
 {
     if (error == QBluetoothSocket::UnknownSocketError) {
-        qCDebug(l) << error << socket->errorString();
+        QString errorString = socket->errorString();
+        qCDebug(l) << error << errorString;
+        if (errorString.endsWith(" down")) {
+            currentPebble++;
+        }
     } else {
         qCCritical(l) << "error connecting Pebble:" << error << socket->errorString();
     }
@@ -365,7 +435,7 @@ void WatchConnector::sendData(const QByteArray &data)
     writeData.append(data);
     if (socket == nullptr) {
         qCDebug(l) << "no socket - reconnecting";
-        reconnect();
+        connect();
     } else if (is_connected) {
         qCDebug(l) << "writing" << data.length() << "bytes to socket";
         if (PROTOCOL_DEBUG) qCDebug(l) << data.toHex();

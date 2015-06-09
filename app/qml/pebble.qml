@@ -22,6 +22,8 @@ ApplicationWindow
                     recoveryVersion = firmware.version
                 } else {
                     firmwareVersion = firmware.version
+                }
+                if (firmware.hardware) {
                     hardwareVersion = firmware.hardware
                 }
             })
