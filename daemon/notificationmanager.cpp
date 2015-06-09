@@ -117,7 +117,10 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         return 0;
     }
 
-    qCDebug(l) << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name);
+    // new place to check notification owner in Sailfish 1.1.6
+    QString owner = hints.value("x-nemo-owner").toString();
+
+    qCDebug(l) << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name) << " Owner: " << owner;
     qCDebug(l) << hints;
 
     // Avoid sending a reply for this method call, since we've received it because we're eavesdropping.
@@ -125,7 +128,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     Q_ASSERT(calledFromDBus());
     setDelayedReply(true);
 
-    if (app_name == "messageserver5") {
+    if (app_name == "messageserver5" || owner == "messageserver5") {
         if (!settings->property("notificationsEmails").toBool()) {
             qCDebug(l) << "Ignoring email notification because of setting!";
             return 0;
@@ -143,7 +146,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         if (!subject.isEmpty()) {
             emit this->emailNotify(subject, data, "");
         }
-    } else if (app_name == "commhistoryd") {
+    } else if (app_name == "commhistoryd" || owner == "commhistoryd") {
         if (summary == "" && body == "") {
             QString category = hints.value("category", "").toString();
 
@@ -162,7 +165,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
                                  hints.value("x-nemo-preview-body", "default").toString()
                                 );
         }
-    } else if (app_name == "harbour-mitakuuluu2-server") {
+    } else if (app_name == "harbour-mitakuuluu2-server" || owner == "harbour-mitakuuluu2-server") {
         if (!settings->property("notificationsMitakuuluu").toBool()) {
             qCDebug(l) << "Ignoring mitakuuluu notification because of setting!";
             return 0;
@@ -171,7 +174,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
         emit this->smsNotify(hints.value("x-nemo-preview-body", "default").toString(),
                              hints.value("x-nemo-preview-summary", "default").toString()
                             );
-    } else if (app_name == "twitter-notifications-client") {
+    } else if (app_name == "twitter-notifications-client" || owner == "twitter-notifications-client") {
         if (!settings->property("notificationsTwitter").toBool()) {
             qCDebug(l) << "Ignoring twitter notification because of setting!";
             return 0;
