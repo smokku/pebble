@@ -18,6 +18,7 @@ void PebbleFirmware::updateLatest(QString hw)
     QNetworkRequest req;
     req.setUrl(firmwareURL.arg(hw).arg(hw.startsWith("snowy_") ? "release-v3" : "release-v2"));
     req.setRawHeader("Cache-Control", "no-cache");
+    qDebug() << "Getting latest firmware" << req.url();
     nm->get(req);
 }
 

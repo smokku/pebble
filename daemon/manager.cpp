@@ -10,7 +10,6 @@ Manager::Manager(Settings *settings, QObject *parent) :
     QObject(parent), l(metaObject()->className()), settings(settings),
     proxy(new PebbledProxy(this)),
     watch(new WatchConnector(this)),
-    dbus(new DBusConnector(this)),
     upload(new UploadManager(watch, this)),
     apps(new AppManager(this)),
     bank(new BankManager(watch, upload, apps, this)),
@@ -67,8 +66,8 @@ Manager::Manager(Settings *settings, QObject *parent) :
     session.registerObject("/org/pebbled/Watch", proxy);
     session.registerService("org.pebbled");
 
-    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
-    connect(dbus, &DBusConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
+    connect(watch, &WatchConnector::pebbleChanged, proxy, &PebbledProxy::NameChanged);
+    connect(watch, &WatchConnector::pebbleChanged, proxy, &PebbledProxy::AddressChanged);
     connect(watch, &WatchConnector::connectedChanged, proxy, &PebbledProxy::ConnectedChanged);
     connect(watch, &WatchConnector::versionsChanged, proxy, &PebbledProxy::InfoChanged);
     connect(bank, &BankManager::slotsChanged, proxy, &PebbledProxy::AppSlotsChanged);
@@ -79,11 +78,7 @@ Manager::Manager(Settings *settings, QObject *parent) :
     // Set BT icon for notification
     notification.setImage("icon-system-bluetooth-device");
 
-    if (btDevice.isValid()) {
-        qCDebug(l) << "BT local name:" << btDevice.name();
-        connect(dbus, SIGNAL(pebbleChanged()), SLOT(onPebbleChanged()));
-        dbus->findPebble();
-    }
+    watch->findPebbles();
 }
 
 Manager::~Manager()
@@ -98,17 +93,6 @@ void Manager::onSettingChanged(const QString &key)
 void Manager::onSettingsChanged()
 {
     qCWarning(l) << __FUNCTION__ << "Not implemented!";
-}
-
-void Manager::onPebbleChanged()
-{
-    const QVariantMap & pebble = dbus->pebble();
-    QString name = pebble["Name"].toString();
-    if (name.isEmpty()) {
-        qCDebug(l) << "Pebble gone";
-    } else {
-        watch->deviceConnect(name, pebble["Address"].toString());
-    }
 }
 
 void Manager::onConnectedChanged()

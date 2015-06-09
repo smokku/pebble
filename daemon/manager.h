@@ -2,7 +2,6 @@
 #define MANAGER_H
 
 #include "watchconnector.h"
-#include "dbusconnector.h"
 #include "uploadmanager.h"
 #include "voicecallmanager.h"
 #include "notificationmanager.h"
@@ -15,7 +14,6 @@
 #include "settings.h"
 
 #include <QObject>
-#include <QBluetoothLocalDevice>
 #include <QDBusContext>
 #include <QtContacts/QContactManager>
 #include <QtContacts/QContactDetailFilter>
@@ -35,14 +33,11 @@ class Manager : public QObject, protected QDBusContext
 
     friend class PebbledProxy;
 
-    QBluetoothLocalDevice btDevice;
-
     Settings *settings;
 
     PebbledProxy *proxy;
 
     WatchConnector *watch;
-    DBusConnector *dbus;
     UploadManager *upload;
     AppManager *apps;
     BankManager *bank;
@@ -79,7 +74,6 @@ public slots:
 private slots:
     void onSettingChanged(const QString &key);
     void onSettingsChanged();
-    void onPebbleChanged();
     void onConnectedChanged();
     void onActiveVoiceCallChanged();
     void onVoiceError(const QString &message);
@@ -113,16 +107,15 @@ class PebbledProxy : public QObject, protected QDBusContext
     Q_PROPERTY(QVariantList AllApps READ AllApps NOTIFY AllAppsChanged)
 
     inline Manager* manager() const { return static_cast<Manager*>(parent()); }
-    inline QVariantMap pebble() const { return manager()->dbus->pebble(); }
 
 public:
     inline explicit PebbledProxy(QObject *parent)
         : QObject(parent), l(metaObject()->className()) {}
 
-    inline QString Name() const { return pebble()["Name"].toString(); }
-    inline QString Address() const { return pebble()["Address"].toString(); }
-    inline QVariantMap Info() const { return manager()->watch->versions().toMap(); }
-    inline bool Connected() const { return manager()->watch->isConnected(); }
+    inline QString Name() const { qCDebug(l) << manager()->watch->name(); return manager()->watch->name(); }
+    inline QString Address() const { qCDebug(l) << manager()->watch->address().toString(); return manager()->watch->address().toString(); }
+    inline QVariantMap Info() const { qCDebug(l) << manager()->watch->versions().toMap(); return manager()->watch->versions().toMap(); }
+    inline bool Connected() const { qCDebug(l) << manager()->watch->isConnected(); return manager()->watch->isConnected(); }
     inline QString AppUuid() const { return manager()->currentAppUuid.toString(); }
 
     QStringList AppSlots() const;
@@ -131,7 +124,7 @@ public:
 
 public slots:
     inline void Disconnect() { manager()->watch->disconnect(); }
-    inline void Reconnect() { manager()->watch->reconnect(); }
+    inline void Reconnect() { manager()->watch->connect(); }
     inline void Ping(uint val) { manager()->watch->ping(val); }
     inline void SyncTime() { manager()->watch->time(); }
 

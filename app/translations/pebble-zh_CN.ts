@@ -405,6 +405,8 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation>最新</translation>
     </message>
     <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="72"/>
+        <location filename="../qml/pages/WatchInfo.qml" line="80"/>
         <location filename="../qml/pages/WatchInfo.qml" line="88"/>
         <source>unknown</source>
         <translation>未知</translation>

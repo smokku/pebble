@@ -425,6 +425,8 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/WatchInfo.qml" line="72"/>
+        <location filename="../qml/pages/WatchInfo.qml" line="80"/>
         <location filename="../qml/pages/WatchInfo.qml" line="88"/>
         <source>unknown</source>
         <translation type="unfinished"></translation>
