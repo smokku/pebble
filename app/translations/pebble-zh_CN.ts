@@ -21,7 +21,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="74"/>
         <source>Your donations help justify development time.</source>
-        <translation>你的捐款帮助证明了开发时间.</translation>
+        <translation>你的捐款帮助合理开发时间.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="87"/>
@@ -31,7 +31,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="90"/>
         <source>PayPal Donate</source>
-        <translation>贝宝捐助</translation>
+        <translation>Paypal捐助</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="100"/>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="86"/>
         <source>Faces</source>
-        <translation>表情</translation>
+        <translation>表盘</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="109"/>
@@ -143,7 +143,7 @@
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="58"/>
         <source>Send me my code!</source>
-        <translation>发送给我的代码！</translation>
+        <translation>发送给我代码！</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="68"/>
@@ -159,14 +159,12 @@
 <context>
     <name>FirmwareUpgrade</name>
     <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
         <source>Firmware upgrade</source>
-        <translation>固件升级</translation>
+        <translation type="vanished">固件升级</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
         <source>Begin upgrade</source>
-        <translation>开始升级</translation>
+        <translation type="vanished">开始升级</translation>
     </message>
 </context>
 <context>
@@ -218,8 +216,8 @@
         <location filename="../qml/pages/ManagerPage.qml" line="78"/>
         <source>Waiting for watch...
 If it can&apos;t be found please check it&apos;s available and paired in Bluetooth settings.</source>
-        <translation>等待观看...
-        如果无法找到，请检查它的提供配对的蓝牙设置。</translation>
+        <translation>正在等待手表连接...
+        如果还是无法连接，请检查手表跟手机的蓝牙设置。</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="99"/>
@@ -309,12 +307,12 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="158"/>
         <source>Transliterate messages</source>
-        <translation>音译消息</translation>
+        <translation>转译消息</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="159"/>
         <source>Messages are transliterated to ASCII before sending to Pebble</source>
-        <translation>在发送到Pebble之前消息已转换成ASCII码</translation>
+        <translation>在发送到Pebble之前消息转换成ASCII码</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="168"/>
@@ -438,6 +436,11 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation>已安装应用</translation>
     </message>
     <message>
+        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <source>(slot in use by unknown app)</source>
+        <translation>(槽在被未知应用使用中)</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/WatchPage.qml" line="68"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>你的固件太老不支持SDK v2版本的应用</translation>
@@ -451,11 +454,6 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <location filename="../qml/pages/WatchPage.qml" line="188"/>
         <source>(empty slot)</source>
         <translation>(空槽)</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
-        <source>(插槽在被不明应用程序使用中)</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="197"/>
