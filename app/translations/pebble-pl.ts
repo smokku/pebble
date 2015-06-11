@@ -201,14 +201,12 @@
 <context>
     <name>FirmwareUpgrade</name>
     <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
         <source>Firmware upgrade</source>
-        <translation>Aktualizacja firmware</translation>
+        <translation type="vanished">Aktualizacja firmware</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
         <source>Begin upgrade</source>
-        <translation>Rozpocznij aktualizację</translation>
+        <translation type="vanished">Rozpocznij aktualizację</translation>
     </message>
 </context>
 <context>
