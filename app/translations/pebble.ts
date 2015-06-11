@@ -157,19 +157,6 @@
     </message>
 </context>
 <context>
-    <name>FirmwareUpgrade</name>
-    <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
-        <source>Firmware upgrade</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
-        <source>Begin upgrade</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InstallAppDialog</name>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="18"/>
