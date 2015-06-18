@@ -1,9 +1,16 @@
 import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 
 Page {
     id: page
+
+    ConfigurationGroup {
+        id: settings
+        path: "/org/pebbled/settings"
+        property bool debug
+    }
 
     SilicaFlickable {
         id: flickable
@@ -129,6 +136,15 @@ Page {
                     margins: Theme.paddingLarge * 2
                 }
                 onClicked: Qt.openUrlExternally("mailto:bugs@xiaoka.com?subject=pebbled issue&body=describe your issue here")
+            }
+            TextSwitch {
+                text: qsTr("Debug Mode")
+                description: qsTr("Enable daemon and app debugging")
+                checked: settings.debug
+                automaticCheck: true
+                onClicked: {
+                    settings.debug = !settings.debug;
+                }
             }
         }
     }

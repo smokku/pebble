@@ -21,6 +21,7 @@ class Settings : public MDConfGroup
     Q_PROPERTY(bool notificationsOther MEMBER notificationsOther NOTIFY notificationsOtherChanged)
     Q_PROPERTY(bool notificationsAll MEMBER notificationsAll NOTIFY notificationsAllChanged)
     Q_PROPERTY(QString accountToken MEMBER accountToken NOTIFY accountTokenChanged)
+    Q_PROPERTY(bool debug MEMBER debug NOTIFY debugChanged)
 
     QString profileWhenConnected;
     QString profileWhenDisconnected;
@@ -36,6 +37,7 @@ class Settings : public MDConfGroup
     bool notificationsOther;
     bool notificationsAll;
     QString accountToken;
+    bool debug;
 
 public:
     explicit Settings(QObject *parent = 0) :
@@ -50,7 +52,8 @@ public:
         notificationsTwitter(true),
         notificationsFacebook(true),
         notificationsOther(true),
-        notificationsAll(false)
+        notificationsAll(false),
+        debug(false)
     {
         resolveMetaObject();
         QMetaObject::invokeMethod(this, "propertyChanged", Qt::DirectConnection);
@@ -72,6 +75,7 @@ signals:
     void notificationsOtherChanged();
     void notificationsAllChanged();
     void accountTokenChanged();
+    void debugChanged();
 };
 
 #endif // SETTINGS_H

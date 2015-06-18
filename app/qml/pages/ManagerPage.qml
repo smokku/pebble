@@ -147,7 +147,7 @@ Page {
             }
             TextSwitch {
                 text: qsTr("Control main volume")
-                description: qsTr("Pebble music volume buttons change the main phone volume directly instead of through the music player.")
+                description: qsTr("Pebble music volume buttons change the main phone volume directly instead of through the music player")
                 checked: settings.useSystemVolume
                 automaticCheck: true
                 onClicked: {

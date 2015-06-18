@@ -50,18 +50,14 @@ int main(int argc, char *argv[])
     app.setApplicationName("pebble"); // Use the same appname as the UI.
     app.setOrganizationName("");
 
-    QStringList filterRules;
-
-    filterRules << (argc > 1 and QString("-d") == argv[0] ?
-                       "*.debug=false" : "*.debug=true");
-
-    // Init logging should be called after app object creation
-    QLoggingCategory::setFilterRules(filterRules.join("\n"));
-
     QLoggingCategory l("main");
     qCDebug(l) << argv[0] << APP_VERSION;
 
     Settings settings;
+
+    QLoggingCategory::setFilterRules(settings.property("debug").toBool() ?
+                                         "*.debug=true" : "*.debug=false");
+
     Manager manager(&settings);
     Q_UNUSED(manager);
 
