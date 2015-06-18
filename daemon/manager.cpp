@@ -123,7 +123,7 @@ void Manager::onActiveVoiceCallChanged()
     if (handler) {
         connect(handler, SIGNAL(statusChanged()), SLOT(onActiveVoiceCallStatusChanged()));
         connect(handler, SIGNAL(destroyed()), SLOT(onActiveVoiceCallStatusChanged()));
-        return;
+        if (handler->status()) onActiveVoiceCallStatusChanged();
     }
 }
 
