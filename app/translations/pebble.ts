@@ -4,53 +4,63 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="24"/>
+        <location filename="../qml/pages/AboutPage.qml" line="31"/>
         <source>Version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="36"/>
+        <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>All Rights Reserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="60"/>
+        <location filename="../qml/pages/AboutPage.qml" line="67"/>
         <source>Support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="74"/>
+        <location filename="../qml/pages/AboutPage.qml" line="81"/>
         <source>Your donations help justify development time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <location filename="../qml/pages/AboutPage.qml" line="94"/>
         <source>Thank you for your support!!!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="90"/>
+        <location filename="../qml/pages/AboutPage.qml" line="97"/>
         <source>PayPal Donate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="100"/>
+        <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Bugs?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="107"/>
+        <location filename="../qml/pages/AboutPage.qml" line="114"/>
         <source>Open Bug Tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>Forum Thread</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="125"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>Send issue e-mail to developer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="141"/>
+        <source>Debug Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="142"/>
+        <source>Enable daemon and app debugging</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -283,6 +293,11 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
+        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
         <translation type="unfinished"></translation>
@@ -298,11 +313,6 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
-        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

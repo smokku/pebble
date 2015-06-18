@@ -4,54 +4,64 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="24"/>
+        <location filename="../qml/pages/AboutPage.qml" line="31"/>
         <source>Version</source>
         <translation>版本</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="36"/>
+        <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>All Rights Reserved.</source>
         <translation>版权所有.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="60"/>
+        <location filename="../qml/pages/AboutPage.qml" line="67"/>
         <source>Support</source>
         <translation>支持</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="74"/>
+        <location filename="../qml/pages/AboutPage.qml" line="81"/>
         <source>Your donations help justify development time.</source>
         <translation>你的捐款帮助证明了开发时间.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <location filename="../qml/pages/AboutPage.qml" line="94"/>
         <source>Thank you for your support!!!</source>
         <translation>感谢你的支持!!!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="90"/>
+        <location filename="../qml/pages/AboutPage.qml" line="97"/>
         <source>PayPal Donate</source>
         <translation>贝宝捐助</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="100"/>
+        <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Bugs?</source>
         <translation>Bugs?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="107"/>
+        <location filename="../qml/pages/AboutPage.qml" line="114"/>
         <source>Open Bug Tracker</source>
         <translation>打开的Bug追踪器</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>Forum Thread</source>
         <translation>论坛主题</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="125"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>Send issue e-mail to developer</source>
         <translation>给开发者发送问题邮件</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="141"/>
+        <source>Debug Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="142"/>
+        <source>Enable daemon and app debugging</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -284,6 +294,11 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <translation>前置通话</translation>
     </message>
     <message>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
+        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player</source>
+        <translation>Pebble音量键直接改变手机主音量，而不是通过音乐播放器</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
         <translation>个性化</translation>
@@ -300,11 +315,6 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
         <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
         <translation>控制主音量</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
-        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
-        <translation>Pebble音量键直接改变手机主音量，而不是通过音乐播放器</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="158"/>

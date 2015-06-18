@@ -4,54 +4,64 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="24"/>
+        <location filename="../qml/pages/AboutPage.qml" line="31"/>
         <source>Version</source>
         <translation>Wersja</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="36"/>
+        <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>All Rights Reserved.</source>
         <translation>Wszelkie prawa zastrzeżone.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="60"/>
+        <location filename="../qml/pages/AboutPage.qml" line="67"/>
         <source>Support</source>
         <translation>Wsparcie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="74"/>
+        <location filename="../qml/pages/AboutPage.qml" line="81"/>
         <source>Your donations help justify development time.</source>
         <translation>Dotacje pomagają uzasadnić czas poświęcony na rozwój aplikacji.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <location filename="../qml/pages/AboutPage.qml" line="94"/>
         <source>Thank you for your support!!!</source>
         <translation>Dziękuję za twoje wsparcie!!!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="90"/>
+        <location filename="../qml/pages/AboutPage.qml" line="97"/>
         <source>PayPal Donate</source>
         <translation>Dotacja PayPal</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="100"/>
+        <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Bugs?</source>
         <translation>Błędy?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="107"/>
+        <location filename="../qml/pages/AboutPage.qml" line="114"/>
         <source>Open Bug Tracker</source>
         <translation>Otwórz Bug Tracker</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>Forum Thread</source>
         <translation>Wątek na forum</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="125"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>Send issue e-mail to developer</source>
         <translation>Wyślij zgłoszenie e-mail do developera</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="141"/>
+        <source>Debug Mode</source>
+        <translation>Tryb Debug</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="142"/>
+        <source>Enable daemon and app debugging</source>
+        <translation>Włącz debugowanie demona i appki</translation>
     </message>
 </context>
 <context>
@@ -98,14 +108,6 @@
         <location filename="../qml/pages/AppStorePage.qml" line="86"/>
         <source>Faces</source>
         <translation>Cyferblaty</translation>
-    </message>
-    <message>
-        <source>WatchApps</source>
-        <translation type="vanished">Aplikacje</translation>
-    </message>
-    <message>
-        <source>WatchFaces</source>
-        <translation type="vanished">Cyferblaty</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="109"/>
@@ -324,6 +326,11 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
         <translation>Przekazuj telefony</translation>
     </message>
     <message>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
+        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player</source>
+        <translation>Guziki zmiany głośności na Pebble będą zmieniać głośność bezpośrednio, a nie za pomocą odtwarzacza muzyki</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
         <translation>Profile</translation>
@@ -337,22 +344,9 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
         <translation>bez zmiany</translation>
     </message>
     <message>
-        <source>Silent when connected</source>
-        <translation type="vanished">Cichy gdy połączony</translation>
-    </message>
-    <message>
-        <source>Sets phone profile to &quot;silent&quot; when Pebble is connected</source>
-        <translation type="vanished">Ustawia &quot;cichy&quot; profil telefonu gdy Pebble jest połączony</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
         <translation>Steruj głośnością główną</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
-        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
-        <translation>Guziki zmiany głośności na Pebble będą zmieniać głośność bezpośrednio, a nie za pomocą odtwarzacza muzyki.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ManagerPage.qml" line="158"/>

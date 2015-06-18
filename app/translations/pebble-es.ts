@@ -4,53 +4,63 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="24"/>
+        <location filename="../qml/pages/AboutPage.qml" line="31"/>
         <source>Version</source>
         <translation>Versión</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="36"/>
+        <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>All Rights Reserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="60"/>
+        <location filename="../qml/pages/AboutPage.qml" line="67"/>
         <source>Support</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="74"/>
+        <location filename="../qml/pages/AboutPage.qml" line="81"/>
         <source>Your donations help justify development time.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="87"/>
+        <location filename="../qml/pages/AboutPage.qml" line="94"/>
         <source>Thank you for your support!!!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="90"/>
+        <location filename="../qml/pages/AboutPage.qml" line="97"/>
         <source>PayPal Donate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="100"/>
+        <location filename="../qml/pages/AboutPage.qml" line="107"/>
         <source>Bugs?</source>
         <translation>¿Errores?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="107"/>
+        <location filename="../qml/pages/AboutPage.qml" line="114"/>
         <source>Open Bug Tracker</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>Forum Thread</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="125"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>Send issue e-mail to developer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="141"/>
+        <source>Debug Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="142"/>
+        <source>Enable daemon and app debugging</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -180,10 +190,6 @@
 <context>
     <name>InstallAppDialog</name>
     <message>
-        <source>Install app</source>
-        <translation type="vanished">Instalar app</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="18"/>
         <source>Select App files</source>
         <translation type="unfinished"></translation>
@@ -191,7 +197,7 @@
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="65"/>
         <source>Install App</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar App</translation>
     </message>
     <message>
         <location filename="../qml/pages/InstallAppDialog.qml" line="66"/>
@@ -296,6 +302,11 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
         <translation>Transferir llamadas</translation>
     </message>
     <message>
+        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
+        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="251"/>
         <source>Profiles</source>
         <translation type="unfinished"></translation>
@@ -309,21 +320,8 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Silent when connected</source>
-        <translation type="vanished">Modo silencio automático</translation>
-    </message>
-    <message>
-        <source>Sets phone profile to &quot;silent&quot; when Pebble is connected</source>
-        <translation type="vanished">Activa el modo silencio cuando se conecte un Pebble</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/ManagerPage.qml" line="149"/>
         <source>Control main volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ManagerPage.qml" line="150"/>
-        <source>Pebble music volume buttons change the main phone volume directly instead of through the music player.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
