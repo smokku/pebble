@@ -428,6 +428,7 @@ void WatchConnector::onError(QBluetoothSocket::SocketError error)
     } else {
         qCCritical(l) << "error connecting Pebble:" << error << socket->errorString();
     }
+    scheduleReconnect();
 }
 
 void WatchConnector::sendData(const QByteArray &data)
