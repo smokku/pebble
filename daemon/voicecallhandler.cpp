@@ -19,7 +19,8 @@ class VoiceCallHandlerPrivate
 public:
     VoiceCallHandlerPrivate(VoiceCallHandler *q, const QString &pHandlerId)
         : q_ptr(q), handlerId(pHandlerId), interface(NULL)
-        , duration(0), status(0), emergency(false), multiparty(false), forwarded(false)
+        , duration(0), status(0), emergency(false), incoming(false)
+        , multiparty(false) , forwarded(false), remoteHeld(false)
     { /* ... */ }
 
     VoiceCallHandler *q_ptr;
@@ -35,8 +36,10 @@ public:
     QString providerId;
     QDateTime startedAt;
     bool emergency;
+    bool incoming;
     bool multiparty;
     bool forwarded;
+    bool remoteHeld;
 };
 
 /*!
@@ -83,6 +86,7 @@ void VoiceCallHandler::initialize(bool notifyError)
             connect(d->interface, SIGNAL(emergencyChanged(bool)), SLOT(onEmergencyChanged(bool)));
             connect(d->interface, SIGNAL(multipartyChanged(bool)), SLOT(onMultipartyChanged(bool)));
             connect(d->interface, SIGNAL(forwardedChanged(bool)), SLOT(onForwardedChanged(bool)));
+            connect(d->interface, SIGNAL(remoteHeldChanged(bool)), SLOT(onRemoteHeldChanged(bool)));
         }
         else {
             if (notifyError) emit this->error("Failed to get VoiceCall properties from VCM D-Bus service.");
@@ -113,6 +117,8 @@ bool VoiceCallHandler::getProperties()
         d->multiparty = props["isMultiparty"].toBool();
         d->emergency = props["isEmergency"].toBool();
         d->forwarded = props["isForwarded"].toBool();
+        d->incoming = props["isIncoming"].toBool();
+        d->remoteHeld = props["isIncoming"].toBool();
         return true;
     }
     else {
@@ -135,8 +141,7 @@ void VoiceCallHandler::onStatusChanged(int status, QString statusText)
     qCDebug(l) <<"onStatusChanged" << status << statusText;
     d->status = status;
     d->statusText = statusText;
-    // we still fetch all properties to be sure all properties are present.
-    getProperties();
+    if (status) getProperties(); // make sure all properties are present
     emit statusChanged();
 }
 
@@ -178,6 +183,14 @@ void VoiceCallHandler::onForwardedChanged(bool isForwarded)
     qCDebug(l) << "onForwardedChanged" << isForwarded;
     d->forwarded = isForwarded;
     emit forwardedChanged();
+}
+
+void VoiceCallHandler::onRemoteHeldChanged(bool isRemoteHeld)
+{
+    Q_D(VoiceCallHandler);
+    qCDebug(l) << "onRemoteHeldChanged" << isRemoteHeld;
+    d->forwarded = isRemoteHeld;
+    emit remoteHeldChanged();
 }
 
 /*!
@@ -249,7 +262,7 @@ int VoiceCallHandler::duration() const
 bool VoiceCallHandler::isIncoming() const
 {
     Q_D(const VoiceCallHandler);
-    return d->interface->property("isIncoming").toBool();
+    return d->incoming;
 }
 
 /*!
@@ -277,6 +290,15 @@ bool VoiceCallHandler::isEmergency() const
 {
     Q_D(const VoiceCallHandler);
     return d->emergency;
+}
+
+/*!
+  Returns this voice calls' remoteHeld flag property.
+ */
+bool VoiceCallHandler::isRemoteHeld() const
+{
+    Q_D(const VoiceCallHandler);
+    return d->remoteHeld;
 }
 
 /*!
