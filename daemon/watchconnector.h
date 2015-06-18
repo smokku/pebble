@@ -39,12 +39,17 @@ public:
         watchAPP = 2004,
         watchAPP_LOGS = 2006,
         watchNOTIFICATION = 3000,
+        watchEXTENSIBLE_NOTIFS = 3010, // Deprecated in 3.x
         watchRESOURCE = 4000,
-        watchAPP_MANAGER = 6000,
+        watchFACTORY_SETTINGS = 5001,
+        watchAPP_MANAGER = 6000, // Deprecated in 3.x
+        watchAPP_FETCH = 6001, // New in 3.x
         watchDATA_LOGGING = 6778,
         watchSCREENSHOT = 8000,
         watchFILE_MANAGER = 8181,
         watchCORE_DUMP = 9000,
+        watchAUDIO = 10000, // New in 3.x
+        watchBLOB_DB = 45531, // New in 3.x
         watchPUTBYTES = 48879
     };
     enum {
