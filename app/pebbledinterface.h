@@ -63,7 +63,7 @@ signals:
 public slots:
     void setEnabled(bool);
     void setActive(bool);
-    void ping();
+    void ping(uint cookie = 66);
     void time();
     void disconnect();
     void reconnect();

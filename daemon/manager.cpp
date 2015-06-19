@@ -259,6 +259,36 @@ void Manager::applyProfile()
     }
 }
 
+void Manager::ping(uint val)
+{
+    qCDebug(l) << "ping" << val;
+
+    if (settings->property("debug").toBool()) {
+        // magic here!
+        // I do not want to add specific debugging methods to pebbled
+        // so just provide some magic Ping() method handling here :-)
+        switch (val) {
+        case 128:
+            watch->sendSMSNotification("SMS", "lorem ipsum");
+            return;
+        case 129:
+            watch->sendEmailNotification("e-mail", "lorem ipsum", "subject");
+            return;
+        case 130:
+            watch->sendFacebookNotification("Facebook", "lorem ipsum");
+            return;
+        case 131:
+            watch->sendTwitterNotification("Twitter", "lorem ipsum");
+            return;
+        case 132:
+            watch->sendMusicNowPlaying("artist", "album", "track name");
+            return;
+        }
+    }
+
+    watch->ping(val);
+}
+
 void Manager::transliterateMessage(const QString &text)
 {
     if (transliterator.isNull()) {

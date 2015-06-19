@@ -175,10 +175,10 @@ QString PebbledInterface::appUuid() const
     return watch->appUuid();
 }
 
-void PebbledInterface::ping()
+void PebbledInterface::ping(uint cookie)
 {
     qDebug() << Q_FUNC_INFO;
-    watch->Ping(66);
+    watch->Ping(cookie);
 }
 
 void PebbledInterface::time()

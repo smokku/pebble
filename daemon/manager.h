@@ -70,6 +70,7 @@ protected:
 
 public slots:
     void applyProfile();
+    void ping(uint val);
 
 private slots:
     void onSettingChanged(const QString &key);
@@ -125,7 +126,7 @@ public:
 public slots:
     inline void Disconnect() { manager()->watch->disconnect(); }
     inline void Reconnect() { manager()->watch->connect(); }
-    inline void Ping(uint val) { manager()->watch->ping(val); }
+    inline void Ping(uint val) { manager()->ping(val); }
     inline void SyncTime() { manager()->watch->time(); }
 
     inline void LaunchApp(const QString &uuid) { manager()->appmsg->launchApp(uuid); }

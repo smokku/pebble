@@ -1,11 +1,18 @@
 import QtQuick 2.0
 import QtQml 2.1
 import Sailfish.Silica 1.0
+import org.nemomobile.configuration 1.0
 
 Page {
     id: watchPage
 
     property bool firmwareVersionOK: app.firmwareVersion && app.firmwareVersion.indexOf("v1.") !== 0
+
+    ConfigurationGroup {
+        id: settings
+        path: "/org/pebbled/settings"
+        property bool debug
+    }
 
     SilicaFlickable {
         id: flickable
@@ -46,6 +53,40 @@ Page {
                     text: qsTr("Sync Time")
                     width: parent.width / 3
                     onClicked: pebbled.time()
+                }
+            }
+            Row {
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    margins: Theme.paddingLarge
+                }
+
+                visible: settings.debug
+                Button {
+                    text: qsTr("SMS")
+                    width: parent.width / 5
+                    onClicked: pebbled.ping(128)
+                }
+                Button {
+                    text: qsTr("E-Mail")
+                    width: parent.width / 5
+                    onClicked: pebbled.ping(129)
+                }
+                Button {
+                    text: qsTr("FB")
+                    width: parent.width / 5
+                    onClicked: pebbled.ping(130)
+                }
+                Button {
+                    text: qsTr("Twt")
+                    width: parent.width / 5
+                    onClicked: pebbled.ping(131)
+                }
+                Button {
+                    text: qsTr("Music")
+                    width: parent.width / 5
+                    onClicked: pebbled.ping(132)
                 }
             }
 
