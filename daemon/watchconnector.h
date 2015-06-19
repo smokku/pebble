@@ -152,7 +152,7 @@ public:
     };
 
     enum HardwareRevision {
-        UNKNOWN = 0,
+        HR_UNKNOWN = 0,
         TINTIN_EV1 = 1,
         TINTIN_EV2 = 2,
         TINTIN_EV2_3 = 3,
@@ -167,7 +167,13 @@ public:
         SNOWY_BB = 0xFD,
         SNOWY_BB2 = 0xFC
     };
-    QMap<HardwareRevision, QString> firmwareMapping;
+    enum HardwarePlatform {
+        HP_UNKNOWN = 0,
+        APLITE,
+        BASALT
+    };
+    typedef QPair<HardwarePlatform,QString> HWMap;
+    QMap<HardwareRevision, HWMap> hardwareMapping;
 
     struct SoftwareVersion {
         QDateTime build;
@@ -273,6 +279,7 @@ private:
     int currentPebble;
     quint64 _last_address;
     WatchVersions _versions;
+    HardwarePlatform platform;
 };
 
 QDebug operator<< (QDebug d, const WatchConnector::SoftwareVersion &ver);

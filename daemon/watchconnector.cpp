@@ -71,7 +71,8 @@ bool WatchConnector::WatchVersions::isEmpty() const
 
 WatchConnector::WatchConnector(QObject *parent) :
     QObject(parent), l(metaObject()->className()),
-    socket(nullptr), is_connected(false), currentPebble(0), _last_address(0)
+    socket(nullptr), is_connected(false),
+    currentPebble(0), _last_address(0), platform(HP_UNKNOWN)
 {
     reconnectTimer.setSingleShot(true);
     QObject::connect(&reconnectTimer, SIGNAL(timeout()), SLOT(connect()));
@@ -79,19 +80,19 @@ WatchConnector::WatchConnector(QObject *parent) :
     QObject::connect(&timeSyncTimer, SIGNAL(timeout()), SLOT(time()));
     timeSyncTimer.setInterval(4 * 60 * 60 * 1000); // sync time every 4 hours
 
-    firmwareMapping.insert(UNKNOWN, "unknown");
-    firmwareMapping.insert(TINTIN_EV1, "ev1");
-    firmwareMapping.insert(TINTIN_EV2, "ev2");
-    firmwareMapping.insert(TINTIN_EV2_3, "ev2_3");
-    firmwareMapping.insert(TINTIN_EV2_4, "ev2_4");
-    firmwareMapping.insert(TINTIN_V1_5, "v1_5");
-    firmwareMapping.insert(BIANCA, "v2_0");
-    firmwareMapping.insert(SNOWY_EVT2, "snowy_evt2");
-    firmwareMapping.insert(SNOWY_DVT, "snowy_dvt");
-    firmwareMapping.insert(TINTIN_BB, "bigboard");
-    firmwareMapping.insert(TINTIN_BB2, "bb2");
-    firmwareMapping.insert(SNOWY_BB, "snowy_bb");
-    firmwareMapping.insert(SNOWY_BB2, "snowy_bb2");
+    hardwareMapping.insert(HR_UNKNOWN, HWMap(HP_UNKNOWN, "unknown"));
+    hardwareMapping.insert(TINTIN_EV1, HWMap(APLITE, "ev1"));
+    hardwareMapping.insert(TINTIN_EV2, HWMap(APLITE, "ev2"));
+    hardwareMapping.insert(TINTIN_EV2_3, HWMap(APLITE, "ev2_3"));
+    hardwareMapping.insert(TINTIN_EV2_4, HWMap(APLITE, "ev2_4"));
+    hardwareMapping.insert(TINTIN_V1_5, HWMap(APLITE, "v1_5"));
+    hardwareMapping.insert(BIANCA, HWMap(APLITE, "v2_0"));
+    hardwareMapping.insert(SNOWY_EVT2, HWMap(BASALT, "snowy_evt2"));
+    hardwareMapping.insert(SNOWY_DVT, HWMap(BASALT, "snowy_dvt"));
+    hardwareMapping.insert(TINTIN_BB, HWMap(APLITE, "bigboard"));
+    hardwareMapping.insert(TINTIN_BB2, HWMap(APLITE, "bb2"));
+    hardwareMapping.insert(SNOWY_BB, HWMap(BASALT, "snowy_bb"));
+    hardwareMapping.insert(SNOWY_BB2, HWMap(BASALT, "snowy_bb2"));
 
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);
@@ -103,7 +104,7 @@ WatchConnector::WatchConnector(QObject *parent) :
         _versions.main.commit = u.readFixedString(8);
         _versions.main.is_recovery = u.read<quint8>();
         _versions.main.hw_revision = HardwareRevision(u.read<quint8>());
-        _versions.main.hw_string = firmwareMapping.value(_versions.main.hw_revision);
+        _versions.main.hw_string = hardwareMapping.value(_versions.main.hw_revision).second;
         _versions.main.metadata_version = u.read<quint8>();
 
         _versions.safe.build = QDateTime::fromTime_t(u.read<quint32>());
@@ -111,13 +112,15 @@ WatchConnector::WatchConnector(QObject *parent) :
         _versions.safe.commit = u.readFixedString(8);
         _versions.safe.is_recovery = u.read<quint8>();
         _versions.safe.hw_revision = HardwareRevision(u.read<quint8>());
-        _versions.safe.hw_string = firmwareMapping.value(_versions.safe.hw_revision);
+        _versions.safe.hw_string = hardwareMapping.value(_versions.safe.hw_revision).second;
         _versions.safe.metadata_version = u.read<quint8>();
 
         _versions.bootLoaderBuild = QDateTime::fromTime_t(u.read<quint32>());
         _versions.hardwareRevision = u.readFixedString(9);
         _versions.serialNumber = u.readFixedString(12);
         _versions.address = u.readBytes(6);
+
+        platform = hardwareMapping.value(_versions.safe.hw_revision).first;
 
         if (u.bad()) {
             qCWarning(l) << "short read while reading firmware version";
@@ -577,15 +580,31 @@ QString WatchConnector::timeStamp()
 
 void WatchConnector::sendNotification(uint lead, QString sender, QString data, QString subject)
 {
-    QStringList tmp;
-    tmp.append(sender);
-    tmp.append(data);
-    tmp.append(timeStamp());
-    if (lead == leadEMAIL) tmp.append(subject);
+    switch (platform) {
+    case HP_UNKNOWN:
+        qCWarning(l) << "Tried sending notification to UNKNOWN watch platform" << lead << sender << data << subject;
+        break;
+    case APLITE: {
+        QStringList tmp;
+        tmp.append(sender);
+        tmp.append(data);
+        tmp.append(timeStamp());
+        if (lead == leadEMAIL) tmp.append(subject);
 
-    QByteArray res = buildMessageData(lead, tmp);
+        QByteArray res = buildMessageData(lead, tmp);
 
-    sendMessage(watchNOTIFICATION, res);
+        sendMessage(watchNOTIFICATION, res);
+        }
+        break;
+    case BASALT: {
+        qCWarning(l) << "Tried sending notification to unsupported watch platform" << lead << sender << data << subject;
+        }
+        break;
+    default:
+        qCWarning(l) << "Tried sending notification to unsupported watch platform" << platform << ":" << lead << sender << data << subject;
+        break;
+    }
+
 }
 
 void WatchConnector::sendSMSNotification(QString sender, QString data)
