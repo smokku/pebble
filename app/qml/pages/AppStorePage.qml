@@ -17,8 +17,9 @@ Page {
 
     SilicaFlickable {
         id: flickable
-        anchors.fill: parent
-        contentHeight: column.height + webview.height
+        anchors.top: parent.top
+        width: parent.width
+        height: column.height
 
         PullDownMenu {
             visible: webview.loggedin;
@@ -116,6 +117,7 @@ Page {
                 }
             }
         }
+    }
 
         RemorsePopup {
             id: remorse
@@ -128,7 +130,7 @@ Page {
             height: page.height - column.height
 
             anchors {
-                top: column.bottom
+                top: flickable.bottom
             }
 
             accessToken: settings.storeAccessToken
@@ -145,7 +147,6 @@ Page {
                 pageHeadTitle.title = title;
             }
         }
-    }
 
 
 }
