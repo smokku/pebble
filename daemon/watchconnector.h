@@ -161,6 +161,7 @@ public:
         BIANCA = 6,
         SNOWY_EVT2 = 7,
         SNOWY_DVT = 8,
+        BOBBY_SMILES = 10,
 
         TINTIN_BB = 0xFF,
         TINTIN_BB2 = 0xFE,

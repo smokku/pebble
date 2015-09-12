@@ -89,6 +89,7 @@ WatchConnector::WatchConnector(QObject *parent) :
     hardwareMapping.insert(BIANCA, HWMap(APLITE, "v2_0"));
     hardwareMapping.insert(SNOWY_EVT2, HWMap(BASALT, "snowy_evt2"));
     hardwareMapping.insert(SNOWY_DVT, HWMap(BASALT, "snowy_dvt"));
+    hardwareMapping.insert(BOBBY_SMILES, HWMap(BASALT, "snowy_s3"));
     hardwareMapping.insert(TINTIN_BB, HWMap(APLITE, "bigboard"));
     hardwareMapping.insert(TINTIN_BB2, HWMap(APLITE, "bb2"));
     hardwareMapping.insert(SNOWY_BB, HWMap(BASALT, "snowy_bb"));
