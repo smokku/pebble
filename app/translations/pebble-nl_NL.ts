@@ -75,47 +75,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="28"/>
         <source>Logout</source>
         <translation>Afmelden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="30"/>
         <source>Logging out...</source>
         <translation>Bezig met afmelden...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Hide search</source>
         <translation>Zoeken verbergen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Show search</source>
         <translation>Zoeken tonen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
         <translation>Pebble Appstore</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="79"/>
         <source>Apps</source>
         <translation>Apps</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="87"/>
         <source>Faces</source>
         <translation>Faces</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="110"/>
         <source>Downloading...</source>
         <translation>Bezig met downloaden...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
         <source>Downloading %1...</source>
         <translation>Bezig met downloaden %1...</translation>
     </message>
@@ -417,62 +417,87 @@ Als hij niet gevonden kan worden, controleer dan of hij beschikbaar en gekoppeld
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="34"/>
+        <location filename="../qml/pages/WatchPage.qml" line="41"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="40"/>
+        <location filename="../qml/pages/WatchPage.qml" line="47"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="46"/>
+        <location filename="../qml/pages/WatchPage.qml" line="53"/>
         <source>Sync Time</source>
         <translation>Tijd syncen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="78"/>
+        <location filename="../qml/pages/WatchPage.qml" line="119"/>
         <source>Installed applications</source>
         <translation>Geïnstalleerde applicaties</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="68"/>
+        <location filename="../qml/pages/WatchPage.qml" line="109"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>Uw firmware is te oud om SDKv2-applicaties te ondersteunen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="116"/>
+        <location filename="../qml/pages/WatchPage.qml" line="67"/>
+        <source>SMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="72"/>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="77"/>
+        <source>FB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="82"/>
+        <source>Twt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <source>Music</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="157"/>
         <source>Uninstalling</source>
         <translation>Bezig met de-installeren</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(empty slot)</source>
         <translation>(leeg vak)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(slot in use by unknown app)</source>
         <translation>(vak gebruikt door onbekende app)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="197"/>
+        <location filename="../qml/pages/WatchPage.qml" line="238"/>
         <source>Install app...</source>
         <translation>App installeren...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="202"/>
+        <location filename="../qml/pages/WatchPage.qml" line="243"/>
         <source>Companion app missing</source>
         <translation>Bijbehorende app ontbreekt</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="215"/>
+        <location filename="../qml/pages/WatchPage.qml" line="256"/>
         <source>Configure...</source>
         <translation>Instellen...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="220"/>
+        <location filename="../qml/pages/WatchPage.qml" line="261"/>
         <source>Uninstall</source>
         <translation>De-installeren</translation>
     </message>

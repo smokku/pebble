@@ -75,47 +75,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="28"/>
         <source>Logout</source>
         <translation>Wyloguj</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="30"/>
         <source>Logging out...</source>
         <translation>Wylogowywanie...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Hide search</source>
         <translation>Schowaj wyszukiwanie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Show search</source>
         <translation>Pokaż wyszukiwanie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
         <translation>Pebble Appstore</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="79"/>
         <source>Apps</source>
         <translation>Aplikacje</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="87"/>
         <source>Faces</source>
         <translation>Cyferblaty</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="110"/>
         <source>Downloading...</source>
         <translation>Pobieranie...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
         <source>Downloading %1...</source>
         <translation>Pobieranie %1...</translation>
     </message>
@@ -161,52 +161,9 @@
         <translation>Kod aktywacyjny</translation>
     </message>
     <message>
-        <source>Version</source>
-        <translation type="obsolete">Wersja</translation>
-    </message>
-    <message>
-        <source>All Rights Reserved.</source>
-        <translation type="obsolete">Wszelkie prawa zastrzeżone.</translation>
-    </message>
-    <message>
-        <source>Support</source>
-        <translation type="obsolete">Wsparcie</translation>
-    </message>
-    <message>
-        <source>Your donations help justify development time.</source>
-        <translation type="obsolete">Dotacje pomagają uzasadnić czas poświęcony na rozwój aplikacji.</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
         <translation>Dotacja PayPal</translation>
-    </message>
-    <message>
-        <source>Bugs?</source>
-        <translation type="obsolete">Błędy?</translation>
-    </message>
-    <message>
-        <source>Open Bug Tracker</source>
-        <translation type="obsolete">Otwórz Bug Tracker</translation>
-    </message>
-    <message>
-        <source>Forum Thread</source>
-        <translation type="obsolete">Wątek na forum</translation>
-    </message>
-    <message>
-        <source>Send issue e-mail to developer</source>
-        <translation type="obsolete">Wyślij zgłoszenie e-mail do developera</translation>
-    </message>
-</context>
-<context>
-    <name>FirmwareUpgrade</name>
-    <message>
-        <source>Firmware upgrade</source>
-        <translation type="vanished">Aktualizacja firmware</translation>
-    </message>
-    <message>
-        <source>Begin upgrade</source>
-        <translation type="vanished">Rozpocznij aktualizację</translation>
     </message>
 </context>
 <context>
@@ -460,62 +417,87 @@ Jeśli nie zostaje znaleziony sprawdź czy jest w zasięgu i czy jest sparowany 
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="34"/>
+        <location filename="../qml/pages/WatchPage.qml" line="41"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="40"/>
+        <location filename="../qml/pages/WatchPage.qml" line="47"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="46"/>
+        <location filename="../qml/pages/WatchPage.qml" line="53"/>
         <source>Sync Time</source>
         <translation>Synch.Czas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="78"/>
+        <location filename="../qml/pages/WatchPage.qml" line="119"/>
         <source>Installed applications</source>
         <translation>Zainstalowane aplikacje</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="68"/>
+        <location filename="../qml/pages/WatchPage.qml" line="109"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>Twój firmware jest zbyt stary aby obsłużyć aplikacje SDKv2</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="116"/>
+        <location filename="../qml/pages/WatchPage.qml" line="67"/>
+        <source>SMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="72"/>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="77"/>
+        <source>FB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="82"/>
+        <source>Twt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <source>Music</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="157"/>
         <source>Uninstalling</source>
         <translation>Odinstalowywanie</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(empty slot)</source>
         <translation>(pusty slot)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(slot in use by unknown app)</source>
         <translation>(slot w użyciu przez nieznaną aplikację)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="197"/>
+        <location filename="../qml/pages/WatchPage.qml" line="238"/>
         <source>Install app...</source>
         <translation>Zainstaluj aplikację...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="202"/>
+        <location filename="../qml/pages/WatchPage.qml" line="243"/>
         <source>Companion app missing</source>
         <translation>Brakuje companion app</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="215"/>
+        <location filename="../qml/pages/WatchPage.qml" line="256"/>
         <source>Configure...</source>
         <translation>Konfiguruj...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="220"/>
+        <location filename="../qml/pages/WatchPage.qml" line="261"/>
         <source>Uninstall</source>
         <translation>Odinstaluj</translation>
     </message>

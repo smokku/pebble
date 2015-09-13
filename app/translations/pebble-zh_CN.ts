@@ -75,47 +75,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="28"/>
         <source>Logout</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="30"/>
         <source>Logging out...</source>
         <translation>退出中...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Hide search</source>
         <translation>隐藏搜索框</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Show search</source>
         <translation>显示搜索框</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
         <translation>Pebble 应用商店</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="79"/>
         <source>Apps</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="87"/>
         <source>Faces</source>
         <translation>表盘</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="110"/>
         <source>Downloading...</source>
         <translation>下载中...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
         <source>Downloading %1...</source>
         <translation>下载 %1...</translation>
     </message>
@@ -164,17 +164,6 @@
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
         <translation>Paypal捐助</translation>
-    </message>
-</context>
-<context>
-    <name>FirmwareUpgrade</name>
-    <message>
-        <source>Firmware upgrade</source>
-        <translation type="vanished">固件升级</translation>
-    </message>
-    <message>
-        <source>Begin upgrade</source>
-        <translation type="vanished">开始升级</translation>
     </message>
 </context>
 <context>
@@ -428,62 +417,87 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="34"/>
+        <location filename="../qml/pages/WatchPage.qml" line="41"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="40"/>
+        <location filename="../qml/pages/WatchPage.qml" line="47"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="46"/>
+        <location filename="../qml/pages/WatchPage.qml" line="53"/>
         <source>Sync Time</source>
         <translation>同步时间</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="78"/>
+        <location filename="../qml/pages/WatchPage.qml" line="119"/>
         <source>Installed applications</source>
         <translation>已安装应用</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(slot in use by unknown app)</source>
         <translation>(插槽在被不明应用程序使用中)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="68"/>
+        <location filename="../qml/pages/WatchPage.qml" line="109"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation>你的固件太老不支持SDK v2版本的应用</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="116"/>
+        <location filename="../qml/pages/WatchPage.qml" line="67"/>
+        <source>SMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="72"/>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="77"/>
+        <source>FB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="82"/>
+        <source>Twt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <source>Music</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="157"/>
         <source>Uninstalling</source>
         <translation>卸载中...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(empty slot)</source>
         <translation>(空槽)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="197"/>
+        <location filename="../qml/pages/WatchPage.qml" line="238"/>
         <source>Install app...</source>
         <translation>安装应用...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="202"/>
+        <location filename="../qml/pages/WatchPage.qml" line="243"/>
         <source>Companion app missing</source>
         <translation>配套应用缺失</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="215"/>
+        <location filename="../qml/pages/WatchPage.qml" line="256"/>
         <source>Configure...</source>
         <translation>配置...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="220"/>
+        <location filename="../qml/pages/WatchPage.qml" line="261"/>
         <source>Uninstall</source>
         <translation>卸载</translation>
     </message>

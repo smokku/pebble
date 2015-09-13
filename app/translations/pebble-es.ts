@@ -75,47 +75,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="28"/>
         <source>Logout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="30"/>
         <source>Logging out...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Hide search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Show search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="79"/>
         <source>Apps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="87"/>
         <source>Faces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="110"/>
         <source>Downloading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
         <source>Downloading %1...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -161,17 +161,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Version</source>
-        <translation type="obsolete">Versión</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bugs?</source>
-        <translation type="obsolete">¿Errores?</translation>
     </message>
 </context>
 <context>
@@ -425,62 +417,87 @@ Si esto tarda mucho, comprueba que el reloj esté emparejado correctamente.</tra
 <context>
     <name>WatchPage</name>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="34"/>
+        <location filename="../qml/pages/WatchPage.qml" line="41"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="40"/>
+        <location filename="../qml/pages/WatchPage.qml" line="47"/>
         <source>Ping</source>
         <translation>Ping</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="46"/>
+        <location filename="../qml/pages/WatchPage.qml" line="53"/>
         <source>Sync Time</source>
         <translation>Ajustar hora</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="78"/>
+        <location filename="../qml/pages/WatchPage.qml" line="119"/>
         <source>Installed applications</source>
         <translation>Aplicaciones instaladas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="68"/>
+        <location filename="../qml/pages/WatchPage.qml" line="109"/>
         <source>Your firmware is too old to support SDKv2 applications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="116"/>
+        <location filename="../qml/pages/WatchPage.qml" line="67"/>
+        <source>SMS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="72"/>
+        <source>E-Mail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="77"/>
+        <source>FB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="82"/>
+        <source>Twt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="87"/>
+        <source>Music</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/WatchPage.qml" line="157"/>
         <source>Uninstalling</source>
         <translation>Desinstalando</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(empty slot)</source>
         <translation>(hueco libre)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="188"/>
+        <location filename="../qml/pages/WatchPage.qml" line="229"/>
         <source>(slot in use by unknown app)</source>
         <translation>(hueco en uso)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="197"/>
+        <location filename="../qml/pages/WatchPage.qml" line="238"/>
         <source>Install app...</source>
         <translation>Instalar app...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="202"/>
+        <location filename="../qml/pages/WatchPage.qml" line="243"/>
         <source>Companion app missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="215"/>
+        <location filename="../qml/pages/WatchPage.qml" line="256"/>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/WatchPage.qml" line="220"/>
+        <location filename="../qml/pages/WatchPage.qml" line="261"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>

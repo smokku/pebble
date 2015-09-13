@@ -75,47 +75,47 @@
 <context>
     <name>AppStorePage</name>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="27"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="28"/>
         <source>Logout</source>
         <translation>ログアウト</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="29"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="30"/>
         <source>Logging out...</source>
         <translation>ログアウトしています...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Hide search</source>
         <translation>検索バーを隠す</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="36"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="37"/>
         <source>Show search</source>
         <translation>検索バーを開く</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="49"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
         <translation type="unfinished">Pebbleアプリストア</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="78"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="79"/>
         <source>Apps</source>
         <translation>アプリ</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="86"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="87"/>
         <source>Faces</source>
         <translation>フェイス</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="109"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="110"/>
         <source>Downloading...</source>
         <translation>ダウンロード中...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="141"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
         <source>Downloading %1...</source>
         <translation>ダウンロード中 %1...</translation>
     </message>
