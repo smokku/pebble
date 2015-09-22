@@ -4,6 +4,7 @@
 #include <QAuthenticator>
 #include <QBuffer>
 #include <QDir>
+#include <QTimerEvent>
 #include <QCryptographicHash>
 #include <limits>
 #include "jskitobjects.h"
@@ -35,6 +36,69 @@ void JSKitPebble::removeEventListener(const QString &type, QJSValue function)
 
     if (callbacks.empty()) {
         _callbacks.remove(type);
+    }
+}
+
+int JSKitPebble::setInterval(QJSValue expression, int delay)
+{
+    qCDebug(l) << "Setting interval for " << delay << "ms: " << expression.toString();
+    if (expression.isString() || expression.isCallable()) {
+        int timerId = startTimer(delay);
+        _intervals.insert(timerId, expression);
+        qCDebug(l) << "Timer id: " << timerId;
+        return timerId;
+    }
+    return -1;
+}
+
+void JSKitPebble::clearInterval(int timerId)
+{
+    qCDebug(l) << "Killing interval " << timerId ;
+    killTimer(timerId);
+    _intervals.remove(timerId);
+}
+
+int JSKitPebble::setTimeout(QJSValue expression, int delay)
+{
+    qCDebug(l) << "Setting timeout for " << delay << "ms: " << expression.toString();
+    if (expression.isString() || expression.isCallable()) {
+        int timerId = startTimer(delay);
+        _timeouts.insert(timerId, expression);
+        return timerId;
+    }
+    return -1;
+}
+
+void JSKitPebble::clearTimeout(int timerId)
+{
+    qCDebug(l) << "Killing timeout " << timerId ;
+    killTimer(timerId);
+    _timeouts.remove(timerId);
+}
+
+void JSKitPebble::timerEvent(QTimerEvent *event)
+{
+    int id = event->timerId();
+    QJSValue expression; // find in either intervals or timeouts
+    if (_intervals.contains(id))
+        expression = _intervals.value(id);
+    else if (_timeouts.contains(id)) {
+        expression = _timeouts.value(id);
+        killTimer(id); // timeouts don't repeat
+    }
+    else {
+        qCWarning(l) << "Unknown timer event";
+        killTimer(id); // interval nor timeout exist. kill the timer
+        return;
+    }
+
+    if (expression.isCallable()) { // call it if it's a function
+        QJSValue result = expression.call().toString();
+        qCDebug(l) << "Timer function result: " << result.toString();
+    }
+    else { // otherwise evaluate it
+        QJSValue result = _mgr->engine()->evaluate(expression.toString());
+        qCDebug(l) << "Timer expression result: " << result.toString();
     }
 }
 

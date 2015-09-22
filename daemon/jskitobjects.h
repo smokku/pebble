@@ -19,6 +19,12 @@ public:
     Q_INVOKABLE void addEventListener(const QString &type, QJSValue function);
     Q_INVOKABLE void removeEventListener(const QString &type, QJSValue function);
 
+    Q_INVOKABLE int setInterval(QJSValue expression, int delay);
+    Q_INVOKABLE void clearInterval(int timerId);
+
+    Q_INVOKABLE int setTimeout(QJSValue expression, int delay);
+    Q_INVOKABLE void clearTimeout(int timerId);
+
     Q_INVOKABLE uint sendAppMessage(QJSValue message, QJSValue callbackForAck = QJSValue(), QJSValue callbackForNack = QJSValue());
 
     Q_INVOKABLE void showSimpleNotificationOnPebble(const QString &title, const QString &body);
@@ -32,6 +38,9 @@ public:
 
     void invokeCallbacks(const QString &type, const QJSValueList &args = QJSValueList());
 
+protected:
+    void timerEvent(QTimerEvent *event);
+
 private:
     QJSValue buildAckEventObject(uint transaction, const QString &message = QString()) const;
 
@@ -39,6 +48,8 @@ private:
     AppInfo _appInfo;
     JSKitManager *_mgr;
     QHash<QString, QList<QJSValue>> _callbacks;
+    QHash<int, QJSValue> _intervals;
+    QHash<int, QJSValue> _timeouts;
 };
 
 class JSKitConsole : public QObject

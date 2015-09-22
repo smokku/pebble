@@ -155,8 +155,12 @@ void JSKitManager::startJsApp()
 
     // Shims for compatibility...
     QJSValue result = _engine->evaluate(
-                "function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }\n"
-                );
+                "function XMLHttpRequest() { return Pebble.createXMLHttpRequest(); }\n\
+                function setInterval(func, time) { return Pebble.setInterval(func, time); }\n\
+                function clearInterval(id) { Pebble.clearInterval(id); }\n\
+                function setTimeout(func, time) { return Pebble.setTimeout(func, time); }\n\
+                function clearTimeout(id) { Pebble.clearTimeout(id); }\n\
+                ");
     Q_ASSERT(!result.isError());
 
     // Polyfills...
