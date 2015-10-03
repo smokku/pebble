@@ -69,7 +69,7 @@
     <message>
         <location filename="../qml/pages/AppConfigDialog.qml" line="75"/>
         <source>No configuration settings available</source>
-        <translation type="unfinished"></translation>
+        <translation>利用可能な設定はありません。</translation>
     </message>
 </context>
 <context>
@@ -97,7 +97,7 @@
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="50"/>
         <source>Pebble Appstore</source>
-        <translation type="unfinished">Pebbleアプリストア</translation>
+        <translation>Pebbleアプリストア</translation>
     </message>
     <message>
         <location filename="../qml/pages/AppStorePage.qml" line="79"/>
@@ -463,7 +463,7 @@ If it can&apos;t be found please check it&apos;s available and paired in Bluetoo
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="119"/>
         <source>Installed applications</source>
-        <translation>アプリケーションをインストール</translation>
+        <translation>インストール済みのアプリ</translation>
     </message>
     <message>
         <location filename="../qml/pages/WatchPage.qml" line="157"/>
