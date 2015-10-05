@@ -1,3 +1,8 @@
+* Sun Oct 5 2015 Tomasz Sterna <tomek@xiaoka.com> 1.5
+- Preliminary support for Pebble Time Round
+- Support JS timers
+- Fixed some Japanese translations
+
 * Sun Sep 13 2015 Tomasz Sterna <tomek@xiaoka.com> 1.4
 - Support HardwarePlatform dependant features
 - Preliminary support for Pebble Time Steel
