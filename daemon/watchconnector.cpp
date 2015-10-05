@@ -90,10 +90,13 @@ WatchConnector::WatchConnector(QObject *parent) :
     hardwareMapping.insert(SNOWY_EVT2, HWMap(BASALT, "snowy_evt2"));
     hardwareMapping.insert(SNOWY_DVT, HWMap(BASALT, "snowy_dvt"));
     hardwareMapping.insert(BOBBY_SMILES, HWMap(BASALT, "snowy_s3"));
+    hardwareMapping.insert(SPALDING_EVT, HWMap(CHALK, "spalding_evt"));
+    hardwareMapping.insert(SPALDING, HWMap(CHALK, "spalding"));
     hardwareMapping.insert(TINTIN_BB, HWMap(APLITE, "bigboard"));
     hardwareMapping.insert(TINTIN_BB2, HWMap(APLITE, "bb2"));
     hardwareMapping.insert(SNOWY_BB, HWMap(BASALT, "snowy_bb"));
     hardwareMapping.insert(SNOWY_BB2, HWMap(BASALT, "snowy_bb2"));
+    hardwareMapping.insert(SPALDING_BB2, HWMap(CHALK, "spalding_evt"));
 
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);
@@ -597,7 +600,8 @@ void WatchConnector::sendNotification(uint lead, QString sender, QString data, Q
         sendMessage(watchNOTIFICATION, res);
         }
         break;
-    case BASALT: {
+    case BASALT:
+    case CHALK: {
         int source;
         switch (lead) {
         case leadEMAIL:

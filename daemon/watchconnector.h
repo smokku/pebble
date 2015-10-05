@@ -161,17 +161,21 @@ public:
         BIANCA = 6,
         SNOWY_EVT2 = 7,
         SNOWY_DVT = 8,
+        SPALDING_EVT = 9,
         BOBBY_SMILES = 10,
+        SPALDING = 11,
 
         TINTIN_BB = 0xFF,
         TINTIN_BB2 = 0xFE,
         SNOWY_BB = 0xFD,
-        SNOWY_BB2 = 0xFC
+        SNOWY_BB2 = 0xFC,
+        SPALDING_BB2 = 0xFB
     };
     enum HardwarePlatform {
         HP_UNKNOWN = 0,
         APLITE,
-        BASALT
+        BASALT,
+        CHALK
     };
     typedef QPair<HardwarePlatform,QString> HWMap;
     QMap<HardwareRevision, HWMap> hardwareMapping;
