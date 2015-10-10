@@ -134,6 +134,7 @@ Page {
             }
 
             accessToken: settings.storeAccessToken
+            hardwarePlatform: pebbled.info.platform
 
             onAccessTokenChanged: {
                 settings.storeAccessToken = accessToken;

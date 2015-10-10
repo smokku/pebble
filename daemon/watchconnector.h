@@ -197,6 +197,7 @@ public:
         SoftwareVersion safe;
         QDateTime bootLoaderBuild;
         QString hardwareRevision;
+        QString hardwarePlatform;
         QString serialNumber;
         QByteArray address;
 
