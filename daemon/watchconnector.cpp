@@ -53,6 +53,7 @@ QVariantMap WatchConnector::WatchVersions::toMap() const
         map.insert("bootloader", this->bootLoaderBuild.toTime_t());
         map.insert("serial", this->serialNumber);
         map.insert("address", this->address.toHex());
+        map.insert("platform", this->hardwarePlatform);
         map.insertMulti("firmware", this->main.toMap());
         map.insertMulti("firmware", this->safe.toMap());
     }
@@ -125,6 +126,18 @@ WatchConnector::WatchConnector(QObject *parent) :
         _versions.address = u.readBytes(6);
 
         platform = hardwareMapping.value(_versions.safe.hw_revision).first;
+
+        switch (this->platform) {
+        case APLITE:
+            _versions.hardwarePlatform = "aplite";
+            break;
+        case BASALT:
+            _versions.hardwarePlatform = "basalt";
+            break;
+        case CHALK:
+            _versions.hardwarePlatform = "chalk";
+            break;
+        }
 
         if (u.bad()) {
             qCWarning(l) << "short read while reading firmware version";

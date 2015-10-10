@@ -11,8 +11,18 @@ PebbleStoreView::PebbleStoreView()
 
     this->m_networkManager = new QNetworkAccessManager(this);
     connect(this->m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onNetworkReplyFinished(QNetworkReply*)));
+}
 
-    this->m_configUrl = QUrl("https://boot.getpebble.com/api/config/android/v1/3");
+void PebbleStoreView::fetchConfig()
+{
+    qDebug()<<this->m_hardwarePlatform;
+
+    if (this->m_hardwarePlatform == "aplite") {
+        this->m_configUrl = QUrl("https://boot.getpebble.com/api/config/android/v1/3");
+    } else {
+        this->m_configUrl = QUrl("https://boot.getpebble.com/api/config/android/v3/1?app_version=3.4.0");
+    }
+
     this->m_downloadInProgress = false;
     emit downloadInProgressChanged();
 
@@ -31,10 +41,25 @@ void PebbleStoreView::setAccessToken(const QString &accessToken)
     emit accessTokenChanged(accessToken);
 }
 
+QString PebbleStoreView::hardwarePlatform() const
+{
+    return this->m_hardwarePlatform;
+}
+
+void PebbleStoreView::setHardwarePlatform(const QString &hardwarePlatform)
+{
+    this->m_hardwarePlatform = hardwarePlatform;
+    emit hardwarePlatformChanged(hardwarePlatform);
+
+    //We need to refetch the config after a platform change
+    this->fetchConfig();
+}
+
+
 void PebbleStoreView::logout()
 {
     setAccessToken("");
-    setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("authentication").toString()));
+    setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("authentication/sign_in").toString()));
 }
 
 bool PebbleStoreView::loggedin()
@@ -128,7 +153,7 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
         this->storeConfigObject = jsonObject.value("config").toObject();
 
         if (this->m_accessToken.isEmpty()) {
-            setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("authentication").toString()));
+            setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("authentication/sign_in").toString()));
         } else {
             setUrl(prepareUrl(this->storeConfigObject.value("webviews").toObject().value("onboarding/get_some_apps").toString()));
         }
@@ -164,9 +189,12 @@ void PebbleStoreView::onNetworkReplyFinished(QNetworkReply* reply)
 QUrl PebbleStoreView::prepareUrl(QString baseUrl)
 {
     baseUrl = baseUrl.replace("$$user_id$$", "ZZZ");
-    baseUrl = baseUrl.replace("$$phone_id$$", "XXX");
-    baseUrl = baseUrl.replace("$$pebble_id$$", "YYY");
+    baseUrl = baseUrl.replace("$$phone_id$$", "XXX"); //Unique phone id
+    baseUrl = baseUrl.replace("$$pebble_id$$", "YYY"); //official APP puts serial here
+    baseUrl = baseUrl.replace("$$pebble_color$$", "64");
+    baseUrl = baseUrl.replace("$$hardware$$", this->m_hardwarePlatform);
     baseUrl = baseUrl.replace("$$access_token$$", this->m_accessToken);
+    baseUrl = baseUrl.replace("$$extras$$", "");
 
     qDebug()<<baseUrl;
 
