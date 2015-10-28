@@ -97,7 +97,7 @@ WatchConnector::WatchConnector(QObject *parent) :
     hardwareMapping.insert(TINTIN_BB2, HWMap(APLITE, "bb2"));
     hardwareMapping.insert(SNOWY_BB, HWMap(BASALT, "snowy_bb"));
     hardwareMapping.insert(SNOWY_BB2, HWMap(BASALT, "snowy_bb2"));
-    hardwareMapping.insert(SPALDING_BB2, HWMap(CHALK, "spalding_evt"));
+    hardwareMapping.insert(SPALDING_BB2, HWMap(CHALK, "spalding_bb2"));
 
     setEndpointHandler(watchVERSION, [this](const QByteArray &data) {
         Unpacker u(data);
