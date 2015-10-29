@@ -56,12 +56,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="141"/>
         <source>Debug Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>调试模式</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="142"/>
         <source>Enable daemon and app debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>开启守护进程和应用的调试</translation>
     </message>
 </context>
 <context>
@@ -138,12 +138,12 @@
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="28"/>
         <source>Feature unavailable</source>
-        <translation>功能不可用</translation>
+        <translation>特性不可用</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="38"/>
         <source>This feature is available for supporters only.</source>
-        <translation>此功能适用于仅支持者.</translation>
+        <translation>此特性适用于仅支持者.</translation>
     </message>
     <message>
         <location filename="../qml/pages/Disclaimer.qml" line="51"/>
