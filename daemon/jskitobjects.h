@@ -100,6 +100,7 @@ class JSKitXMLHttpRequest : public QObject
 
     Q_PROPERTY(QJSValue onload READ onload WRITE setOnload)
     Q_PROPERTY(QJSValue ontimeout READ ontimeout WRITE setOntimeout)
+    Q_PROPERTY(QJSValue onreadystatechange READ onreadystatechange WRITE setOnreadystatechange)
     Q_PROPERTY(QJSValue onerror READ onerror WRITE setOnerror)
     Q_PROPERTY(uint readyState READ readyState NOTIFY readyStateChanged)
     Q_PROPERTY(uint timeout READ timeout WRITE setTimeout)
@@ -128,6 +129,8 @@ public:
 
     QJSValue onload() const;
     void setOnload(const QJSValue &value);
+    QJSValue onreadystatechange() const;
+    void setOnreadystatechange(const QJSValue &value);
     QJSValue ontimeout() const;
     void setOntimeout(const QJSValue &value);
     QJSValue onerror() const;
@@ -173,6 +176,7 @@ private:
     QJSValue _onload;
     QJSValue _ontimeout;
     QJSValue _onerror;
+    QJSValue _onreadystatechange;
 };
 
 class JSKitGeolocation : public QObject
