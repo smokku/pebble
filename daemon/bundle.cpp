@@ -93,8 +93,14 @@ QIODevice *Bundle::openFile(enum Bundle::File file, QIODevice::OpenMode mode) co
     case Bundle::APPJS:
         fileName = "pebble-js-app.js";
         break;
-    case Bundle::BINARY:
-        fileName = b->manifest.value(type()).toObject().value("name").toString();
+    case Bundle::FIRMWARE:
+        fileName = b->manifest.value("firmware").toObject().value("name").toString();
+        break;
+    case Bundle::APPLICATION:
+        fileName = b->manifest.value("application").toObject().value("name").toString();
+        break;
+    case Bundle::WORKER:
+        fileName = b->manifest.value("worker").toObject().value("name").toString();
         break;
     case Bundle::RESOURCES:
         fileName = b->manifest.value("resources").toObject().value("name").toString();
@@ -133,11 +139,17 @@ quint32 Bundle::crcFile(enum Bundle::File file) const
     quint32 ret = 0;
 
     switch (file) {
-    case Bundle::BINARY:
-        ret = b->manifest.value(type()).toObject().value("crc").toDouble();
+    case Bundle::FIRMWARE:
+        ret = b->manifest.value("firmware").toObject().value("crc").toDouble();
         break;
     case Bundle::RESOURCES:
         ret = b->manifest.value("resources").toObject().value("crc").toDouble();
+        break;
+    case Bundle::APPLICATION:
+        ret = b->manifest.value("application").toObject().value("crc").toDouble();
+        break;
+    case Bundle::WORKER:
+        ret = b->manifest.value("worker").toObject().value("crc").toDouble();
         break;
     default:
         qCWarning(l) << "Unsupported CRC for" << file;

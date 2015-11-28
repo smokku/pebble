@@ -80,7 +80,7 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
 
     qCDebug(l) << "about to install app" << info.shortName() << "into slot" << slot;
 
-    QSharedPointer<QIODevice> binaryFile(info.openFile(AppInfo::BINARY));
+    QSharedPointer<QIODevice> binaryFile(info.openFile(AppInfo::APPLICATION));
     if (!binaryFile) {
         qCWarning(l) << "failed to open" << info.shortName() << "AppInfo::BINARY";
         return false;
@@ -93,10 +93,25 @@ bool BankManager::uploadApp(const QUuid &uuid, int slot)
     _slots[slot].name.clear();
     _slots[slot].uuid = QUuid();
 
-    upload->uploadAppBinary(slot, binaryFile.data(), info.crcFile(AppInfo::BINARY),
+    upload->uploadAppBinary(slot, binaryFile.data(), info.crcFile(AppInfo::APPLICATION),
     [this, info, binaryFile, slot]() {
         qCDebug(l) << "app binary upload succesful";
         binaryFile->close();
+
+        // Upload worker if present
+        if (info.type() == "worker") {
+        QSharedPointer<QIODevice> workerFile(info.openFile(AppInfo::WORKER));
+        if (workerFile) {
+            upload->uploadAppWorker(slot, workerFile.data(), info.crcFile(AppInfo::WORKER),
+            [this, workerFile, slot]() {
+                qCDebug(l) << "app worker upload succesful";
+                workerFile->close();
+            }, [this, workerFile](int code) {
+                workerFile->close();
+                qCWarning(l) << "app worker upload failed" << code;
+            });
+        }
+        }
 
         // Proceed to upload the resource file
         QSharedPointer<QIODevice> resourceFile(info.openFile(AppInfo::RESOURCES));
