@@ -18,7 +18,9 @@ public:
     enum File {
         MANIFEST,
         INFO,
-        BINARY,
+        FIRMWARE,
+        APPLICATION,
+        WORKER,
         RESOURCES,
         APPJS
     };

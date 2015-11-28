@@ -343,7 +343,7 @@ bool Manager::uploadFirmware(bool recovery, const QString &file)
         return false;
     }
 
-    if (!bundle.fileExists(Bundle::BINARY) || !bundle.fileExists(Bundle::RESOURCES)) {
+    if (!bundle.fileExists(Bundle::FIRMWARE) || !bundle.fileExists(Bundle::RESOURCES)) {
         qCWarning(l) << file << "is missing binary or resource";
         return false;
     }
@@ -364,9 +364,9 @@ bool Manager::uploadFirmware(bool recovery, const QString &file)
             qCDebug(l) << "firmware resource upload succesful";
             resourceFile->close();
             // Proceed to upload the resource file
-            QSharedPointer<QIODevice> binaryFile(bundle.openFile(Bundle::BINARY));
+            QSharedPointer<QIODevice> binaryFile(bundle.openFile(Bundle::FIRMWARE));
             if (binaryFile) {
-                upload->uploadFirmwareBinary(recovery, binaryFile.data(), bundle.crcFile(Bundle::BINARY),
+                upload->uploadFirmwareBinary(recovery, binaryFile.data(), bundle.crcFile(Bundle::FIRMWARE),
                 [this, binaryFile]() {
                     binaryFile->close();
                     qCDebug(l) << "firmware binary upload succesful";

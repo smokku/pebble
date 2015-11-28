@@ -67,6 +67,11 @@ uint UploadManager::uploadAppResources(int slot, QIODevice *device, quint32 crc,
     return upload(WatchConnector::uploadRESOURCES, slot, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
 }
 
+uint UploadManager::uploadAppWorker(int slot, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
+{
+    return upload(WatchConnector::uploadWORKER, slot, QString(), device, -1, crc, successCallback, errorCallback, progressCallback);
+}
+
 uint UploadManager::uploadFile(const QString &filename, QIODevice *device, quint32 crc, SuccessCallback successCallback, ErrorCallback errorCallback, ProgressCallback progressCallback)
 {
     Q_ASSERT(!filename.isEmpty());
