@@ -115,7 +115,7 @@
         <translation>Bezig met downloaden...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AppStorePage.qml" line="143"/>
+        <location filename="../qml/pages/AppStorePage.qml" line="144"/>
         <source>Downloading %1...</source>
         <translation>Bezig met downloaden %1...</translation>
     </message>
@@ -164,6 +164,19 @@
         <location filename="../qml/pages/Disclaimer.qml" line="41"/>
         <source>PayPal Donate</source>
         <translation>PayPal donatie</translation>
+    </message>
+</context>
+<context>
+    <name>FirmwareUpgrade</name>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="30"/>
+        <source>Firmware upgrade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/FirmwareUpgrade.qml" line="66"/>
+        <source>Begin upgrade</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

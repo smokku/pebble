@@ -1,3 +1,9 @@
+* Sun Dec 3 2015 Tomasz Sterna <tomek@xiaoka.com> 1.6
+- Pebble Time appstore fixes
+- Update Simple Chinese translations
+- onreadystatechange JS callback from XMLHttpRequest
+- Support Pebble apps with workers
+
 * Sun Oct 5 2015 Tomasz Sterna <tomek@xiaoka.com> 1.5
 - Preliminary support for Pebble Time Round
 - Support JS timers
