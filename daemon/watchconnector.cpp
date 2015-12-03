@@ -137,6 +137,9 @@ WatchConnector::WatchConnector(QObject *parent) :
         case CHALK:
             _versions.hardwarePlatform = "chalk";
             break;
+        default:
+            qCWarning(l) << "unknown hardwarePlatform" << this->platform;
+            return false;
         }
 
         if (u.bad()) {
