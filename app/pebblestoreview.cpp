@@ -85,7 +85,7 @@ void PebbleStoreView::gotoWatchApps()
 void PebbleStoreView::searchQuery(QString query)
 {
     QString baseUrl = this->storeConfigObject.value("webviews").toObject().value("appstore/search/query").toString();
-    baseUrl = baseUrl.replace("?q", "?query"); //fix wrong param name
+    baseUrl = baseUrl.replace("?q=", "&query="); //fix wrong param name
     baseUrl = baseUrl.replace("$$query$$", query);
     setUrl(prepareUrl(baseUrl));
 }
