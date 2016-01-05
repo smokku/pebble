@@ -183,7 +183,10 @@ void JSKitManager::startJsApp()
     });
 
     // We try to invoke the callbacks even if script parsing resulted in error...
-    _jspebble->invokeCallbacks("ready");
+    QJSValue eventObj = _engine->newObject();
+    eventObj.setProperty("ready", _engine->toScriptValue(true));
+    eventObj.setProperty("type", "ready");
+    _jspebble->invokeCallbacks("ready", QJSValueList({eventObj}));
 }
 
 void JSKitManager::stopJsApp()

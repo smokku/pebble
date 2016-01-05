@@ -241,6 +241,11 @@ void JSKitConsole::log(const QString &msg)
     qCDebug(l) << msg;
 }
 
+void JSKitConsole::warn(const QString &msg)
+{
+    qCWarning(l) << msg;
+}
+
 JSKitLocalStorage::JSKitLocalStorage(const QUuid &uuid, QObject *parent)
     : QObject(parent), _storage(new QSettings(getStorageFileFor(uuid), QSettings::IniFormat, this))
 {
