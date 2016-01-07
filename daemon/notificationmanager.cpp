@@ -112,13 +112,14 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     Q_UNUSED(actions);
     Q_UNUSED(expire_timeout);
 
-    // Ignore notifcations from myself
-    if (app_name == "pebbled") {
+    // new place to check notification owner in Sailfish 1.1.6
+    QString owner = hints.value("x-nemo-owner", "none").toString();
+
+    // Ignore transient notifcations
+    if (hints.value("transient", false).toBool() == true) {
+        qCDebug(l) << "Ignoring transient notification from " << owner;
         return 0;
     }
-
-    // new place to check notification owner in Sailfish 1.1.6
-    QString owner = hints.value("x-nemo-owner").toString();
 
     qCDebug(l) << Q_FUNC_INFO  << "Got notification via dbus from" << this->getCleanAppName(app_name) << " Owner: " << owner;
     qCDebug(l) << hints;
