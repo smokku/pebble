@@ -116,7 +116,7 @@ uint NotificationManager::Notify(const QString &app_name, uint replaces_id, cons
     QString owner = hints.value("x-nemo-owner", "none").toString();
 
     // Ignore transient notifcations
-    if (hints.value("transient", false).toBool() == true) {
+    if (hints.value("transient", false).toBool()) {
         qCDebug(l) << "Ignoring transient notification from " << owner;
         return 0;
     }
