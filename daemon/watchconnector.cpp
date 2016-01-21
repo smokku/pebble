@@ -600,11 +600,7 @@ QString WatchConnector::timeStamp()
 
 void WatchConnector::sendNotification(uint lead, QString sender, QString data, QString subject)
 {
-    switch (platform) {
-    case HP_UNKNOWN:
-        qCWarning(l) << "Tried sending notification to UNKNOWN watch platform" << lead << sender << data << subject;
-        break;
-    case APLITE: {
+    if (_versions.main.version < "v3.0") {
         QStringList tmp;
         tmp.append(sender);
         tmp.append(data);
@@ -615,9 +611,7 @@ void WatchConnector::sendNotification(uint lead, QString sender, QString data, Q
 
         sendMessage(watchNOTIFICATION, res);
         }
-        break;
-    case BASALT:
-    case CHALK: {
+    else {
         int source;
         switch (lead) {
         case leadEMAIL:
@@ -703,11 +697,6 @@ void WatchConnector::sendNotification(uint lead, QString sender, QString data, Q
         blob.append(item);
 
         sendMessage(watchBLOB_DB, blob);
-        }
-        break;
-    default:
-        qCWarning(l) << "Tried sending notification to unsupported watch platform" << platform << ":" << lead << sender << data << subject;
-        break;
     }
 
 }
