@@ -1,6 +1,7 @@
 pebbled
 =======
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/smokku/pebble?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Flattr this](https://button.flattr.com/flattr-badge-large.png)](https://flattr.com/submit/auto?fid=8n22qr&url=https%3A%2F%2Fgithub.com%2Fsmokku%2Fpebble)
 
 Unofficial Pebble watch support for SailfishOS/Jolla
 
